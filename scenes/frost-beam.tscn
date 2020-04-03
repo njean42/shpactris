@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0, 0.5, 1 )
+colors = PoolColorArray( 0.360784, 0.521569, 0.74902, 1, 0.360784, 0.521569, 0.74902, 0.501961, 0.360784, 0.521569, 0.74902, 1 )
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends Line2D
+
+
+var time_in_existence = 0
+
+
+func _process(delta):
+	time_in_existence += delta
+	if time_in_existence > 0.25:
+		queue_free()
+"
+
+[node name="frost-beam" type="Line2D" groups=[
+"frost-beam",
+]]
+points = PoolVector2Array( 0, 0, 0, 0 )
+width = 5.0
+gradient = SubResource( 1 )
+texture_mode = 1
+script = SubResource( 2 )

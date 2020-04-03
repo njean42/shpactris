@@ -1,0 +1,84 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://assets/DejaVuSans-Bold.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://scenes/menus/common/bt-back-to-menu.tscn" type="PackedScene" id=2]
+
+[sub_resource type="DynamicFontData" id=2]
+font_path = "res://assets/DejaVuSans-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=3]
+size = 42
+font_data = SubResource( 2 )
+
+[sub_resource type="DynamicFont" id=4]
+size = 28
+font_data = ExtResource( 1 )
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends Button
+
+
+func _on_btcontinue_pressed():
+	$'/root/world/HUD/pause-menu'.pause(true)
+	"
+
+[node name="pause-menu" type="Node2D"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+modulate = Color( 1, 1, 1, 0.392157 )
+margin_left = 160.0
+margin_top = 240.0
+margin_right = 440.0
+margin_bottom = 480.0
+color = Color( 0.72549, 0.72549, 0.72549, 1 )
+
+[node name="ColorRect2" type="ColorRect" parent="."]
+modulate = Color( 1, 1, 1, 0.392157 )
+margin_left = 160.0
+margin_top = 240.0
+margin_right = 440.0
+margin_bottom = 480.0
+color = Color( 0.121569, 0.121569, 0.121569, 1 )
+
+[node name="margin" type="MarginContainer" parent="."]
+margin_left = 160.0
+margin_top = 240.0
+margin_right = 440.0
+margin_bottom = 480.0
+
+[node name="center-title" type="CenterContainer" parent="margin"]
+margin_right = 280.0
+margin_bottom = 240.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="vbox-buttons" type="VBoxContainer" parent="margin/center-title"]
+margin_left = 53.0
+margin_top = 52.0
+margin_right = 227.0
+margin_bottom = 187.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="margin/center-title/vbox-buttons"]
+margin_left = 16.0
+margin_right = 158.0
+margin_bottom = 49.0
+size_flags_horizontal = 6
+size_flags_vertical = 6
+custom_fonts/font = SubResource( 3 )
+text = "Pause"
+align = 1
+
+[node name="bt-continue" type="Button" parent="margin/center-title/vbox-buttons"]
+margin_top = 53.0
+margin_right = 174.0
+margin_bottom = 92.0
+size_flags_horizontal = 6
+size_flags_vertical = 6
+custom_fonts/font = SubResource( 4 )
+text = "CONTINUE"
+script = SubResource( 5 )
+
+[node name="bt-back-to-menu" parent="margin/center-title/vbox-buttons" instance=ExtResource( 2 )]
+[connection signal="pressed" from="margin/center-title/vbox-buttons/bt-continue" to="margin/center-title/vbox-buttons/bt-continue" method="_on_btcontinue_pressed"]

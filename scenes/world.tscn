@@ -1,0 +1,789 @@
+[gd_scene load_steps=32 format=2]
+
+[ext_resource path="res://scripts/world.gd" type="Script" id=1]
+[ext_resource path="res://assets/music/Korobeiniki-cc0.ogg" type="AudioStream" id=2]
+[ext_resource path="res://assets/sounds/ghost_killed.ogg" type="AudioStream" id=3]
+[ext_resource path="res://assets/sounds/heart_collected.ogg" type="AudioStream" id=4]
+[ext_resource path="res://assets/sounds/player_hit.ogg" type="AudioStream" id=5]
+[ext_resource path="res://assets/sounds/tris_shape_break.ogg" type="AudioStream" id=6]
+[ext_resource path="res://assets/sounds/tris_shape_down.ogg" type="AudioStream" id=7]
+[ext_resource path="res://assets/sounds/tris_shape_hit.ogg" type="AudioStream" id=8]
+[ext_resource path="res://assets/sounds/tris_shape_pushed.ogg" type="AudioStream" id=9]
+[ext_resource path="res://assets/sounds/refused2.ogg" type="AudioStream" id=10]
+[ext_resource path="res://assets/sounds/frost_beam.ogg" type="AudioStream" id=11]
+[ext_resource path="res://assets/sounds/line_disappears.ogg" type="AudioStream" id=12]
+[ext_resource path="res://scripts/tetris-handler.gd" type="Script" id=13]
+[ext_resource path="res://scenes/wall.tscn" type="PackedScene" id=14]
+[ext_resource path="res://scenes/pacman.tscn" type="PackedScene" id=15]
+[ext_resource path="res://scripts/ship.gd" type="Script" id=16]
+[ext_resource path="res://scenes/character.tscn" type="PackedScene" id=17]
+[ext_resource path="res://scripts/HUD.gd" type="Script" id=18]
+[ext_resource path="res://scenes/HUD/heart.tscn" type="PackedScene" id=19]
+[ext_resource path="res://assets/pacman.png" type="Texture" id=20]
+[ext_resource path="res://assets/ship.png" type="Texture" id=21]
+[ext_resource path="res://assets/coinGold.png" type="Texture" id=22]
+[ext_resource path="res://assets/boxEmpty.png" type="Texture" id=23]
+[ext_resource path="res://assets/ghost.png" type="Texture" id=24]
+[ext_resource path="res://assets/clock.png" type="Texture" id=25]
+[ext_resource path="res://scenes/menus/pause-menu.tscn" type="PackedScene" id=26]
+[ext_resource path="res://scripts/spawner.gd" type="Script" id=27]
+[ext_resource path="res://scripts/funky-imp.gd" type="Script" id=28]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+
+func play_sound(sound):
+	sound = get_parent().find_node(sound)
+	sound.stream.set_loop(false)
+	sound.play()
+"
+
+[sub_resource type="CapsuleShape2D" id=2]
+radius = 8.0
+height = 4.0
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Node2D
+
+var in_pause = false
+
+
+func _input(event):
+	if $'/root/world/HUD/game-over-menu'.visible:
+		return
+	
+	if Input.is_action_pressed('ui_pause'):
+		pause()
+	
+	if Input.is_action_just_released('ui_pause'):
+		in_pause = get_tree().is_paused()
+
+func pause(force=false):
+	# go to pause
+	if not in_pause and not get_tree().is_paused():
+		visible = true
+		get_tree().set_pause(true)
+	
+	# resume game
+	if in_pause and get_tree().is_paused():
+		visible = false
+		get_tree().set_pause(false)
+		if force:
+			in_pause = get_tree().is_paused()
+"
+
+[node name="world" type="Node2D" groups=[
+"world",
+]]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 2 )
+autoplay = true
+bus = "music"
+
+[node name="sounds" type="Node2D" parent="."]
+editor/display_folded = true
+script = SubResource( 1 )
+
+[node name="ghost_killed" type="AudioStreamPlayer" parent="sounds"]
+stream = ExtResource( 3 )
+bus = "sounds"
+
+[node name="heart_collected" type="AudioStreamPlayer" parent="sounds"]
+stream = ExtResource( 4 )
+bus = "sounds"
+
+[node name="player_hit" type="AudioStreamPlayer" parent="sounds"]
+stream = ExtResource( 5 )
+bus = "sounds"
+
+[node name="tris_shape_break" type="AudioStreamPlayer" parent="sounds"]
+stream = ExtResource( 6 )
+bus = "sounds"
+
+[node name="tris_shape_down" type="AudioStreamPlayer" parent="sounds"]
+stream = ExtResource( 7 )
+bus = "sounds"
+
+[node name="tris_shape_hit" type="AudioStreamPlayer" parent="sounds"]
+stream = ExtResource( 8 )
+bus = "sounds"
+
+[node name="tris_shape_pushed" type="AudioStreamPlayer" parent="sounds"]
+stream = ExtResource( 9 )
+bus = "sounds"
+
+[node name="refused" type="AudioStreamPlayer" parent="sounds"]
+stream = ExtResource( 10 )
+bus = "sounds"
+
+[node name="frost_beam" type="AudioStreamPlayer" parent="sounds"]
+stream = ExtResource( 11 )
+bus = "sounds"
+
+[node name="line_disappears" type="AudioStreamPlayer" parent="sounds"]
+stream = ExtResource( 12 )
+bus = "sounds"
+
+[node name="tetris-handler" type="Node2D" parent="."]
+script = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="walls" type="Node2D" parent="."]
+editor/display_folded = true
+visible = false
+modulate = Color( 1, 1, 1, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="borders" type="Node2D" parent="walls"]
+
+[node name="wall" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 40, 720 )
+collision_layer = 4128
+
+[node name="wall69" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 0, 720 )
+collision_layer = 4128
+
+[node name="wall78" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 440, 720 )
+collision_layer = 4128
+
+[node name="wall3" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 120, 720 )
+collision_layer = 4128
+
+[node name="wall6" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 200, 720 )
+collision_layer = 4128
+
+[node name="wall8" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 280, 720 )
+collision_layer = 4128
+
+[node name="wall2" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 80, 720 )
+collision_layer = 4128
+
+[node name="wall4" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 160, 720 )
+collision_layer = 4128
+
+[node name="wall5" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 240, 720 )
+collision_layer = 4128
+
+[node name="wall7" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 320, 720 )
+collision_layer = 4128
+
+[node name="wall9" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 360, 720 )
+collision_layer = 4128
+
+[node name="wall72" parent="walls/borders" groups=[
+"wall-bottom",
+] instance=ExtResource( 14 )]
+position = Vector2( 400, 720 )
+collision_layer = 4128
+
+[node name="wall10" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 680 )
+rotation = -1.5708
+
+[node name="wall46" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 680 )
+rotation = 1.5708
+
+[node name="wall21" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 520 )
+rotation = -1.5708
+
+[node name="wall38" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 280.5 )
+rotation = -1.5708
+
+[node name="wall87" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 40.5 )
+rotation = -1.5708
+
+[node name="wall53" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 520 )
+rotation = 1.5708
+
+[node name="wall77" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.14381e-13, 40 )
+rotation = 1.5708
+
+[node name="wall29" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 359.5 )
+rotation = -1.5708
+
+[node name="wall30" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 120 )
+rotation = -1.5708
+
+[node name="wall58" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( -2.22577e-06, 359.5 )
+rotation = 1.5708
+
+[node name="wall63" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( -2.22577e-06, 200 )
+rotation = 1.5708
+
+[node name="wall15" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 680 )
+rotation = -1.5708
+
+[node name="wall45" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 680 )
+rotation = 1.5708
+
+[node name="wall20" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 520 )
+rotation = -1.5708
+
+[node name="wall39" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 280.5 )
+rotation = -1.5708
+
+[node name="wall89" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 40.5 )
+rotation = -1.5708
+
+[node name="wall49" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 520 )
+rotation = 1.5708
+
+[node name="wall76" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.14381e-13, 40 )
+rotation = 1.5708
+
+[node name="wall28" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 359.5 )
+rotation = -1.5708
+
+[node name="wall40" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 120 )
+rotation = -1.5708
+
+[node name="wall48" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( -2.22577e-06, 359.5 )
+rotation = 1.5708
+
+[node name="wall64" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( -2.22577e-06, 200 )
+rotation = 1.5708
+
+[node name="wall13" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 600 )
+rotation = -1.5708
+
+[node name="wall47" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 600 )
+rotation = 1.5708
+
+[node name="wall22" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 440 )
+rotation = -1.5708
+
+[node name="wall35" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 200.5 )
+rotation = -1.5708
+
+[node name="wall54" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 440 )
+rotation = 1.5708
+
+[node name="wall59" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( -2.22577e-06, 279.5 )
+rotation = 1.5708
+
+[node name="wall66" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.13687e-13, 120 )
+rotation = 1.5708
+
+[node name="wall16" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 600 )
+rotation = -1.5708
+
+[node name="wall37" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 600 )
+rotation = 1.5708
+
+[node name="wall18" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 440 )
+rotation = -1.5708
+
+[node name="wall34" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 200.5 )
+rotation = -1.5708
+
+[node name="wall43" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 440 )
+rotation = 1.5708
+
+[node name="wall68" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( -2.22577e-06, 279.5 )
+rotation = 1.5708
+
+[node name="wall71" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.13687e-13, 120 )
+rotation = 1.5708
+
+[node name="wall11" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 640 )
+rotation = -1.5708
+
+[node name="wall44" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 640 )
+rotation = 1.5708
+
+[node name="wall19" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 480 )
+rotation = -1.5708
+
+[node name="wall36" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 240.5 )
+rotation = -1.5708
+
+[node name="wall88" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 0.499998 )
+rotation = -1.5708
+
+[node name="wall42" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 480 )
+rotation = 1.5708
+
+[node name="wall75" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.14381e-13, 1.70461e-12 )
+rotation = 1.5708
+
+[node name="wall26" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 319.5 )
+rotation = -1.5708
+
+[node name="wall31" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 80 )
+rotation = -1.5708
+
+[node name="wall67" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( -2.22577e-06, 319.5 )
+rotation = 1.5708
+
+[node name="wall70" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.58893e-06, 160 )
+rotation = 1.5708
+
+[node name="wall14" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 640 )
+rotation = -1.5708
+
+[node name="wall51" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 640 )
+rotation = 1.5708
+
+[node name="wall24" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 480 )
+rotation = -1.5708
+
+[node name="wall82" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 240.5 )
+rotation = -1.5708
+
+[node name="wall93" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 0.499998 )
+rotation = -1.5708
+
+[node name="wall56" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 480 )
+rotation = 1.5708
+
+[node name="wall73" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.14381e-13, 1.70461e-12 )
+rotation = 1.5708
+
+[node name="wall32" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 319.5 )
+rotation = -1.5708
+
+[node name="wall33" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 80 )
+rotation = -1.5708
+
+[node name="wall61" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( -1, 319.5 )
+rotation = 1.5708
+
+[node name="wall65" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.58893e-06, 160 )
+rotation = 1.5708
+
+[node name="wall12" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 560 )
+rotation = -1.5708
+
+[node name="wall52" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 560 )
+rotation = 1.5708
+
+[node name="wall79" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.14381e-13, 80 )
+rotation = 1.5708
+
+[node name="wall25" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 400 )
+rotation = -1.5708
+
+[node name="wall41" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 160.5 )
+rotation = -1.5708
+
+[node name="wall57" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 400 )
+rotation = 1.5708
+
+[node name="wall62" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( -2.22577e-06, 239.5 )
+rotation = 1.5708
+
+[node name="wall17" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 560 )
+rotation = -1.5708
+
+[node name="wall50" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 560 )
+rotation = 1.5708
+
+[node name="wall74" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.14381e-13, 80 )
+rotation = 1.5708
+
+[node name="wall23" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 400 )
+rotation = -1.5708
+
+[node name="wall27" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 440, 160.5 )
+rotation = -1.5708
+
+[node name="wall55" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( 1.3033e-05, 400 )
+rotation = 1.5708
+
+[node name="wall60" parent="walls/borders" instance=ExtResource( 14 )]
+position = Vector2( -2.22577e-06, 239.5 )
+rotation = 1.5708
+
+[node name="tris-shapes" type="Node2D" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="pacman-walls" type="Node2D" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ghosts" type="Node2D" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="pacman" parent="." instance=ExtResource( 15 )]
+
+[node name="ship" type="KinematicBody2D" parent="." groups=[
+"ship",
+]]
+editor/display_folded = true
+position = Vector2( 220, 600 )
+collision_mask = 0
+script = ExtResource( 16 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="character" parent="ship" instance=ExtResource( 17 )]
+
+[node name="sprite" parent="ship/character" index="0"]
+position = Vector2( 2, 0 )
+scale = Vector2( 0.8, 0.8 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ship"]
+position = Vector2( 0, 6 )
+shape = SubResource( 2 )
+
+[node name="bullets" type="Node2D" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="HUD" type="Node2D" parent="."]
+script = ExtResource( 18 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="bg" type="Polygon2D" parent="HUD"]
+color = Color( 0.160784, 0.160784, 0.160784, 1 )
+polygon = PoolVector2Array( 440, -20, 600, -20, 600, 740, 440, 740 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="lives" type="Node2D" parent="HUD"]
+editor/display_folded = true
+
+[node name="heart" parent="HUD/lives" instance=ExtResource( 19 )]
+position = Vector2( 512, 59.5 )
+scale = Vector2( 0.5, 0.5 )
+
+[node name="heart2" parent="HUD/lives" instance=ExtResource( 19 )]
+position = Vector2( 532, 59.5 )
+scale = Vector2( 0.5, 0.5 )
+
+[node name="heart3" parent="HUD/lives" instance=ExtResource( 19 )]
+position = Vector2( 552, 59.5 )
+scale = Vector2( 0.5, 0.5 )
+
+[node name="pacman" type="Sprite" parent="HUD/lives"]
+position = Vector2( 483.007, 60.1037 )
+scale = Vector2( 0.581867, 0.581867 )
+texture = ExtResource( 20 )
+
+[node name="ship2" type="Sprite" parent="HUD/lives"]
+position = Vector2( 471.864, 56.0472 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 21 )
+
+[node name="lives-count" type="RichTextLabel" parent="HUD/lives"]
+margin_left = 568.0
+margin_top = 53.0
+margin_right = 608.0
+margin_bottom = 73.0
+text = "?"
+
+[node name="gold" type="Node2D" parent="HUD"]
+editor/display_folded = true
+
+[node name="goldcount" type="RichTextLabel" parent="HUD/gold"]
+margin_left = 505.0
+margin_top = 94.0
+margin_right = 585.0
+margin_bottom = 114.0
+text = "10000"
+
+[node name="coinGold" type="Sprite" parent="HUD/gold"]
+position = Vector2( 478, 105 )
+texture = ExtResource( 22 )
+
+[node name="coinGold2" type="Sprite" parent="HUD/gold"]
+position = Vector2( 484, 105 )
+texture = ExtResource( 22 )
+
+[node name="coinGold3" type="Sprite" parent="HUD/gold"]
+position = Vector2( 472, 105 )
+texture = ExtResource( 22 )
+
+[node name="coinGold4" type="Sprite" parent="HUD/gold"]
+position = Vector2( 475, 101 )
+texture = ExtResource( 22 )
+
+[node name="coinGold5" type="Sprite" parent="HUD/gold"]
+position = Vector2( 482, 101 )
+texture = ExtResource( 22 )
+
+[node name="coinGold6" type="Sprite" parent="HUD/gold"]
+position = Vector2( 479, 97 )
+texture = ExtResource( 22 )
+
+[node name="shapes" type="Node2D" parent="HUD"]
+editor/display_folded = true
+
+[node name="boxEmpty" type="Sprite" parent="HUD/shapes"]
+position = Vector2( 486, 146 )
+scale = Vector2( 0.2, 0.2 )
+texture = ExtResource( 23 )
+
+[node name="boxEmpty2" type="Sprite" parent="HUD/shapes"]
+position = Vector2( 477, 146 )
+scale = Vector2( 0.2, 0.2 )
+texture = ExtResource( 23 )
+
+[node name="boxEmpty3" type="Sprite" parent="HUD/shapes"]
+position = Vector2( 477, 137 )
+scale = Vector2( 0.2, 0.2 )
+texture = ExtResource( 23 )
+
+[node name="boxEmpty4" type="Sprite" parent="HUD/shapes"]
+position = Vector2( 468, 137 )
+scale = Vector2( 0.2, 0.2 )
+texture = ExtResource( 23 )
+
+[node name="nb_enemies_left" type="RichTextLabel" parent="HUD/shapes"]
+margin_left = 504.0
+margin_top = 133.0
+margin_right = 585.0
+margin_bottom = 153.0
+text = "0/0"
+
+[node name="ghosts" type="Node2D" parent="HUD"]
+editor/display_folded = true
+
+[node name="ghost" type="Sprite" parent="HUD/ghosts"]
+position = Vector2( 480, 180 )
+scale = Vector2( 0.6, 0.6 )
+texture = ExtResource( 24 )
+
+[node name="nb_ghosts" type="RichTextLabel" parent="HUD/ghosts"]
+margin_left = 504.0
+margin_top = 173.0
+margin_right = 584.0
+margin_bottom = 193.0
+text = "0/0"
+
+[node name="level" type="RichTextLabel" parent="HUD"]
+margin_left = 470.0
+margin_top = 20.0
+margin_right = 562.0
+margin_bottom = 40.0
+rect_pivot_offset = Vector2( 18, 2 )
+text = "Level 1"
+
+[node name="game_time" type="RichTextLabel" parent="HUD"]
+margin_left = 504.0
+margin_top = 212.0
+margin_right = 572.0
+margin_bottom = 244.0
+rect_pivot_offset = Vector2( 18, 2 )
+text = "0 s"
+
+[node name="debug" type="RichTextLabel" parent="HUD"]
+visible = false
+margin_left = 448.0
+margin_top = 255.0
+margin_right = 600.0
+margin_bottom = 702.0
+text = "debug..."
+
+[node name="clock" type="Sprite" parent="HUD"]
+position = Vector2( 480, 219 )
+scale = Vector2( 0.375, 0.375 )
+texture = ExtResource( 25 )
+
+[node name="pause-menu" parent="HUD" instance=ExtResource( 26 )]
+pause_mode = 2
+visible = false
+script = SubResource( 3 )
+
+[node name="game-over-menu" parent="HUD" instance=ExtResource( 26 )]
+pause_mode = 2
+editor/display_folded = true
+visible = false
+
+[node name="vbox-buttons" parent="HUD/game-over-menu/margin/center-title" index="0"]
+margin_left = 9.0
+margin_top = 74.0
+margin_right = 270.0
+margin_bottom = 166.0
+
+[node name="Label" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="0"]
+margin_left = 0.0
+margin_right = 261.0
+text = "Game Over"
+
+[node name="bt-continue" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="1"]
+visible = false
+
+[node name="bt-back-to-menu" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="2"]
+margin_left = 78.0
+margin_top = 53.0
+margin_right = 183.0
+margin_bottom = 92.0
+
+[node name="debug" type="Node2D" parent="."]
+editor/display_folded = true
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="RichTextLabel" type="RichTextLabel" parent="debug"]
+anchor_right = 0.52
+anchor_bottom = 0.59
+margin_left = 24.4455
+margin_top = 672.306
+margin_right = 58.4455
+margin_bottom = 697.306
+text = "1;17"
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="debug"]
+anchor_right = 0.52
+anchor_bottom = 0.59
+margin_left = 380.774
+margin_top = 673.883
+margin_right = 430.774
+margin_bottom = 702.883
+text = "10;17"
+
+[node name="RichTextLabel3" type="RichTextLabel" parent="debug"]
+anchor_right = 0.52
+anchor_bottom = 0.59
+margin_left = 386.0
+margin_top = 36.0
+margin_right = 420.0
+margin_bottom = 60.0
+text = "10;1"
+
+[node name="RichTextLabel4" type="RichTextLabel" parent="debug"]
+anchor_right = 0.52
+anchor_bottom = 0.59
+margin_left = 24.7282
+margin_top = 34.7456
+margin_right = 49.7282
+margin_bottom = 58.7456
+text = "1;1"
+
+[node name="spawner" type="Node2D" parent="."]
+script = ExtResource( 27 )
+
+[node name="items" type="Node2D" parent="."]
+
+[node name="funky-imp" type="Node2D" parent="."]
+script = ExtResource( 28 )
+[connection signal="finished" from="music" to="music" method="_on_music_finished"]
+
+[editable path="ship/character"]
+
+[editable path="HUD/game-over-menu"]

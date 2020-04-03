@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scripts/tris-shape.gd" type="Script" id=1]
+[ext_resource path="res://scenes/shapes/tris-block.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/shake-refused.tscn" type="PackedScene" id=3]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 35, 35 )
+
+[node name="tris-shape-square" type="KinematicBody2D" groups=[
+"tris-shape",
+]]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource( 1 )
+MAX_ROTATIONS = 1
+
+[node name="blocks" type="Node2D" parent="."]
+
+[node name="tris-block" parent="blocks" instance=ExtResource( 2 )]
+editor/display_folded = true
+position = Vector2( -20, -20 )
+
+[node name="tris-block2" parent="blocks" instance=ExtResource( 2 )]
+editor/display_folded = true
+position = Vector2( 20, -20 )
+
+[node name="tris-block3" parent="blocks" instance=ExtResource( 2 )]
+editor/display_folded = true
+position = Vector2( 20, 20 )
+
+[node name="tris-block4" parent="blocks" instance=ExtResource( 2 )]
+editor/display_folded = true
+position = Vector2( -20, 20 )
+
+[node name="shake-refused" parent="blocks" instance=ExtResource( 3 )]
+
+[node name="shape" type="CollisionShape2D" parent="."]
+shape = SubResource( 1 )
