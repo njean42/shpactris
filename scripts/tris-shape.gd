@@ -177,36 +177,7 @@ func fire_enemy_bullet():
 	bullet.set_direction($'/root/world/ship'.global_position - global_position)
 	$'/root/world/bullets'.add_child(bullet)
 
-var nb_bullets_stuck = 0
 func friend_move(delta):
-	var max_bullets_stuck = 5
-	
-	# if there are X enemy bullets stuck on me, disappear and fire those bullets away!
-	var bullets = get_tree().get_nodes_in_group('bullets-stuck')
-	if bullets.size() >= max_bullets_stuck:
-		global.play_sound('tris_shape_break')
-		# fire bullets (give them new directions so that they form a downward rainbow)
-		for i in range(bullets.size()):
-			var angle = deg2rad(45) + deg2rad(90) * i / bullets.size()
-			var direction = Vector2.RIGHT.rotated(angle)
-			bullets[i].unstick(direction)
-		
-		# make blocks disappear
-		for c in $'blocks'.get_children():
-			if c.is_in_group('tris-block'):
-				c.find_node('animation').play('fade-out')
-		
-		detach_blocks()
-	
-	# turn slowly to red as the number of bullets increases
-	if bullets.size() != nb_bullets_stuck:
-		nb_bullets_stuck = bullets.size()
-		colorise(Color(
-			GREEN.r + (RED.r - GREEN.r) * bullets.size() / max_bullets_stuck,
-			GREEN.g + (RED.g - GREEN.g) * bullets.size() / max_bullets_stuck,
-			GREEN.b + (RED.b - GREEN.b) * bullets.size() / max_bullets_stuck
-		))
-	
 	# player(s) can force friendly tetris shapes to go down fast
 	var mode = '1p_mode_' if global.PLAYERS.mode_1p else '2p_mode_'
 	force_down = Input.is_action_just_pressed(mode+"pacman_drop") or force_down and Input.is_action_pressed(mode+"pacman_drop")
@@ -227,10 +198,60 @@ func is_in_groups(obj,what):
 			return true
 	return false
 
+func absorb(enemy_bullet):
+	# find an empty block to stick on
+	var empty_block = null
+	var bullets = []
+	for block in $'blocks'.get_children():
+		if not block.has_node('box'):
+			continue
+		var bullet = block.find_node('*enemy-bullet*',false,false)
+		if bullet == null:
+			empty_block = block
+			break
+		bullets.append(bullet)
+	
+	if empty_block == null:
+		global.play_sound('tris_shape_break')
+		# fire bullets (give them new directions so that they form a downward rainbow)
+		for i in range(bullets.size()):
+			var angle = deg2rad(45) + deg2rad(90) * i / bullets.size()
+			var direction = Vector2.RIGHT.rotated(angle)
+			global.enable_collision(bullets[i])
+			bullets[i].set_physics_process(true)
+			global.reparent(bullets[i],$'/root/world/bullets')
+			bullets[i].set_direction(direction)
+		
+		# make blocks disappear
+		for c in $'blocks'.get_children():
+			if c.is_in_group('tris-block'):
+				c.find_node('animation').play('fade-out')
+		
+		detach_blocks()
+		return
+	
+	# stick to the tetris shape
+	global.disable_collision(enemy_bullet)
+	enemy_bullet.set_physics_process(false)
+	global.reparent(enemy_bullet,empty_block,Vector2(0,0))
+	
+	# turn slowly to red as the number of bullets increases
+	var ratio = (bullets.size()+1) / 4.0
+	colorise(Color(
+		GREEN.r + (RED.r - GREEN.r) * ratio,
+		GREEN.g + (RED.g - GREEN.g) * ratio,
+		GREEN.b + (RED.b - GREEN.b) * ratio
+	))
+
 func friend_move_dir(dir,step=0):
 	var c = move_and_collide(dir * global.GRID_SIZE)
 	position = global.attach_pos_to_grid(position)
 	if c:
+		if c.collider.is_in_group('enemy-bullets'):
+			absorb(c.collider)
+			friend_move_dir(c.remainder/global.GRID_SIZE,step+1)
+			return
+		
 		if collide_and_kill(c):
 			# move down by the rest of the collision move (we're killin that ghost and/or bullet after all)
 			friend_move_dir(c.remainder/global.GRID_SIZE,step+1)

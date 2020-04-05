@@ -85,11 +85,15 @@ func enable_collision(node,value=1):
 	for m in node.collisions.mask:
 		node.set_collision_mask_bit(m,value)
 
-func reparent(node,new_parent):
+func reparent(node,new_parent,new_position=null):
 	var globpos = node.global_position
 	node.get_parent().remove_child(node)
 	new_parent.call_deferred('add_child',node)
-	node.call_deferred('set_global_position',globpos)
+	
+	if new_position == null:
+		node.call_deferred('set_global_position',globpos)
+	else:
+		node.call_deferred('set_position',new_position)
 
 func pos_to_grid(pos):
 	for i in ['x','y']:

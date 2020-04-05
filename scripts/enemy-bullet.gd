@@ -45,18 +45,4 @@ func collide(collider):
 		global.remove_from_game(self)
 	
 	if collider.is_in_group('tris-shape'):
-		stick_on(collider)
-
-func stick_on(collider):
-	# stick to the tetris shape and award gold when that shape is brought down
-	global.disable_collision(self)
-	set_physics_process(false)
-	global.reparent(self,collider)
-	add_to_group('bullets-stuck')
-
-func unstick(direction=false):
-	global.enable_collision(self)
-	set_physics_process(true)
-	global.reparent(self,$'/root/world/bullets')
-	remove_from_group('bullets-stuck')
-	set_direction(direction)
+		collider.absorb(self)
