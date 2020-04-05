@@ -35,12 +35,9 @@ func move(delta):
 			velocity.y = -1
 			find_node('sprite').rotation_degrees = -90
 	
-	var c = move_and_collide(velocity * speed * delta)
 	if direction:
+		var c = move_and_collide(velocity * speed * delta)
 		collide(c)
-	else:
-		# don't push shapes if not moving
-		collide(c,['ghosts','coins','enemy-bullets'])
 	
 	# remove if off screen (only shadows should go off screen)
 	if position.y > global.SCREEN_SIZE.y or position.y < 0 or position.x > global.SCREEN_SIZE.x or position.x < 0:
@@ -75,7 +72,7 @@ func player_move(delta):
 		fire_shadow()
 
 
-func collide(c,groups=['coins','enemy-bullets','ghosts','tris-shape']):
+func collide(c,groups=['enemy-bullets','ghosts','tris-shape']):
 	if not c:
 		return
 	
@@ -83,9 +80,6 @@ func collide(c,groups=['coins','enemy-bullets','ghosts','tris-shape']):
 		if not c.collider.is_in_group(g):
 			continue
 		match g:
-			'coins':
-				c.collider.queue_free()
-			
 			# eat enemy bullets
 			'enemy-bullets':
 				global.enemy_hit(c.collider)
