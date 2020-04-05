@@ -36,7 +36,7 @@ func _ready():
 			break
 	get_node('sprite').self_modulate = color
 	
-	# choose random position in the maze's corners
+	# choose random position in the maze
 	global.disable_collision(self)
 	position = global.get_random_maze_pos()
 
@@ -58,7 +58,8 @@ func _physics_process(delta):
 		update_direction()
 	
 	var c = move_and_collide(direction.normalized()*speed*delta)
-	collide(c)
+	if c:
+		collide(c)
 
 func path_to_pacman():
 	
@@ -125,17 +126,16 @@ func path_to_pacman():
 
 func collide(c):
 	# hurt pacman and die
-	if c and c.collider.is_in_group('pacman'):
+	if c.collider.is_in_group('pacman'):
 		c.collider.get_hurt()
 		global.remove_from_game(self)
 	
 	# bounce off pacman-walls
-	if c and c.collider.is_in_group('pacman-walls'):
+	if c.collider.is_in_group('pacman-walls'):
 		update_direction()
 	
 	# bounce off tris-shapes
-	if c and c.collider.is_in_group('tris-shape'):
-		
+	if c.collider.is_in_group('tris-shape'):
 		# artificially remember that there is a 'wall' here (= bounce off friendly tetris shapes)
 		var fake_wall_pos = global.pos_to_grid(position)
 		for i in ['x','y']:
