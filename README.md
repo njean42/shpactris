@@ -14,8 +14,6 @@ The game is Free Software under the AGPLv3.
 
 # TODO
 
-* Pacman should be more interesting to play
- * like a power-up when it collects X enemy bullets?
 * Ghosts should start moving right after appearing (and while they are still invincible)
 
 
