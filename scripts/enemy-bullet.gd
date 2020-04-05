@@ -41,8 +41,7 @@ func collide(collider):
 		collider.get_hurt()
 		global.remove_from_game(self)
 	if collider.is_in_group('pacman'):
-		global.enemy_hit(self)
-		global.remove_from_game(self)
+		collider.absorb(self)
 	
 	if collider.is_in_group('tris-shape'):
 		collider.absorb(self)

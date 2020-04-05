@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=2]
+[gd_scene load_steps=33 format=2]
 
 [ext_resource path="res://scripts/world.gd" type="Script" id=1]
 [ext_resource path="res://assets/music/Korobeiniki-cc0.ogg" type="AudioStream" id=2]
@@ -16,18 +16,19 @@
 [ext_resource path="res://scenes/wall.tscn" type="PackedScene" id=14]
 [ext_resource path="res://scenes/pacman.tscn" type="PackedScene" id=15]
 [ext_resource path="res://scripts/ship.gd" type="Script" id=16]
-[ext_resource path="res://scenes/character.tscn" type="PackedScene" id=17]
-[ext_resource path="res://scripts/HUD.gd" type="Script" id=18]
-[ext_resource path="res://scenes/HUD/heart.tscn" type="PackedScene" id=19]
-[ext_resource path="res://assets/pacman.png" type="Texture" id=20]
-[ext_resource path="res://assets/ship.png" type="Texture" id=21]
-[ext_resource path="res://assets/coinGold.png" type="Texture" id=22]
-[ext_resource path="res://assets/boxEmpty.png" type="Texture" id=23]
-[ext_resource path="res://assets/ghost.png" type="Texture" id=24]
-[ext_resource path="res://assets/clock.png" type="Texture" id=25]
-[ext_resource path="res://scenes/menus/pause-menu.tscn" type="PackedScene" id=26]
-[ext_resource path="res://scripts/spawner.gd" type="Script" id=27]
-[ext_resource path="res://scripts/funky-imp.gd" type="Script" id=28]
+[ext_resource path="res://assets/bubble.png" type="Texture" id=17]
+[ext_resource path="res://scenes/character.tscn" type="PackedScene" id=18]
+[ext_resource path="res://scripts/HUD.gd" type="Script" id=19]
+[ext_resource path="res://scenes/HUD/heart.tscn" type="PackedScene" id=20]
+[ext_resource path="res://assets/pacman.png" type="Texture" id=21]
+[ext_resource path="res://assets/ship.png" type="Texture" id=22]
+[ext_resource path="res://assets/coinGold.png" type="Texture" id=23]
+[ext_resource path="res://assets/boxEmpty.png" type="Texture" id=24]
+[ext_resource path="res://assets/ghost.png" type="Texture" id=25]
+[ext_resource path="res://assets/clock.png" type="Texture" id=26]
+[ext_resource path="res://scenes/menus/pause-menu.tscn" type="PackedScene" id=27]
+[ext_resource path="res://scripts/spawner.gd" type="Script" id=28]
+[ext_resource path="res://scripts/funky-imp.gd" type="Script" id=29]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node2D
@@ -526,7 +527,6 @@ __meta__ = {
 [node name="ship" type="KinematicBody2D" parent="." groups=[
 "ship",
 ]]
-editor/display_folded = true
 position = Vector2( 220, 600 )
 collision_mask = 0
 script = ExtResource( 16 )
@@ -534,7 +534,12 @@ __meta__ = {
 "_edit_group_": true
 }
 
-[node name="character" parent="ship" instance=ExtResource( 17 )]
+[node name="bubble" type="Sprite" parent="ship"]
+modulate = Color( 1, 1, 1, 0 )
+texture = ExtResource( 17 )
+
+[node name="character" parent="ship" instance=ExtResource( 18 )]
+editor/display_folded = true
 
 [node name="sprite" parent="ship/character" index="0"]
 position = Vector2( 2, 0 )
@@ -550,7 +555,8 @@ __meta__ = {
 }
 
 [node name="HUD" type="Node2D" parent="."]
-script = ExtResource( 18 )
+editor/display_folded = true
+script = ExtResource( 19 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -565,27 +571,27 @@ __meta__ = {
 [node name="lives" type="Node2D" parent="HUD"]
 editor/display_folded = true
 
-[node name="heart" parent="HUD/lives" instance=ExtResource( 19 )]
+[node name="heart" parent="HUD/lives" instance=ExtResource( 20 )]
 position = Vector2( 512, 59.5 )
 scale = Vector2( 0.5, 0.5 )
 
-[node name="heart2" parent="HUD/lives" instance=ExtResource( 19 )]
+[node name="heart2" parent="HUD/lives" instance=ExtResource( 20 )]
 position = Vector2( 532, 59.5 )
 scale = Vector2( 0.5, 0.5 )
 
-[node name="heart3" parent="HUD/lives" instance=ExtResource( 19 )]
+[node name="heart3" parent="HUD/lives" instance=ExtResource( 20 )]
 position = Vector2( 552, 59.5 )
 scale = Vector2( 0.5, 0.5 )
 
 [node name="pacman" type="Sprite" parent="HUD/lives"]
 position = Vector2( 483.007, 60.1037 )
 scale = Vector2( 0.581867, 0.581867 )
-texture = ExtResource( 20 )
+texture = ExtResource( 21 )
 
 [node name="ship2" type="Sprite" parent="HUD/lives"]
 position = Vector2( 471.864, 56.0472 )
 scale = Vector2( 0.5, 0.5 )
-texture = ExtResource( 21 )
+texture = ExtResource( 22 )
 
 [node name="lives-count" type="RichTextLabel" parent="HUD/lives"]
 margin_left = 568.0
@@ -606,27 +612,27 @@ text = "10000"
 
 [node name="coinGold" type="Sprite" parent="HUD/gold"]
 position = Vector2( 478, 105 )
-texture = ExtResource( 22 )
+texture = ExtResource( 23 )
 
 [node name="coinGold2" type="Sprite" parent="HUD/gold"]
 position = Vector2( 484, 105 )
-texture = ExtResource( 22 )
+texture = ExtResource( 23 )
 
 [node name="coinGold3" type="Sprite" parent="HUD/gold"]
 position = Vector2( 472, 105 )
-texture = ExtResource( 22 )
+texture = ExtResource( 23 )
 
 [node name="coinGold4" type="Sprite" parent="HUD/gold"]
 position = Vector2( 475, 101 )
-texture = ExtResource( 22 )
+texture = ExtResource( 23 )
 
 [node name="coinGold5" type="Sprite" parent="HUD/gold"]
 position = Vector2( 482, 101 )
-texture = ExtResource( 22 )
+texture = ExtResource( 23 )
 
 [node name="coinGold6" type="Sprite" parent="HUD/gold"]
 position = Vector2( 479, 97 )
-texture = ExtResource( 22 )
+texture = ExtResource( 23 )
 
 [node name="shapes" type="Node2D" parent="HUD"]
 editor/display_folded = true
@@ -634,22 +640,22 @@ editor/display_folded = true
 [node name="boxEmpty" type="Sprite" parent="HUD/shapes"]
 position = Vector2( 486, 146 )
 scale = Vector2( 0.2, 0.2 )
-texture = ExtResource( 23 )
+texture = ExtResource( 24 )
 
 [node name="boxEmpty2" type="Sprite" parent="HUD/shapes"]
 position = Vector2( 477, 146 )
 scale = Vector2( 0.2, 0.2 )
-texture = ExtResource( 23 )
+texture = ExtResource( 24 )
 
 [node name="boxEmpty3" type="Sprite" parent="HUD/shapes"]
 position = Vector2( 477, 137 )
 scale = Vector2( 0.2, 0.2 )
-texture = ExtResource( 23 )
+texture = ExtResource( 24 )
 
 [node name="boxEmpty4" type="Sprite" parent="HUD/shapes"]
 position = Vector2( 468, 137 )
 scale = Vector2( 0.2, 0.2 )
-texture = ExtResource( 23 )
+texture = ExtResource( 24 )
 
 [node name="nb_enemies_left" type="RichTextLabel" parent="HUD/shapes"]
 margin_left = 504.0
@@ -664,7 +670,7 @@ editor/display_folded = true
 [node name="ghost" type="Sprite" parent="HUD/ghosts"]
 position = Vector2( 480, 180 )
 scale = Vector2( 0.6, 0.6 )
-texture = ExtResource( 24 )
+texture = ExtResource( 25 )
 
 [node name="nb_ghosts" type="RichTextLabel" parent="HUD/ghosts"]
 margin_left = 504.0
@@ -700,14 +706,14 @@ text = "debug..."
 [node name="clock" type="Sprite" parent="HUD"]
 position = Vector2( 480, 219 )
 scale = Vector2( 0.375, 0.375 )
-texture = ExtResource( 25 )
+texture = ExtResource( 26 )
 
-[node name="pause-menu" parent="HUD" instance=ExtResource( 26 )]
+[node name="pause-menu" parent="HUD" instance=ExtResource( 27 )]
 pause_mode = 2
 visible = false
 script = SubResource( 3 )
 
-[node name="game-over-menu" parent="HUD" instance=ExtResource( 26 )]
+[node name="game-over-menu" parent="HUD" instance=ExtResource( 27 )]
 pause_mode = 2
 editor/display_folded = true
 visible = false
@@ -776,12 +782,12 @@ margin_bottom = 58.7456
 text = "1;1"
 
 [node name="spawner" type="Node2D" parent="."]
-script = ExtResource( 27 )
+script = ExtResource( 28 )
 
 [node name="items" type="Node2D" parent="."]
 
 [node name="funky-imp" type="Node2D" parent="."]
-script = ExtResource( 28 )
+script = ExtResource( 29 )
 [connection signal="finished" from="music" to="music" method="_on_music_finished"]
 
 [editable path="ship/character"]

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://scripts/pacman.gd" type="Script" id=1]
-[ext_resource path="res://scenes/character.tscn" type="PackedScene" id=2]
-[ext_resource path="res://assets/pacman.png" type="Texture" id=3]
-[ext_resource path="res://scenes/shake-refused.tscn" type="PackedScene" id=4]
+[ext_resource path="res://assets/bubble.png" type="Texture" id=2]
+[ext_resource path="res://scenes/character.tscn" type="PackedScene" id=3]
+[ext_resource path="res://assets/pacman.png" type="Texture" id=4]
+[ext_resource path="res://scenes/shake-refused.tscn" type="PackedScene" id=5]
 
 [sub_resource type="CircleShape2D" id=1]
 radius = 16.0312
@@ -16,17 +17,27 @@ collision_layer = 2
 collision_mask = 2192
 script = ExtResource( 1 )
 
-[node name="character" parent="." instance=ExtResource( 2 )]
+[node name="bubble" type="Sprite" parent="."]
+modulate = Color( 1, 1, 1, 0 )
+position = Vector2( 20, 20 )
+texture = ExtResource( 2 )
+
+[node name="character" parent="." instance=ExtResource( 3 )]
+editor/display_folded = true
 
 [node name="sprite" parent="character" index="0"]
+self_modulate = Color( 1, 1, 1, 0.964706 )
 position = Vector2( 20, 20 )
 scale = Vector2( 0.9, 0.9 )
-texture = ExtResource( 3 )
+texture = ExtResource( 4 )
 
-[node name="shake-refused" parent="character" instance=ExtResource( 4 )]
+[node name="shake-refused" parent="character" instance=ExtResource( 5 )]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2( 20, 20 )
 shape = SubResource( 1 )
+
+[node name="enemy-bullets" type="Node2D" parent="."]
 
 [editable path="character"]

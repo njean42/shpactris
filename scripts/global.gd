@@ -23,6 +23,7 @@ var PLAYERS = {
 # preload scenes to be added in-game
 const GHOST = preload('res://scenes/ghost.tscn')
 const HEART = preload('res://scenes/items/heart.tscn')
+const BUBBLE = preload('res://scenes/items/bubble.tscn')
 const SCENE_MILESTONE = preload('res://scenes/debug/milestone.tscn')
 const SHAPES = [
 	preload('res://scenes/shapes/tris-shape-bar.tscn'),

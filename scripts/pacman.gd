@@ -7,6 +7,7 @@ var time_since_last_shadow = 0
 var is_shadow = false
 
 var SHADOW = null
+var MAX_ENEMY_BULLETS = 10
 
 
 func _ready():
@@ -72,19 +73,18 @@ func player_move(delta):
 		fire_shadow()
 
 
-func collide(c,groups=['enemy-bullets','ghosts','tris-shape']):
+func collide(c):
 	if not c:
 		return
 	
-	for g in groups:
+	for g in ['enemy-bullets','ghosts','tris-shape']:
 		if not c.collider.is_in_group(g):
 			continue
 		match g:
 			# eat enemy bullets
 			'enemy-bullets':
-				global.enemy_hit(c.collider)
-				c.collider.queue_free()
-			
+				absorb(c.collider)
+				
 			# get hurt by ghosts
 			'ghosts':
 				get_hurt()
@@ -104,6 +104,31 @@ func collide(c,groups=['enemy-bullets','ghosts','tris-shape']):
 			'pacman-walls':
 				position = global.attach_pos_to_grid(position)
 				direction = false
+
+# absorb enemy bullet (gather around pacman)
+func absorb(bullet):
+	global.enemy_hit(bullet)
+	var bullets_list = $'/root/world/pacman/enemy-bullets'
+	
+	# display
+	var nb_bullets = bullets_list.get_children().size()
+	var angle = 2*PI / MAX_ENEMY_BULLETS * nb_bullets
+	var pos = Vector2(global.GRID_SIZE/2,global.GRID_SIZE/2) + (Vector2.UP * global.GRID_SIZE/2).rotated(angle)
+	bullet.modulate.a = 0.5
+	bullet.scale *= 0.75
+	
+	# reparent and remove from collisions
+	global.reparent(bullet,bullets_list,pos)
+	global.disable_collision(bullet)
+	bullet.set_physics_process(false)
+	nb_bullets += 1
+	
+	# random power up when pacman gathers 10 bullets
+	if nb_bullets >= MAX_ENEMY_BULLETS:
+		for b in bullets_list.get_children():
+			b.queue_free()
+		bullet.queue_free()
+		$'/root/world/items'.add_child(global.BUBBLE.instance())
 
 func fire_shadow():
 	if SHADOW == null:
