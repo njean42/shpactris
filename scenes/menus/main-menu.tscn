@@ -140,7 +140,6 @@ func _on_btexit_pressed():
 [node name="main-menu" type="Node2D"]
 
 [node name="margin" type="MarginContainer" parent="."]
-editor/display_folded = true
 margin_left = 40.0
 margin_top = 40.0
 margin_right = 560.0
@@ -253,7 +252,7 @@ margin_top = 53.0
 margin_right = 400.0
 margin_bottom = 67.0
 size_flags_horizontal = 8
-text = "v0.9"
+text = "v0.9.1"
 align = 2
 
 [node name="controls" type="HBoxContainer" parent="margin/vbox"]
