@@ -88,12 +88,12 @@ func enable_collision(node,value=1):
 func reparent(node,new_parent,new_position=null):
 	var globpos = node.global_position
 	node.get_parent().remove_child(node)
-	new_parent.call_deferred('add_child',node)
+	new_parent.add_child(node)
 	
 	if new_position == null:
-		node.call_deferred('set_global_position',globpos)
+		node.set_global_position(globpos)
 	else:
-		node.call_deferred('set_position',new_position)
+		node.set_position(new_position)
 
 func pos_to_grid(pos):
 	for i in ['x','y']:
