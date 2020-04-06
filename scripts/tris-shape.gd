@@ -132,6 +132,11 @@ func switch_status(new_status,just_spawned=false):
 				if not block.has_node('box'):
 					continue
 				
+				# discard enemy bullet
+				var enemy_bullet = block.find_node('*enemy-bullet*',false,false)
+				if enemy_bullet:
+					enemy_bullet.queue_free()
+				
 				var globpos = block.global_position
 				var gridpos = global.pos_to_grid( globpos + Vector2(global.GRID_SIZE/2, global.GRID_SIZE/2))
 				

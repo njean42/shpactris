@@ -3,7 +3,7 @@ extends KinematicBody2D
 var speed = conf.current.TRIS_SHAPE_BULLET_SPEED
 var follow = conf.current.TRIS_SHAPE_BULLET_FOLLOW
 var direction = Vector2(0,1)
-var orig_angle
+var orig_angle = direction.angle()
 
 var collisions = {
 	'layer': [global.LAYER_TETRIS_BULLET],
