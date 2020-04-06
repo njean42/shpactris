@@ -555,7 +555,6 @@ __meta__ = {
 }
 
 [node name="HUD" type="Node2D" parent="."]
-editor/display_folded = true
 script = ExtResource( 19 )
 __meta__ = {
 "_edit_lock_": true
@@ -703,6 +702,7 @@ texture = ExtResource( 26 )
 [node name="pause-menu" parent="HUD" instance=ExtResource( 27 )]
 pause_mode = 2
 visible = false
+position = Vector2( 220, 0 )
 script = SubResource( 3 )
 
 [node name="game-over-menu" parent="HUD" instance=ExtResource( 27 )]
@@ -710,68 +710,34 @@ pause_mode = 2
 editor/display_folded = true
 visible = false
 
+[node name="margin" parent="HUD/game-over-menu" index="0"]
+margin_left = 440.0
+margin_right = 600.0
+
+[node name="center-title" parent="HUD/game-over-menu/margin" index="0"]
+margin_right = 160.0
+
 [node name="vbox-buttons" parent="HUD/game-over-menu/margin/center-title" index="0"]
-margin_left = 9.0
-margin_top = 74.0
-margin_right = 270.0
-margin_bottom = 166.0
+margin_left = 13.0
+margin_top = 48.0
+margin_right = 147.0
+margin_bottom = 192.0
 
 [node name="Label" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="0"]
 margin_left = 0.0
-margin_right = 261.0
-text = "Game Over"
+margin_right = 134.0
+margin_bottom = 101.0
+text = "Game
+Over"
 
 [node name="bt-continue" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="1"]
 visible = false
 
 [node name="bt-back-to-menu" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="2"]
-margin_left = 78.0
-margin_top = 53.0
-margin_right = 183.0
-margin_bottom = 92.0
-
-[node name="debug" type="Node2D" parent="."]
-editor/display_folded = true
-visible = false
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="RichTextLabel" type="RichTextLabel" parent="debug"]
-anchor_right = 0.52
-anchor_bottom = 0.59
-margin_left = 24.4455
-margin_top = 672.306
-margin_right = 58.4455
-margin_bottom = 697.306
-text = "1;17"
-
-[node name="RichTextLabel2" type="RichTextLabel" parent="debug"]
-anchor_right = 0.52
-anchor_bottom = 0.59
-margin_left = 380.774
-margin_top = 673.883
-margin_right = 430.774
-margin_bottom = 702.883
-text = "10;17"
-
-[node name="RichTextLabel3" type="RichTextLabel" parent="debug"]
-anchor_right = 0.52
-anchor_bottom = 0.59
-margin_left = 386.0
-margin_top = 36.0
-margin_right = 420.0
-margin_bottom = 60.0
-text = "10;1"
-
-[node name="RichTextLabel4" type="RichTextLabel" parent="debug"]
-anchor_right = 0.52
-anchor_bottom = 0.59
-margin_left = 24.7282
-margin_top = 34.7456
-margin_right = 49.7282
-margin_bottom = 58.7456
-text = "1;1"
+margin_left = 14.0
+margin_top = 105.0
+margin_right = 119.0
+margin_bottom = 144.0
 
 [node name="spawner" type="Node2D" parent="."]
 script = ExtResource( 28 )

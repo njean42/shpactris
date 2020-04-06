@@ -3,18 +3,18 @@
 [ext_resource path="res://assets/DejaVuSans-Bold.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://scenes/menus/common/bt-back-to-menu.tscn" type="PackedScene" id=2]
 
-[sub_resource type="DynamicFontData" id=2]
+[sub_resource type="DynamicFontData" id=1]
 font_path = "res://assets/DejaVuSans-Bold.ttf"
 
-[sub_resource type="DynamicFont" id=3]
+[sub_resource type="DynamicFont" id=2]
 size = 42
-font_data = SubResource( 2 )
+font_data = SubResource( 1 )
 
-[sub_resource type="DynamicFont" id=4]
+[sub_resource type="DynamicFont" id=3]
 size = 28
 font_data = ExtResource( 1 )
 
-[sub_resource type="GDScript" id=5]
+[sub_resource type="GDScript" id=4]
 script/source = "extends Button
 
 
@@ -23,22 +23,6 @@ func _on_btcontinue_pressed():
 	"
 
 [node name="pause-menu" type="Node2D"]
-
-[node name="ColorRect" type="ColorRect" parent="."]
-modulate = Color( 1, 1, 1, 0.392157 )
-margin_left = 160.0
-margin_top = 240.0
-margin_right = 440.0
-margin_bottom = 480.0
-color = Color( 0.72549, 0.72549, 0.72549, 1 )
-
-[node name="ColorRect2" type="ColorRect" parent="."]
-modulate = Color( 1, 1, 1, 0.392157 )
-margin_left = 160.0
-margin_top = 240.0
-margin_right = 440.0
-margin_bottom = 480.0
-color = Color( 0.121569, 0.121569, 0.121569, 1 )
 
 [node name="margin" type="MarginContainer" parent="."]
 margin_left = 160.0
@@ -66,7 +50,7 @@ margin_right = 158.0
 margin_bottom = 49.0
 size_flags_horizontal = 6
 size_flags_vertical = 6
-custom_fonts/font = SubResource( 3 )
+custom_fonts/font = SubResource( 2 )
 text = "Pause"
 align = 1
 
@@ -76,9 +60,9 @@ margin_right = 174.0
 margin_bottom = 92.0
 size_flags_horizontal = 6
 size_flags_vertical = 6
-custom_fonts/font = SubResource( 4 )
+custom_fonts/font = SubResource( 3 )
 text = "CONTINUE"
-script = SubResource( 5 )
+script = SubResource( 4 )
 
 [node name="bt-back-to-menu" parent="margin/center-title/vbox-buttons" instance=ExtResource( 2 )]
 [connection signal="pressed" from="margin/center-title/vbox-buttons/bt-continue" to="margin/center-title/vbox-buttons/bt-continue" method="_on_btcontinue_pressed"]
