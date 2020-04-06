@@ -62,15 +62,4 @@ func update():
 	
 	# gold
 	find_node('goldcount').text = str(world.gold)
-	
-	# debug
-	var dbg = '===== Level ' + str(world.level) + " =====\n"
-	dbg += "== speed up ==\n"
-#	for s in global.LEVELUP_INCREASE:
-#		dbg += s + ':' + str(global[s]) + "\n"
-#	dbg += "== speed down ==\n"
-#	for s in global.LEVELUP_DECREASE:
-#		dbg += s + ':' + str(global[s]) + "\n"
-	#print(find_node('debug').text)
-	find_node('debug').text = dbg
 

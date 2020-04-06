@@ -695,14 +695,6 @@ margin_bottom = 244.0
 rect_pivot_offset = Vector2( 18, 2 )
 text = "0 s"
 
-[node name="debug" type="RichTextLabel" parent="HUD"]
-visible = false
-margin_left = 448.0
-margin_top = 255.0
-margin_right = 600.0
-margin_bottom = 702.0
-text = "debug..."
-
 [node name="clock" type="Sprite" parent="HUD"]
 position = Vector2( 480, 219 )
 scale = Vector2( 0.375, 0.375 )

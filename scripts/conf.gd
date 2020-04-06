@@ -59,6 +59,7 @@ func level_up(level):
 	
 	if level == 1:
 		init_conf()
+		debug_speed()
 		return
 	
 	# increase nb enemies to spawn
@@ -72,5 +73,21 @@ func level_up(level):
 	for k in current:
 		if default[k] is Dictionary and 'levelup' in default[k]:
 			current[k] *= default[k]['levelup']
+	
+	debug_speed()
 
 
+func debug_speed():
+	if not global.DEBUG:
+		return
+	
+	if $'/root/world'.level != 5:
+		return
+	
+	prints(' ')
+	prints('##### Level ', $'/root/world'.level, '#####')
+	for s in current:
+		var speed = '·'
+		if default[s] is Dictionary and 'levelup' in default[s]:
+			speed = '↗' if default[s]['levelup'] > 1 else '↘'
+		prints(s+':', current[s], speed)
