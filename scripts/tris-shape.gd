@@ -7,7 +7,7 @@ const BULLET = preload('res://scenes/shapes/enemy-bullet.tscn')
 var RED =   Color(0.5, 0, 0)  # enemy shapes
 var GREEN = Color(0.5, 1, 0.5)  # friend shapes
 var GREY =  Color(0.5, 0.5, 0.5, 0.50)  # floor shapes
-var TRANSPARENT_BLUE =  Color(0.2, 0.6, 0.9, 0.50)  # floor shapes
+var TRANSPARENT_BLUE =  Color(0.2, 0.6, 0.9, 0.50)  # frozen shapes
 
 export var status = 'ENEMY'
 var speed = conf.current.TRIS_SHAPE_SPEED
