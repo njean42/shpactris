@@ -12,7 +12,6 @@ var RIGHT = Vector2(1,0)
 var DIRECTIONS = [UP,DOWN,LEFT,RIGHT]
 var DIRECTIONS_TEXT = ['up','down','left','right']
 
-var GAME_VERSION = 0.9
 var DEBUG = false
 
 var PLAYERS = {
