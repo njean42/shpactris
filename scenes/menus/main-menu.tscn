@@ -247,7 +247,7 @@ custom_fonts/font = SubResource( 2 )
 text = "Shooting PacTris"
 
 [node name="Label2" type="Label" parent="margin/vbox/center-title/vbox"]
-margin_left = 373.0
+margin_left = 361.0
 margin_top = 53.0
 margin_right = 400.0
 margin_bottom = 67.0
