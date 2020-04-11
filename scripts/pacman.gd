@@ -123,12 +123,19 @@ func absorb(bullet):
 	bullet.set_physics_process(false)
 	nb_bullets += 1
 	
-	# random power up when pacman gathers 10 bullets
+	# random power-up when pacman gathers 10 bullets
 	if nb_bullets >= MAX_ENEMY_BULLETS:
 		for b in bullets_list.get_children():
 			b.queue_free()
 		bullet.queue_free()
-		$'/root/world/items'.add_child(global.BUBBLE.instance())
+		
+		var item = [
+			global.HEART,
+			global.BUBBLE,
+			global.SLOW_MO
+		][floor(rand_range(0,3))]
+		
+		$'/root/world/items'.add_child(item.instance())
 
 func fire_shadow():
 	if SHADOW == null:

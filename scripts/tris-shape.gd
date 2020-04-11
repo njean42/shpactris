@@ -41,6 +41,7 @@ func _ready():
 	switch_status(status,true)
 
 func _physics_process(delta):
+	speed = conf.current.TRIS_SHAPE_SPEED  # will be affected by slow-mo
 	match status:
 		'ENEMY':
 			enemy_move(delta)

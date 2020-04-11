@@ -7,6 +7,20 @@ var current
 var default_increase = 1.05
 var default_decrease = 0.95
 
+var time_in_slow_mo = 0
+var is_slow_mo = false
+const SLOW_MO_DURATION = 10
+const SLOW_MO_AFFECTED = [
+	'GHOSTS_SPEED',
+	'GHOSTS_SPAWN_INTERVAL',
+	'TRIS_SHAPE_SPEED',
+	'TRIS_SHAPE_BULLET_SPEED',
+	'TRIS_SHAPE_DOWN_INTERVAL',
+	'TRIS_SHAPE_SPAWN_INTERVAL',
+	'TRIS_SHAPE_BULLET_INTERVAL',
+	'PACMAN_WALLS_MOVE_INTERVAL',
+]
+
 var default = {
 	'START_LEVEL': 1,
 	
@@ -44,6 +58,21 @@ func _init():
 	init_conf()
 
 
+func _process(delta):
+	if not is_slow_mo:
+		return
+	
+	time_in_slow_mo += delta
+	if time_in_slow_mo >= SLOW_MO_DURATION:  # end worldmo
+		$'/root/world/HUD/slow-mo'.visible = false
+		is_slow_mo = false
+		for k in SLOW_MO_AFFECTED:
+			if default[k].levelup > 1:
+				current[k] *= 2
+			else:
+				current[k] /= 2
+
+
 func init_conf():
 	current = default.duplicate(true)
 	for k in current:
@@ -71,6 +100,22 @@ func level_up(level):
 			current[k] *= default[k]['levelup']
 	
 	debug_speed()
+
+
+func slow_motion():
+	if is_slow_mo:  # renew slow-mo
+		time_in_slow_mo = 0
+		return
+	
+	# begin slow-mo
+	$'/root/world/HUD/slow-mo'.visible = true
+	is_slow_mo = true
+	time_in_slow_mo = 0
+	for k in SLOW_MO_AFFECTED:
+		if default[k].levelup > 1:
+			current[k] /= 2
+		else:
+			current[k] *= 2
 
 
 func debug_speed():

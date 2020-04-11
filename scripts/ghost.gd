@@ -44,6 +44,8 @@ func _physics_process(delta):
 	if direction == null:
 		return
 	
+	speed = conf.current.GHOSTS_SPEED  # will be affected by slow-mo
+	
 	# we have reached the first cell on path, remove it (move to next cell)
 	if path2pacman.size() > 0 and global.pos_to_grid(position) == path2pacman[0]:
 		path2pacman.pop_front()
