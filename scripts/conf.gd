@@ -37,10 +37,6 @@ var default = {
 	'TRIS_SHAPE_BULLET_FOLLOW': {'init': 10, 'levelup': default_increase}, # update direction to follow ship: at most X degrees per second
 	'TRIS_SHAPE_MAX_FRIENDS': 1,
 	'TRIS_SHAPE_DOWN_INTERVAL': {'init': 2, 'levelup': default_decrease},  # one square down every X seconds
-	'TRIS_SHAPE_USER_INTERVAL': {  # one player rotate every X seconds
-		'move': 0.1,
-		'rotate': 0.2,
-	}
 }
 
 
