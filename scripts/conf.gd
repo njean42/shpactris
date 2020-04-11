@@ -30,7 +30,7 @@ var default = {
 	
 	'TRIS_SHAPE_NB_ENEMIES': 5,
 	'TRIS_SHAPE_MAX_ENEMIES_SIMULT': 2,
-	'TRIS_SHAPE_SPAWN_INTERVAL': {'init': 5, 'levelup': default_decrease},  # one new shape every X seconds
+	'TRIS_SHAPE_SPAWN_INTERVAL': {'init': 8, 'levelup': default_decrease},  # one new shape every X seconds
 	'TRIS_SHAPE_SPEED': {'init': 80, 'levelup': default_increase},
 	'TRIS_SHAPE_BULLET_INTERVAL': {'init': 6, 'levelup': default_decrease},
 	'TRIS_SHAPE_BULLET_SPEED': {'init': 100, 'levelup': default_increase},
