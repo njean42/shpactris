@@ -14,7 +14,7 @@ var default = {
 	'SHIP_LIVES': 5,
 	'SHIP_BULLET_RATE': 0.2,  # every X seconds
 	'SHIP_FROST_BEAM_RATE': 1,  # every X seconds
-	'SHIP_MAX_SPEED_AFTER': 0.2,  # ship should reach its max speed after this delay (seconds)
+	'SHIP_MAX_SPEED_AFTER': 0.2,  # ship 'unlocks' full speed after X seconds (speed/2 until then)
 	'SHIP_BULLET_SPEED': {'init': 500, 'levelup': default_increase},
 	
 	'PACMAN_SPEED': {'init': 200, 'levelup': default_increase},

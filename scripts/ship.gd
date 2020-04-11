@@ -3,6 +3,7 @@ extends 'ship-pacman.gd'
 const BULLET = preload('res://scenes/bullet.tscn')
 const FROST_BEAM = preload('res://scenes/frost-beam.tscn')
 
+var time_moved = 0  # number of seconds that the ship has kept moving
 var time_since_last_bullet = 0
 var time_since_last_frost_beam = 0
 var shape_frozen = null
@@ -27,8 +28,13 @@ func _physics_process(delta):
 			var d = moves[m].dir
 			velocity[a] += move*d
 	
-	if velocity.length() > 0:
-		var c = move_and_collide(velocity * conf.current.SHIP_SPEED * delta)
+	if velocity.length() == 0:
+		time_moved = 0
+	else:
+		time_moved += delta
+		var speed = conf.current.SHIP_SPEED if time_moved > conf.current.SHIP_MAX_SPEED_AFTER else conf.current.SHIP_SPEED/2
+		
+		var c = move_and_collide(velocity * speed * delta)
 		if c and c.collider.is_in_group('enemy-bullets'):
 			c.collider.collide(self)
 		position.x = clamp(position.x, global.GRID_SIZE/2, global.SCREEN_SIZE.x - global.GRID_SIZE/2)
