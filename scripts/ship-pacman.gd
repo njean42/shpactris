@@ -1,7 +1,7 @@
 extends KinematicBody2D
 
 const INVINCIBILITY_TIME = 3
-const BUBBLE_TIME = 10
+const BUBBLE_TIME = 20
 
 var invincible = false
 var bubbled = false
