@@ -360,8 +360,8 @@ size_flags_horizontal = 6
 size_flags_vertical = 6
 
 [node name="level" type="OptionButton" parent="margin/vbox/vbox-buttons"]
-margin_left = 26.0
-margin_right = 67.0
+margin_left = 32.0
+margin_right = 61.0
 margin_bottom = 20.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
