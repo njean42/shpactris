@@ -75,10 +75,15 @@ func check_tetris_lines():
 	for s in full_line_sets:
 		for y in full_line_sets[s]:
 			mult += 1
+			# get frost beam
+			for m in range(0,mult):
+				$'/root/world/ship'.get_beam()
+			
 			for block in cells[y]:
 				block.modulate = Color(1,1,1,1)
 				block.get_node('animation').line_nb = y
 				block.get_node('animation').play('fade-out')
+				# earn gold
 				$'/root/world'.earn_gold(block,100*mult)
 	
 	if lines_being_deleted.size() == 0:

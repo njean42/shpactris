@@ -45,7 +45,7 @@ func play_sound(sound):
 radius = 8.0
 height = 4.0
 
-[sub_resource type="Animation" id=4]
+[sub_resource type="Animation" id=3]
 resource_name = "rotate"
 loop = true
 tracks/0/type = "value"
@@ -61,7 +61,7 @@ tracks/0/keys = {
 "values": [ 0.0, 180.0, 360.0 ]
 }
 
-[sub_resource type="GDScript" id=3]
+[sub_resource type="GDScript" id=4]
 script/source = "extends Node2D
 
 var in_pause = false
@@ -105,7 +105,6 @@ autoplay = true
 bus = "music"
 
 [node name="sounds" type="Node2D" parent="."]
-editor/display_folded = true
 script = SubResource( 1 )
 
 [node name="ghost_killed" type="AudioStreamPlayer" parent="sounds"]
@@ -155,7 +154,6 @@ __meta__ = {
 }
 
 [node name="walls" type="Node2D" parent="."]
-editor/display_folded = true
 visible = false
 modulate = Color( 1, 1, 1, 0.501961 )
 __meta__ = {
@@ -547,16 +545,12 @@ __meta__ = {
 position = Vector2( 220, 600 )
 collision_mask = 0
 script = ExtResource( 16 )
-__meta__ = {
-"_edit_group_": true
-}
 
 [node name="bubble" type="Sprite" parent="ship"]
 modulate = Color( 1, 1, 1, 0 )
 texture = ExtResource( 17 )
 
 [node name="character" parent="ship" instance=ExtResource( 18 )]
-editor/display_folded = true
 
 [node name="sprite" parent="ship/character" index="0"]
 position = Vector2( 2, 0 )
@@ -565,6 +559,9 @@ scale = Vector2( 0.8, 0.8 )
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ship"]
 position = Vector2( 0, 6 )
 shape = SubResource( 2 )
+
+[node name="beams" type="Node2D" parent="ship"]
+position = Vector2( -18, 18 )
 
 [node name="bullets" type="Node2D" parent="."]
 __meta__ = {
@@ -585,7 +582,6 @@ __meta__ = {
 }
 
 [node name="lives" type="Node2D" parent="HUD"]
-editor/display_folded = true
 
 [node name="heart" parent="HUD/lives" instance=ExtResource( 20 )]
 position = Vector2( 512, 59.5 )
@@ -617,7 +613,6 @@ margin_bottom = 73.0
 text = "?"
 
 [node name="gold" type="Node2D" parent="HUD"]
-editor/display_folded = true
 
 [node name="goldcount" type="RichTextLabel" parent="HUD/gold"]
 margin_left = 505.0
@@ -651,7 +646,6 @@ position = Vector2( 479, 97 )
 texture = ExtResource( 23 )
 
 [node name="shapes" type="Node2D" parent="HUD"]
-editor/display_folded = true
 
 [node name="boxEmpty" type="Sprite" parent="HUD/shapes"]
 position = Vector2( 486, 146 )
@@ -681,7 +675,6 @@ margin_bottom = 153.0
 text = "0/0"
 
 [node name="ghosts" type="Node2D" parent="HUD"]
-editor/display_folded = true
 
 [node name="ghost" type="Sprite" parent="HUD/ghosts"]
 position = Vector2( 480, 180 )
@@ -704,7 +697,7 @@ texture = ExtResource( 30 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="HUD/slow-mo"]
 autoplay = "rotate"
-anims/rotate = SubResource( 4 )
+anims/rotate = SubResource( 3 )
 
 [node name="level" type="RichTextLabel" parent="HUD"]
 margin_left = 470.0
@@ -731,11 +724,10 @@ texture = ExtResource( 26 )
 pause_mode = 2
 visible = false
 position = Vector2( 220, 0 )
-script = SubResource( 3 )
+script = SubResource( 4 )
 
 [node name="game-over-menu" parent="HUD" instance=ExtResource( 27 )]
 pause_mode = 2
-editor/display_folded = true
 visible = false
 
 [node name="margin" parent="HUD/game-over-menu" index="0"]

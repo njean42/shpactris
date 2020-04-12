@@ -9,6 +9,11 @@ var time_since_last_frost_beam = 0
 var shape_frozen = null
 
 
+func _ready():
+	for i in range(0,5):
+		get_beam()
+
+
 func _physics_process(delta):
 	
 	var moves = {
@@ -60,6 +65,24 @@ func fire_bullet():
 	bullet.global_position = global_position
 	$'/root/world/bullets'.add_child(bullet)
 
+
+func get_beam():
+	var nb_beams = $'beams'.get_children().size()
+	if nb_beams >= 10:
+		return
+	
+	var x = nb_beams * 4
+	
+	var beam = Line2D.new()
+	beam.default_color = Color(102.0/255, 128.0/255, 1)
+	beam.width = 2
+	beam.points = [
+		Vector2(x,0),
+		Vector2(x,10)
+	]
+	$'beams'.add_child(beam)
+
+
 func frost_beam():
 	if not is_physics_processing():  # has to be, otherwise ray casting may not work
 		prints('[BUG] not physics processing... (ship.frost_beam())')
@@ -81,6 +104,10 @@ func frost_beam():
 		return true
 	
 	# fire frost beam (not releasing an already frozen piece)
+	if $'beams'.get_children().size() == 0:
+		return
+	$'beams'.get_children()[-1].queue_free()
+	
 	global.play_sound('frost_beam');
 	
 	var space_state = get_world_2d().direct_space_state
