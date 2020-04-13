@@ -81,6 +81,9 @@ func init_conf():
 
 
 func level_up(level):
+	$'/root/world/HUD/level-up'.text = 'Level '+str(level)
+	$'/root/world/HUD/level-up/anim'.stop(true)
+	$'/root/world/HUD/level-up/anim'.play('fade-in-out')
 	
 	if level == 1:
 		init_conf()

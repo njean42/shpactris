@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=2]
+[gd_scene load_steps=38 format=2]
 
 [ext_resource path="res://scripts/world.gd" type="Script" id=1]
 [ext_resource path="res://assets/music/Korobeiniki-cc0.ogg" type="AudioStream" id=2]
@@ -44,6 +44,29 @@ func play_sound(sound):
 [sub_resource type="CapsuleShape2D" id=2]
 radius = 8.0
 height = 4.0
+
+[sub_resource type="DynamicFontData" id=5]
+font_path = "res://assets/DejaVuSans-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=6]
+size = 32
+font_data = SubResource( 5 )
+
+[sub_resource type="Animation" id=7]
+resource_name = "fade-in-out"
+length = 4.0
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:self_modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1.1, 1.7, 4 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
 
 [sub_resource type="Animation" id=3]
 resource_name = "rotate"
@@ -522,6 +545,11 @@ rotation = 1.5708
 position = Vector2( -2.22577e-06, 239.5 )
 rotation = 1.5708
 
+[node name="maze" type="Polygon2D" parent="walls"]
+self_modulate = Color( 1, 1, 1, 0.313726 )
+color = Color( 0.4, 0.501961, 1, 1 )
+polygon = PoolVector2Array( 20, 100, 20, 700, 420, 700, 420, 100 )
+
 [node name="tris-shapes" type="Node2D" parent="."]
 __meta__ = {
 "_edit_lock_": true
@@ -545,6 +573,9 @@ __meta__ = {
 position = Vector2( 220, 600 )
 collision_mask = 0
 script = ExtResource( 16 )
+__meta__ = {
+"_edit_group_": true
+}
 
 [node name="bubble" type="Sprite" parent="ship"]
 modulate = Color( 1, 1, 1, 0 )
@@ -580,6 +611,32 @@ polygon = PoolVector2Array( 440, -20, 600, -20, 600, 740, 440, 740 )
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="level" type="RichTextLabel" parent="HUD"]
+margin_left = 470.0
+margin_top = 20.0
+margin_right = 562.0
+margin_bottom = 40.0
+rect_pivot_offset = Vector2( 18, 2 )
+text = "Level 1"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="level-up" type="Label" parent="HUD"]
+self_modulate = Color( 1, 1, 1, 0 )
+margin_right = 440.0
+margin_bottom = 102.0
+custom_fonts/font = SubResource( 6 )
+text = "Level 1"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="anim" type="AnimationPlayer" parent="HUD/level-up"]
+anims/fade-in-out = SubResource( 7 )
 
 [node name="lives" type="Node2D" parent="HUD"]
 
@@ -699,13 +756,10 @@ texture = ExtResource( 30 )
 autoplay = "rotate"
 anims/rotate = SubResource( 3 )
 
-[node name="level" type="RichTextLabel" parent="HUD"]
-margin_left = 470.0
-margin_top = 20.0
-margin_right = 562.0
-margin_bottom = 40.0
-rect_pivot_offset = Vector2( 18, 2 )
-text = "Level 1"
+[node name="clock" type="Sprite" parent="HUD"]
+position = Vector2( 480, 219 )
+scale = Vector2( 0.375, 0.375 )
+texture = ExtResource( 26 )
 
 [node name="game_time" type="RichTextLabel" parent="HUD"]
 margin_left = 504.0
@@ -714,11 +768,9 @@ margin_right = 572.0
 margin_bottom = 244.0
 rect_pivot_offset = Vector2( 18, 2 )
 text = "0 s"
-
-[node name="clock" type="Sprite" parent="HUD"]
-position = Vector2( 480, 219 )
-scale = Vector2( 0.375, 0.375 )
-texture = ExtResource( 26 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="pause-menu" parent="HUD" instance=ExtResource( 27 )]
 pause_mode = 2
