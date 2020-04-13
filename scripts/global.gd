@@ -26,12 +26,12 @@ const BUBBLE = preload('res://scenes/items/bubble.tscn')
 const SLOW_MO = preload('res://scenes/items/slow-mo.tscn')
 const SCENE_MILESTONE = preload('res://scenes/debug/milestone.tscn')
 const SHAPES = [
-	preload('res://scenes/shapes/tris-shape-bar.tscn'),
-	preload('res://scenes/shapes/tris-shape-L.tscn'),
-	preload('res://scenes/shapes/tris-shape-L2.tscn'),
-	preload('res://scenes/shapes/tris-shape-S.tscn'),
-	preload('res://scenes/shapes/tris-shape-S2.tscn'),
-	preload('res://scenes/shapes/tris-shape-square.tscn'),
+	preload('res://scenes/shapes/regular/tris-shape-bar.tscn'),
+	preload('res://scenes/shapes/regular/tris-shape-L.tscn'),
+	preload('res://scenes/shapes/regular/tris-shape-L2.tscn'),
+	preload('res://scenes/shapes/regular/tris-shape-S.tscn'),
+	preload('res://scenes/shapes/regular/tris-shape-S2.tscn'),
+	preload('res://scenes/shapes/regular/tris-shape-square.tscn'),
 ]
 
 enum {
