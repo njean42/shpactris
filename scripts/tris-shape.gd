@@ -79,9 +79,8 @@ func is_friendable():
 	return true
 
 func colorise(color):
-	for child in $'blocks'.get_children():
-		if child.has_node('box'):
-			child.get_node('box').modulate = color
+	for child in $'piece/blocks'.get_children():
+		child.get_node('box').modulate = color
 
 func switch_status(new_status,just_spawned=false):
 	match new_status:
@@ -129,10 +128,7 @@ func switch_status(new_status,just_spawned=false):
 			var block_is_killing_us = false
 			
 			# end_game if this block is too far up (outside the maze)
-			for block in $'blocks'.get_children():
-				if not block.has_node('box'):
-					continue
-				
+			for block in $'piece/blocks'.get_children():
 				# discard enemy bullet
 				var enemy_bullet = block.find_node('*enemy-bullet*',false,false)
 				if enemy_bullet:
@@ -208,9 +204,7 @@ func absorb(enemy_bullet):
 	# find an empty block to stick on
 	var empty_block = null
 	var bullets = []
-	for block in $'blocks'.get_children():
-		if not block.has_node('box'):
-			continue
+	for block in $'piece/blocks'.get_children():
 		var bullet = block.find_node('*enemy-bullet*',false,false)
 		if bullet == null:
 			empty_block = block
@@ -229,9 +223,8 @@ func absorb(enemy_bullet):
 			bullets[i].set_direction(direction)
 		
 		# make blocks disappear
-		for c in $'blocks'.get_children():
-			if c.is_in_group('tris-block'):
-				c.find_node('animation').play('fade-out')
+		for c in $'piece/blocks'.get_children():
+			c.find_node('animation').play('fade-out')
 		
 		detach_blocks()
 		return
@@ -400,10 +393,7 @@ func collide_stop_on_floor(c):
 func detach_blocks():
 	colorise(GREY)
 	
-	for block in $'blocks'.get_children():
-		if not block.has_node('box'):
-			continue
-		
+	for block in $'piece/blocks'.get_children():
 		# become grayish-transparent and collisionable blocks
 		block.get_node('box').set_collision_layer_bit(global.LAYER_TETRIS_BLOCKS,1)
 		

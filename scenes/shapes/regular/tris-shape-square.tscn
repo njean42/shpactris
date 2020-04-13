@@ -15,25 +15,23 @@ collision_mask = 0
 script = ExtResource( 1 )
 MAX_ROTATIONS = 1
 
-[node name="blocks" type="Node2D" parent="."]
+[node name="piece" type="Node2D" parent="."]
 
-[node name="tris-block" parent="blocks" instance=ExtResource( 2 )]
-editor/display_folded = true
+[node name="shake-refused" parent="piece" instance=ExtResource( 3 )]
+
+[node name="blocks" type="Node2D" parent="piece"]
+
+[node name="tris-block" parent="piece/blocks" instance=ExtResource( 2 )]
 position = Vector2( -20, -20 )
 
-[node name="tris-block2" parent="blocks" instance=ExtResource( 2 )]
-editor/display_folded = true
+[node name="tris-block2" parent="piece/blocks" instance=ExtResource( 2 )]
 position = Vector2( 20, -20 )
 
-[node name="tris-block3" parent="blocks" instance=ExtResource( 2 )]
-editor/display_folded = true
+[node name="tris-block3" parent="piece/blocks" instance=ExtResource( 2 )]
 position = Vector2( 20, 20 )
 
-[node name="tris-block4" parent="blocks" instance=ExtResource( 2 )]
-editor/display_folded = true
+[node name="tris-block4" parent="piece/blocks" instance=ExtResource( 2 )]
 position = Vector2( -20, 20 )
-
-[node name="shake-refused" parent="blocks" instance=ExtResource( 3 )]
 
 [node name="shape" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
