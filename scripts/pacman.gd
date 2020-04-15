@@ -107,6 +107,11 @@ func collide(c):
 
 # absorb enemy bullet (gather around pacman)
 func absorb(bullet):
+	if bullet.is_in_group('enemy-bullets-bad'):
+		get_hurt()
+		global.remove_from_game(bullet)
+		return
+	
 	global.enemy_hit(bullet)
 	var bullets_list = $'/root/world/pacman/enemy-bullets'
 	

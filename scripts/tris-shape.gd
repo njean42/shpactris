@@ -3,6 +3,7 @@ extends KinematicBody2D
 export var MAX_ROTATIONS = 2
 
 const BULLET = preload('res://scenes/shapes/enemy-bullet.tscn')
+const BULLET_BAD = preload('res://scenes/shapes/enemy-bullet-bad.tscn')
 
 var RED =   Color(0.5, 0, 0)  # enemy shapes
 var GREEN = Color(0.5, 1, 0.5)  # friend shapes
@@ -86,7 +87,6 @@ func colorise():
 		'FRIEND':
 			var bullets = get_enemy_bullets()
 			var ratio = bullets.size()*1.0 / $'piece/blocks'.get_children().size()
-			prints('colorise',ratio,bullets)
 			color = Color(
 				GREEN.r + (RED.r - GREEN.r) * ratio,
 				GREEN.g + (RED.g - GREEN.g) * ratio,
@@ -116,6 +116,9 @@ func switch_status(new_status,just_spawned=false):
 			position.y = floor(rand_range(-out,-global.GRID_SIZE))
 			
 			get_random_destination()
+			
+			set_collision_layer(pow(2,global.LAYER_TETRIS_SHAPE_ENEMIES))
+			set_collision_mask(0)
 			
 		'FRIEND':
 			# If I can't become a friend, stay an enemy and go some place else
@@ -197,8 +200,9 @@ func enemy_move(delta):
 func fire_enemy_bullet():
 	var bullet = BULLET.instance()
 	bullet.global_position = global_position
-	bullet.set_direction($'/root/world/ship'.global_position - global_position)
 	$'/root/world/bullets'.add_child(bullet)
+	var char2follow = bullet.get_closest_char()
+	bullet.set_direction(char2follow.global_position - global_position)
 
 func friend_move(delta):
 	# player(s) can force friendly tetris shapes to go down fast

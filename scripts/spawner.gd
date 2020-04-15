@@ -1,18 +1,27 @@
 extends Node2D
 
-var nb_enemies_left
+var nb_enemies_left = 0
 var time_since_last_shape = 0
 var time_since_last_ghost = 0
 
-
-func _ready():
-	pass
+var spawned_special = []
 
 
+# TODO: use _process?
 func _physics_process(delta):
 	
 	# check if we should level up
 	if nb_enemies_left == 0 and global.get_shapes(['ENEMY','FRIEND','FROZEN']).size() == 0:
+		
+		# spawn a special shape?
+		var level = $'/root/world'.level 
+		for s in global.SHAPES_SPECIAL:
+			if level == s.level and not(level in spawned_special):
+				spawned_special.append(level)
+				$'/root/world/tris-shapes'.add_child(s.shape.instance())
+				return
+		
+		# or level up
 		$'/root/world'.level_up()
 		return
 	
