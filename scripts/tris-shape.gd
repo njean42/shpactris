@@ -78,15 +78,36 @@ func is_friendable():
 	
 	return true
 
-func colorise(color):
+func colorise():
+	var color = null
+	match status:
+		'ENEMY':
+			color = RED
+		'FRIEND':
+			var bullets = get_enemy_bullets()
+			var ratio = bullets.size()*1.0 / $'piece/blocks'.get_children().size()
+			prints('colorise',ratio,bullets)
+			color = Color(
+				GREEN.r + (RED.r - GREEN.r) * ratio,
+				GREEN.g + (RED.g - GREEN.g) * ratio,
+				GREEN.b + (RED.b - GREEN.b) * ratio
+			)
+		'FROZEN':
+			color = TRANSPARENT_BLUE
+		'FLOOR':
+			color = GREY
+	
+	if color == null:
+		prints('[BUG] no color for tetris shape... status:',status)
+		return
+	
 	for child in $'piece/blocks'.get_children():
 		child.get_node('box').modulate = color
 
 func switch_status(new_status,just_spawned=false):
 	match new_status:
 		'ENEMY':
-			# enemies are more red-ish, and smaller
-			colorise(RED)
+			# enemies are smaller
 			scale = Vector2(0.5,0.5)
 			
 			# Start off-screen
@@ -109,13 +130,10 @@ func switch_status(new_status,just_spawned=false):
 			scale = Vector2(1,1)
 			
 			# ... Otherwise, become a friend
-			colorise(GREEN)
 			set_collision_layer(pow(2,global.LAYER_TETRIS_SHAPE_FRIENDS))
 			set_collision_mask(LAYERS['FRIEND'])
 		
 		'FROZEN':
-			colorise(TRANSPARENT_BLUE)
-			
 			set_collision_layer(pow(2,global.LAYER_TETRIS_SHAPE_FROZEN))
 			set_collision_mask(
 				pow(2,global.LAYER_TETRIS_BLOCKS) +
@@ -150,11 +168,14 @@ func switch_status(new_status,just_spawned=false):
 				global.end_game()
 			
 			# we don't care about the shape anymore, turn it to individual blocks
+			status = 'FLOOR'
+			colorise()
 			detach_blocks()
 			
 			return true
 	
 	status = new_status
+	colorise()
 	return true
 
 func enemy_move(delta):
@@ -200,16 +221,24 @@ func is_in_groups(obj,what):
 			return true
 	return false
 
+func get_enemy_bullets():
+	var bullets = []
+	for block in $'piece/blocks'.get_children():
+		var bullet = block.find_node('*enemy-bullet*',false,false)
+		if bullet != null:
+			bullets.append(bullet)
+	return bullets
+
 func absorb(enemy_bullet):
 	# find an empty block to stick on
 	var empty_block = null
-	var bullets = []
 	for block in $'piece/blocks'.get_children():
 		var bullet = block.find_node('*enemy-bullet*',false,false)
 		if bullet == null:
 			empty_block = block
 			break
-		bullets.append(bullet)
+	
+	var bullets = get_enemy_bullets()
 	
 	if empty_block == null:
 		global.play_sound('tris_shape_break')
@@ -235,12 +264,7 @@ func absorb(enemy_bullet):
 	global.reparent(enemy_bullet,empty_block,Vector2(0,0))
 	
 	# turn slowly to red as the number of bullets increases
-	var ratio = (bullets.size()+1) / 4.0
-	colorise(Color(
-		GREEN.r + (RED.r - GREEN.r) * ratio,
-		GREEN.g + (RED.g - GREEN.g) * ratio,
-		GREEN.b + (RED.b - GREEN.b) * ratio
-	))
+	colorise()
 
 func friend_move_dir(dir,step=0):
 	var c = move_and_collide(dir * global.GRID_SIZE)
@@ -391,8 +415,6 @@ func collide_stop_on_floor(c):
 	return false
 
 func detach_blocks():
-	colorise(GREY)
-	
 	for block in $'piece/blocks'.get_children():
 		# become grayish-transparent and collisionable blocks
 		block.get_node('box').set_collision_layer_bit(global.LAYER_TETRIS_BLOCKS,1)
