@@ -15,7 +15,6 @@ var destination
 var time_since_last_bullet = 0
 var time_since_last_friend_move = 0
 var force_down = false
-var rotation_counter = 0
 onready var bullet_interval = conf.current.TRIS_SHAPE_BULLET_INTERVAL + rand_range(
 	-conf.current.TRIS_SHAPE_BULLET_INTERVAL/2,
 	conf.current.TRIS_SHAPE_BULLET_INTERVAL/2
@@ -285,13 +284,17 @@ func friend_move_dir(dir,step=0):
 	# I'm being pushed, don't move down before some time
 	time_since_last_friend_move = 0
 
-func friend_move_rotate(angle = PI/2, escape = true):
+func friend_move_rotate(angle = PI/2):
 	if angle != 0 and MAX_ROTATIONS == 0:
 		return false
 	
+	var rotations = round((rotation+angle) / deg2rad(90))
+	if rotations >= MAX_ROTATIONS:
+		angle = -rotation  # don't rotate another 90°, rotate "back" to 0°
+	
 	rotate(angle)
-	var orig_pos = global_position
 	global_position = global.attach_pos_to_grid(global_position)
+	var orig_pos = global_position
 	
 	var step = 1
 	var chosen_dir = null
@@ -305,18 +308,11 @@ func friend_move_rotate(angle = PI/2, escape = true):
 			return false
 		step += 1
 		
-		if not escape:
-			# cant escape moves, rotate back
-			rotate(-angle)
-			global_position = orig_pos
-			refused()
-			return false
-		
-		# can move left or right to "slide" against a wall (left or right, or tetris blocks)
+		# can move left or right to "slide" against a wall, tetris blocks, or pacman
 		var blocker = null
 		for c in colliding:
 			blocker = c
-			if c.is_in_group('wall-bottom') or c.is_in_group('pacman'):
+			if c.is_in_group('wall-bottom'):
 				# unauthorised rotation, rotate back
 				rotate(-angle)
 				global_position = orig_pos
@@ -333,15 +329,13 @@ func friend_move_rotate(angle = PI/2, escape = true):
 			elif global_position.x >= global.SCREEN_SIZE.x - global.GRID_SIZE * 2:
 				# forcing dir *left*, too far right
 				chosen_dir = -1
+			
+			if chosen_dir == 0:
+				chosen_dir = 1 if randf() < 0.5 else -1
 		
 		var move = Vector2(global.GRID_SIZE * chosen_dir, 0)
 		global_position += move
 		colliding = test_collisions('BLOCK_ROTATION')
-	
-	rotation_counter += angle / (PI/2)
-	if rotation_counter >= MAX_ROTATIONS:
-		rotation_counter = 0
-		rotation = 0
 	
 	# don't move down for a while after I've rotated
 	time_since_last_friend_move = 0
@@ -382,7 +376,7 @@ func test_collisions(layer):
 	for i in shape_owner_get_shape_count(0):  # can owner be != 0 ?
 		var shape = shape_owner_get_shape(0,i)
 		var trans = Transform2D(
-			get_transform().get_rotation(),
+			rotation,
 			global_position # + shape.get_transform().get_origin()
 		)
 		
