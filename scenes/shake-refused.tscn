@@ -24,12 +24,15 @@ var time_playing = 0
 
 func play_me():
 	time_playing = 0
+	stop()
 	play('shake-refused')
 
 func _process(delta):
 	time_playing += delta
-	if time_playing >= 0.6: # 3 loops
-		stop()"
+	if is_playing() and time_playing >= 0.6: # 3 loops
+		stop()
+		get_parent().position = Vector2(0,0)
+"
 
 [node name="shake-refused" type="AnimationPlayer"]
 anims/shake-refused = SubResource( 1 )

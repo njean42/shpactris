@@ -15,7 +15,7 @@ func _physics_process(delta):
 		# rotate tetris shapes
 		if c.collider.is_in_group('tris-shape'):
 			global.remove_from_game(self)
-			c.collider.friend_move_rotate(PI/2,false)
+			c.collider.friend_move_rotate(PI/2)
 		
 		return
 	
