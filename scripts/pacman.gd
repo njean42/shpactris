@@ -57,6 +57,11 @@ func player_move(delta):
 	elif Input.is_action_pressed("any_mode_pacman_up"):
 		direction = 'up'
 	
+	# Stay on intersections (~cells) when Pacman stops moving
+	if prev_dir and not direction:
+		position = global.attach_pos_to_grid(position)
+	
+	# Also when changing direction
 	if direction and prev_dir and direction != prev_dir:
 		position = global.attach_pos_to_grid(position)
 	
