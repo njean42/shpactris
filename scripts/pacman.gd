@@ -108,6 +108,12 @@ func collide(c):
 # absorb enemy bullet (gather around pacman)
 func absorb(bullet):
 	if bullet.is_in_group('enemy-bullets-bad'):
+		
+		# hitting a bad enemy bullet with pacman's shadow doesn't lose life; the shadow disappears
+		if is_shadow:
+			queue_free()
+			return
+		
 		get_hurt()
 		global.remove_from_game(bullet)
 		return
