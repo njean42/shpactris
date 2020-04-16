@@ -8,6 +8,7 @@
 "tris-shape",
 ]]
 script = ExtResource( 3 )
+MAX_ROTATIONS = 0
 
 [node name="piece" type="Node2D" parent="."]
 
