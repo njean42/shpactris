@@ -37,7 +37,7 @@ var LAYERS = {
 
 
 func _ready():
-	position = global.attach_pos_to_grid(position)
+	global_position = global.attach_pos_to_grid(global_position)
 	switch_status(status,true)
 
 func _physics_process(delta):
@@ -86,7 +86,6 @@ func colorise():
 		'FRIEND':
 			var bullets = get_enemy_bullets()
 			var ratio = bullets.size()*1.0 / $'piece/blocks'.get_children().size()
-			prints('colorise',ratio,bullets)
 			color = Color(
 				GREEN.r + (RED.r - GREEN.r) * ratio,
 				GREEN.g + (RED.g - GREEN.g) * ratio,
@@ -142,7 +141,7 @@ func switch_status(new_status,just_spawned=false):
 			
 		'FLOOR':
 			global.play_sound('tris_shape_down')
-			position = global.attach_pos_to_grid(position)
+			global_position = global.attach_pos_to_grid(global_position)
 			var block_is_killing_us = false
 			
 			# end_game if this block is too far up (outside the maze)
@@ -268,7 +267,7 @@ func absorb(enemy_bullet):
 
 func friend_move_dir(dir,step=0):
 	var c = move_and_collide(dir * global.GRID_SIZE)
-	position = global.attach_pos_to_grid(position)
+	global_position = global.attach_pos_to_grid(global_position)
 	if c:
 		if c.collider.is_in_group('enemy-bullets'):
 			absorb(c.collider)
