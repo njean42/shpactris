@@ -31,5 +31,4 @@ position = Vector2( 20, 20 )
 position = Vector2( 20, -20 )
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
-visible = false
-polygon = PoolVector2Array( 5, -35, 35, -35, 35, 75, 5, 75, 5, 35, -35, 35, -35, 5, 5, 5 )
+polygon = PoolVector2Array( 5, -75, 35, -75, 35, 35, 5, 35, 5, -5, -35, -5, -35, -35, 5, -35 )
