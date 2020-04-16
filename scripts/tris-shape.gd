@@ -287,6 +287,9 @@ func friend_move_dir(dir,step=0):
 	time_since_last_friend_move = 0
 
 func friend_move_rotate(angle = PI/2, escape = true):
+	if angle != 0 and MAX_ROTATIONS == 0:
+		return false
+	
 	rotate(angle)
 	var orig_pos = global_position
 	global_position = global.attach_pos_to_grid(global_position)
@@ -341,7 +344,11 @@ func friend_move_rotate(angle = PI/2, escape = true):
 		rotation_counter = 0
 		rotation = 0
 	
-	time_since_last_friend_move = 0  # don't move down for a while after I've rotated
+	# don't move down for a while after I've rotated
+	time_since_last_friend_move = 0
+	
+	if angle != 0:
+		global.play_sound('tris_shape_hit')
 	return true
 
 func try_landing():  # when a tetris shape turns into a friend (from ENEMY or FROZEN state)
