@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://scripts/tris-shape.gd" type="Script" id=1]
+[ext_resource path="res://scenes/shapes/tris-block.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/shake-refused.tscn" type="PackedScene" id=3]
+
+[node name="tris-shape-t" type="KinematicBody2D" groups=[
+"tris-shape",
+]]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource( 1 )
+MAX_ROTATIONS = 4
+
+[node name="piece" type="Node2D" parent="."]
+
+[node name="shake-refused" parent="piece" instance=ExtResource( 3 )]
+
+[node name="blocks" type="Node2D" parent="piece"]
+
+[node name="tris-block" parent="piece/blocks" instance=ExtResource( 2 )]
+position = Vector2( 20, -60 )
+
+[node name="tris-block2" parent="piece/blocks" instance=ExtResource( 2 )]
+position = Vector2( -20, -20 )
+
+[node name="tris-block3" parent="piece/blocks" instance=ExtResource( 2 )]
+position = Vector2( 20, 20 )
+
+[node name="tris-block4" parent="piece/blocks" instance=ExtResource( 2 )]
+position = Vector2( 20, -20 )
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+visible = false
+polygon = PoolVector2Array( 5, -35, 35, -35, 35, 75, 5, 75, 5, 35, -35, 35, -35, 5, 5, 5 )

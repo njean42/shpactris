@@ -32,6 +32,7 @@ const SHAPES = [
 	preload('res://scenes/shapes/regular/tris-shape-S.tscn'),
 	preload('res://scenes/shapes/regular/tris-shape-S2.tscn'),
 	preload('res://scenes/shapes/regular/tris-shape-square.tscn'),
+	preload('res://scenes/shapes/regular/tris-shape-t.tscn'),
 ]
 
 enum {
