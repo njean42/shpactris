@@ -150,7 +150,7 @@ func switch_status(new_status,just_spawned=false):
 			
 			# end_game if this block is too far up (outside the maze)
 			for block in $'piece/blocks'.get_children():
-				# discard enemy bullet
+				# discard enemy bullets
 				var enemy_bullet = block.find_node('*enemy-bullet*',false,false)
 				if enemy_bullet:
 					enemy_bullet.queue_free()
@@ -246,14 +246,15 @@ func absorb(enemy_bullet):
 	
 	if empty_block == null:
 		global.play_sound('tris_shape_break')
-		# fire bullets (give them new directions so that they form a downward rainbow)
-		for i in range(bullets.size()):
-			var angle = deg2rad(45) + deg2rad(90) * i / bullets.size()
-			var direction = Vector2.RIGHT.rotated(angle)
-			global.enable_collision(bullets[i])
-			bullets[i].set_physics_process(true)
-			global.reparent(bullets[i],$'/root/world/bullets')
-			bullets[i].set_direction(direction)
+		enemy_bullet.queue_free()
+		
+		# fire bad bullets in a circle
+		for i in range(bullets.size()+1):
+			var bullet = BULLET_BAD.instance()
+			bullet.global_position = global_position
+			var angle = 0 + deg2rad(180) * i / bullets.size()
+			bullet.set_direction(Vector2.RIGHT.rotated(angle))
+			$'/root/world/bullets'.add_child(bullet)
 		
 		# make blocks disappear
 		for c in $'piece/blocks'.get_children():
