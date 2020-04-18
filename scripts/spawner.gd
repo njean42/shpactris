@@ -5,20 +5,33 @@ var time_since_last_shape = 0
 var time_since_last_ghost = 0
 
 var spawned_special = []
+onready var last_level_with_special = global.SHAPES_SPECIAL.keys().max()
 
 
-# TODO: use _process?
 func _physics_process(delta):
 	
 	# check if we should level up
 	if nb_enemies_left == 0 and global.get_shapes(['ENEMY','FRIEND','FROZEN']).size() == 0:
 		
-		# spawn a special shape?
-		var level = $'/root/world'.level 
-		for s in global.SHAPES_SPECIAL:
-			if level == s.level and not(level in spawned_special):
+		# spawn special shapes?
+		var level = $'/root/world'.level
+		var equiv_level = null
+		if not(level in spawned_special):
+			var special = null
+			for l in global.SHAPES_SPECIAL:
+				if l == level:
+					special = global.SHAPES_SPECIAL[l]
+					break
+				elif (level%last_level_with_special) % l == 0:
+					equiv_level = l
+			
+			if special == null and equiv_level != null:
+				# cycle through previous special pieces
+				special = global.SHAPES_SPECIAL[equiv_level]
+			
+			if special:
 				spawned_special.append(level)
-				$'/root/world/tris-shapes'.add_child(s.shape.instance())
+				$'/root/world/tris-shapes'.add_child(special.instance())
 				return
 		
 		# or level up

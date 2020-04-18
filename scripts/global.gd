@@ -34,12 +34,12 @@ const SHAPES = [
 	preload('res://scenes/shapes/regular/tris-shape-square.tscn'),
 	preload('res://scenes/shapes/regular/tris-shape-t.tscn'),
 ]
-const SHAPES_SPECIAL = [
-	{
-		'level': 3,
-		'shape': preload('res://scenes/shapes/special/tris-shape-cross.tscn'),
-	}
-]
+const SHAPE_SPECIAL_CROSS = preload('res://scenes/shapes/special/tris-shape-cross.tscn')
+const SHAPE_SPECIAL_STAIRS = preload('res://scenes/shapes/special/tris-shape-stairs.tscn')
+var SHAPES_SPECIAL = {
+	2: SHAPE_SPECIAL_CROSS,
+	4: SHAPE_SPECIAL_STAIRS,
+}
 
 enum {
 	LAYER_SHIP, # 0

@@ -2,7 +2,7 @@
 
 [ext_resource path="res://scenes/shapes/tris-block.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scenes/shake-refused.tscn" type="PackedScene" id=2]
-[ext_resource path="res://scripts/tris-shape-cross.gd" type="Script" id=3]
+[ext_resource path="res://scripts/tris-shape-boss.gd" type="Script" id=3]
 
 [node name="tris-shape-cross" type="KinematicBody2D" groups=[
 "tris-shape",
