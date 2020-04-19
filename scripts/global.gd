@@ -36,9 +36,11 @@ const SHAPES = [
 ]
 const SHAPE_SPECIAL_CROSS = preload('res://scenes/shapes/special/tris-shape-cross.tscn')
 const SHAPE_SPECIAL_STAIRS = preload('res://scenes/shapes/special/tris-shape-stairs.tscn')
+const SHAPE_SPECIAL_U = preload('res://scenes/shapes/special/tris-shape-u.tscn')
 var SHAPES_SPECIAL = {
 	2: SHAPE_SPECIAL_CROSS,
 	4: SHAPE_SPECIAL_STAIRS,
+	6: SHAPE_SPECIAL_U,
 }
 
 enum {

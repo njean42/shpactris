@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://scenes/shapes/special/tris-shape-cross.tscn" type="PackedScene" id=1]
+
+[node name="tris-shape-u" instance=ExtResource( 1 )]
+MAX_ROTATIONS = 4
+
+[node name="tris-block3" parent="piece/blocks" index="2"]
+position = Vector2( -20, -20 )
+
+[node name="tris-block4" parent="piece/blocks" index="3"]
+position = Vector2( 60, -20 )
+
+[node name="tris-block5" parent="piece/blocks" index="4"]
+position = Vector2( -20, 20 )
+
+[node name="CollisionPolygon2D" parent="." index="1"]
+polygon = PoolVector2Array( -25, -55, -25, -15, 25, -15, 25, -55, 55, -55, 55, 15, -55, 15, -55, -15, -55, -55 )
