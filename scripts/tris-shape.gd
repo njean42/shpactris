@@ -211,13 +211,6 @@ func friend_move(delta):
 	time_since_last_friend_move = 0
 	friend_move_dir(Vector2(0,1))
 
-var COLLISION_SHOULD_STOP_MOVE = ['wall-bottom','tris-block-box']
-
-func is_in_groups(obj,what):
-	for g in what:
-		if obj.is_in_group(g):
-			return true
-	return false
 
 func get_enemy_bullets():
 	var bullets = []
@@ -273,15 +266,21 @@ func friend_move_dir(dir,step=0):
 			friend_move_dir(c.remainder/global.GRID_SIZE,step+1)
 			return
 		
-		if collide_and_kill(c):
-			# move down by the rest of the collision move (we're killin that ghost and/or bullet after all)
+		if c.collider.is_in_group('ghosts'):
+			c.collider.find_node('anim').play('shake-and-die')
 			friend_move_dir(c.remainder/global.GRID_SIZE,step+1)
 			return
 		
-		collide_stop_on_floor(c)
-		force_down = false
+		if status == 'FRIEND' and (
+			c.collider.is_in_group('wall-bottom') or
+			c.collider.is_in_group('tris-block-box')):
+			
+			# check that this is a collision after moving or being pushed down (not left or right, as this results in tetris shapes wrongly "attaching" to other ground shapes)
+			if dir.x == 0 and dir.y > 0:  # moving down
+				switch_status('FLOOR')
+				force_down = false
 	
-	# I'm being pushed, don't move down before some time
+	# I've been pushed (or went down), don't move down before some time
 	time_since_last_friend_move = 0
 
 func friend_move_rotate(angle = PI/2):
@@ -392,27 +391,6 @@ func test_collisions(layer):
 	
 	return colliders
 
-func collide_and_kill(c):
-	# destroy ghosts and bullets on the way
-	if c.collider.is_in_group('bullets'):
-		global.remove_from_game(c.collider)
-		return true
-	
-	if (c.collider.is_in_group('ghosts')):
-		c.collider.find_node('anim').play('shake-and-die')
-		return true
-	
-	return false
-
-func collide_stop_on_floor(c):
-	if c:
-		if status == 'FRIEND' and is_in_groups(c.collider,COLLISION_SHOULD_STOP_MOVE):
-			# check that this is a collision after moving or being pushed down (not left or right, as this results in tetris shapes "attaching" to other ground shapes)
-			var normal = c.get_normal()
-			if abs(normal.x) <= abs(normal.y) and normal.y < 0:
-				switch_status('FLOOR')
-				return true
-	return false
 
 func detach_blocks():
 	for block in $'piece/blocks'.get_children():
