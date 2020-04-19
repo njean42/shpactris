@@ -154,13 +154,26 @@ func absorb(bullet):
 		$'/root/world/items'.add_child(item.instance())
 
 func fire_shadow():
+	# switch position with existing shadow
+	var shadow = get_tree().get_nodes_in_group('pacman-shadow')
+	if shadow.size() > 0:
+		shadow = shadow[0]
+		
+		if walls.is_in_maze(global.pos_to_grid(shadow.global_position)):
+			time_since_last_shadow = 0
+			global_position = shadow.global_position
+			shadow.queue_free()
+		
+		return
+	
 	if SHADOW == null:
 		SHADOW = load('res://scenes/pacman-shadow.tscn')
 	
-	var shadow = SHADOW.instance()
+	shadow = SHADOW.instance()
 	$'/root/world'.add_child(shadow)
 	shadow.global_position = global_position
 	shadow.is_shadow = true
+	shadow.add_to_group('pacman-shadow')
 	shadow.direction = direction if direction else prev_dir
 	shadow.speed = conf.current.PACMAN_SPEED * 2  # shadows travel twice as fast as pacman
 
