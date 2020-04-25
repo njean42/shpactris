@@ -11,6 +11,9 @@ var collisions = {
 }
 
 
+func _ready():
+	global.enable_collision(self)
+
 func set_direction(dir):
 	direction = dir
 

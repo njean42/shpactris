@@ -7,8 +7,8 @@ func _init():
 	follow *= accel
 	
 	collisions = {
-		'layer': [global.LAYER_TETRIS_BULLET],
-		'mask': [global.LAYER_SHIP, global.LAYER_PACMAN]
+		'layer': [global.LAYER_TETRIS_BULLET_BAD],
+		'mask': [global.LAYER_SHIP, global.LAYER_PACMAN_KILL]
 	}
 
 

@@ -37,13 +37,13 @@ tracks/0/keys = {
 }
 
 [sub_resource type="CircleShape2D" id=3]
-radius = 13.5832
+radius = 13.5
 
 [node name="ghost" type="KinematicBody2D" groups=[
 "ghosts",
 ]]
 collision_layer = 1024
-collision_mask = 2130
+collision_mask = 6224
 script = ExtResource( 1 )
 
 [node name="sprite" type="Sprite" parent="."]

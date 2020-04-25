@@ -7,7 +7,7 @@ var time_since_last_shadow = 0
 var is_shadow = false
 
 var SHADOW = null
-var MAX_ENEMY_BULLETS = 10
+var MAX_ENEMY_BULLETS = 8
 
 
 func _ready():
@@ -89,11 +89,6 @@ func collide(c):
 			# eat enemy bullets
 			'enemy-bullets':
 				absorb(c.collider)
-				
-			# get hurt by ghosts
-			'ghosts':
-				get_hurt()
-				c.collider.queue_free()
 			
 			# push friendly tetris shapes
 			'tris-shape':

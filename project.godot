@@ -227,6 +227,8 @@ any_mode_ship_frost_beam={
 2d_physics/layer_10="tris-blocks"
 2d_physics/layer_11="ghosts"
 2d_physics/layer_12="pacman-walls"
+2d_physics/layer_13="pacman-kill"
+2d_physics/layer_14="enemy-bullets-bad"
 
 [rendering]
 

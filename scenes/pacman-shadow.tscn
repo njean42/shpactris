@@ -2,7 +2,7 @@
 
 [ext_resource path="res://scenes/pacman.tscn" type="PackedScene" id=1]
 
-[node name="pacman" groups=[
+[node name="pacman-shadow" groups=[
 "pacman-shadow",
 ] instance=ExtResource( 1 )]
 collision_layer = 0
@@ -10,5 +10,8 @@ collision_mask = 128
 
 [node name="sprite" parent="character" index="0"]
 self_modulate = Color( 1, 1, 1, 0.501961 )
+
+[node name="hitbox" parent="." index="3"]
+collision_mask = 8320
 
 [editable path="character"]

@@ -56,6 +56,8 @@ enum {
 	LAYER_TETRIS_BLOCKS, # 9
 	LAYER_GHOSTS,  # 10
 	LAYER_PACMAN_WALLS,  # 11
+	LAYER_PACMAN_KILL,  # 12
+	LAYER_TETRIS_BULLET_BAD,  # 13
 }
 
 
@@ -90,10 +92,8 @@ func disable_collision(node):
 	enable_collision(node,0)
 
 func enable_collision(node,value=1):
-	for l in node.collisions.layer:
-		node.set_collision_layer_bit(l,value)
-	for m in node.collisions.mask:
-		node.set_collision_mask_bit(m,value)
+	node.collision_layer = get_layer(node.collisions.layer) if value else 0
+	node.collision_mask = get_layer(node.collisions.mask) if value else 0
 
 func reparent(node,new_parent,new_position=null):
 	var globpos = node.global_position

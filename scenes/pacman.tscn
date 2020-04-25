@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://scripts/pacman.gd" type="Script" id=1]
 [ext_resource path="res://assets/bubble.png" type="Texture" id=2]
@@ -9,6 +9,20 @@
 [sub_resource type="CircleShape2D" id=1]
 radius = 16.0312
 
+[sub_resource type="GDScript" id=2]
+script/source = "extends StaticBody2D
+
+
+func get_hurt():
+	get_parent().get_hurt()
+
+
+func absorb(bullet):
+	get_parent().absorb(bullet)
+"
+
+[sub_resource type="CircleShape2D" id=3]
+
 [node name="pacman" type="KinematicBody2D" groups=[
 "pacman",
 ]]
@@ -16,6 +30,12 @@ position = Vector2( 220, 360 )
 collision_layer = 2
 collision_mask = 2192
 script = ExtResource( 1 )
+__meta__ = {
+"_editor_description_": "collisions with:
+- enemy-bullets (regular)
+- walls
+- tetris pieces"
+}
 
 [node name="bubble" type="Sprite" parent="."]
 modulate = Color( 1, 1, 1, 0 )
@@ -33,10 +53,20 @@ texture = ExtResource( 4 )
 
 [node name="shake-refused" parent="character" instance=ExtResource( 5 )]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
+[node name="movebox" type="CollisionShape2D" parent="."]
 position = Vector2( 20, 20 )
 shape = SubResource( 1 )
+
+[node name="hitbox" type="StaticBody2D" parent="." groups=[
+"pacman",
+]]
+collision_layer = 4096
+collision_mask = 128
+script = SubResource( 2 )
+
+[node name="hitbox" type="CollisionShape2D" parent="hitbox"]
+position = Vector2( 20, 20 )
+shape = SubResource( 3 )
 
 [node name="enemy-bullets" type="Node2D" parent="."]
 

@@ -188,73 +188,61 @@ __meta__ = {
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 40, 720 )
-collision_layer = 4128
 
 [node name="wall69" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 0, 720 )
-collision_layer = 4128
 
 [node name="wall78" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 440, 720 )
-collision_layer = 4128
 
 [node name="wall3" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 120, 720 )
-collision_layer = 4128
 
 [node name="wall6" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 200, 720 )
-collision_layer = 4128
 
 [node name="wall8" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 280, 720 )
-collision_layer = 4128
 
 [node name="wall2" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 80, 720 )
-collision_layer = 4128
 
 [node name="wall4" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 160, 720 )
-collision_layer = 4128
 
 [node name="wall5" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 240, 720 )
-collision_layer = 4128
 
 [node name="wall7" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 320, 720 )
-collision_layer = 4128
 
 [node name="wall9" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 360, 720 )
-collision_layer = 4128
 
 [node name="wall72" parent="walls/borders" groups=[
 "wall-bottom",
 ] instance=ExtResource( 14 )]
 position = Vector2( 400, 720 )
-collision_layer = 4128
 
 [node name="wall10" parent="walls/borders" instance=ExtResource( 14 )]
 position = Vector2( 440, 680 )

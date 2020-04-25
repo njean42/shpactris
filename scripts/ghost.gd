@@ -7,7 +7,11 @@ var path2pacman = null
 
 var collisions = {
 	'layer': [global.LAYER_GHOSTS],
-	'mask': [global.LAYER_BULLETS, global.LAYER_TETRIS_SHAPE_FRIENDS, global.LAYER_PACMAN]
+	'mask': [
+		global.LAYER_BULLETS,
+		global.LAYER_TETRIS_SHAPE_FRIENDS,
+		global.LAYER_PACMAN_KILL
+	]
 }
 
 var colors = [

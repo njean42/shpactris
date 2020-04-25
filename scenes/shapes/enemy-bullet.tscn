@@ -10,7 +10,7 @@ radius = 6.4388
 "enemy-bullets",
 ]]
 collision_layer = 128
-collision_mask = 17
+collision_mask = 19
 script = ExtResource( 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
