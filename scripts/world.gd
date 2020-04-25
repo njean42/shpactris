@@ -33,6 +33,10 @@ func lose_life(who):
 	lives -= 1
 	find_node('HUD').update()
 	if lives < 0:
+		$'HUD/game-over-spot'.position = who.position
+		if who.is_in_group('pacman'):
+			$'HUD/game-over-spot'.position += Vector2(global.GRID_SIZE/2,global.GRID_SIZE/2)
+		$'HUD/game-over-spot'.visible = true
 		global.end_game()
 		return
 	

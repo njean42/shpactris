@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=2]
+[gd_scene load_steps=39 format=2]
 
 [ext_resource path="res://scripts/world.gd" type="Script" id=1]
 [ext_resource path="res://assets/music/Korobeiniki-cc0.ogg" type="AudioStream" id=2]
@@ -30,6 +30,7 @@
 [ext_resource path="res://scripts/spawner.gd" type="Script" id=28]
 [ext_resource path="res://scripts/funky-imp.gd" type="Script" id=29]
 [ext_resource path="res://assets/slow-mo.png" type="Texture" id=30]
+[ext_resource path="res://assets/game-over-spot.png" type="Texture" id=31]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node2D
@@ -797,6 +798,11 @@ margin_left = 14.0
 margin_top = 105.0
 margin_right = 119.0
 margin_bottom = 144.0
+
+[node name="game-over-spot" type="Sprite" parent="HUD"]
+visible = false
+position = Vector2( -50, 120 )
+texture = ExtResource( 31 )
 
 [node name="spawner" type="Node2D" parent="."]
 script = ExtResource( 28 )
