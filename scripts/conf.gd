@@ -63,9 +63,11 @@ func _process(delta):
 		return
 	
 	time_in_slow_mo += delta
-	if time_in_slow_mo >= SLOW_MO_DURATION:  # end worldmo
+	if time_in_slow_mo >= SLOW_MO_DURATION:  # end slow-mo
 		$'/root/world/HUD/slow-mo'.visible = false
 		is_slow_mo = false
+		$'/root/world/music'.pitch_scale = 1
+		
 		for k in SLOW_MO_AFFECTED:
 			if default[k].levelup > 1:
 				current[k] *= 2
@@ -114,6 +116,7 @@ func slow_motion():
 	$'/root/world/HUD/slow-mo'.visible = true
 	is_slow_mo = true
 	time_in_slow_mo = 0
+	$'/root/world/music'.pitch_scale = 0.8
 	for k in SLOW_MO_AFFECTED:
 		if default[k].levelup > 1:
 			current[k] /= 2
