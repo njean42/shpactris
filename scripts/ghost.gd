@@ -133,6 +133,10 @@ func path_to_pacman():
 func collide(c):
 	# hurt pacman and die
 	if c.collider.is_in_group('pacman'):
+		if c.collider.get_parent().is_shadow:  # don't hurt pacman's shadow
+			c.collider.get_parent().queue_free()
+			return
+		
 		c.collider.get_hurt()
 		global.remove_from_game(self)
 	
