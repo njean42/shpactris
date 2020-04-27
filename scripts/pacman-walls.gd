@@ -13,7 +13,7 @@ var allowed_dirs
 
 
 func is_in_maze(gridpos):
-	return gridpos.x >= maze_x_min and gridpos.x <= maze_x_max and gridpos.y >= maze_y_min and gridpos.y <= maze_y_max
+	return gridpos.x >= maze_x_min and gridpos.x <= maze_x_max and gridpos.y >= maze_y_min and gridpos.y < maze_y_max
 
 func new_walls():
 	
