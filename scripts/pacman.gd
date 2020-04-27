@@ -3,7 +3,6 @@ extends 'ship-pacman.gd'
 var direction = false
 var prev_dir = 'right'
 var speed = false
-var time_since_last_shadow = 0
 var is_shadow = false
 
 var SHADOW = null
@@ -40,8 +39,8 @@ func move(delta):
 		var c = move_and_collide(velocity * speed * delta)
 		collide(c)
 	
-	# remove if off screen (only shadows should go off screen)
-	if position.y > global.SCREEN_SIZE.y or position.y < 0 or position.x > global.SCREEN_SIZE.x or position.x < 0:
+	# remove if off-maze (only shadows should go off screen)
+	if not walls.is_in_maze(global.pos_to_grid(position)):
 		queue_free()
 
 
@@ -68,15 +67,11 @@ func player_move(delta):
 	if direction:
 		prev_dir = direction
 	
-	if time_since_last_shadow < conf.current.PACMAN_SHADOW_INTERVAL:
-		time_since_last_shadow += delta
-		return
-	
 	var mode = 'any_mode_' if global.PLAYERS.mode_1p else '2p_mode_'
-	if Input.is_action_pressed(mode+'pacman_fire_shadow'):
-		time_since_last_shadow = 0
+	if Input.is_action_just_pressed(mode+'pacman_fire_shadow'):
 		fire_shadow()
-
+	if Input.is_action_just_released(mode+'pacman_fire_shadow'):
+		teleport()
 
 func collide(c):
 	if not c:
@@ -148,18 +143,13 @@ func absorb(bullet):
 		
 		$'/root/world/items'.add_child(item.instance())
 
+var can_teleport
 func fire_shadow():
-	# switch position with existing shadow
 	var shadow = get_tree().get_nodes_in_group('pacman-shadow')
 	if shadow.size() > 0:
-		shadow = shadow[0]
-		
-		if walls.is_in_maze(global.pos_to_grid(shadow.global_position)):
-			time_since_last_shadow = 0
-			global_position = shadow.global_position
-			shadow.queue_free()
-		
-		return
+		shadow[0].queue_free()
+	
+	can_teleport = true
 	
 	if SHADOW == null:
 		SHADOW = load('res://scenes/pacman-shadow.tscn')
@@ -172,3 +162,23 @@ func fire_shadow():
 	shadow.direction = direction if direction else prev_dir
 	shadow.speed = conf.current.PACMAN_SPEED * 2  # shadows travel twice as fast as pacman
 
+func teleport():
+	if not can_teleport:
+		return
+	
+	# switch position with existing shadow
+	var shadow = get_tree().get_nodes_in_group('pacman-shadow')
+	if shadow.size() == 0:
+		return
+	shadow = shadow[0]
+	
+	# don't teleport just next to pacman
+	var dist2pacman = (global_position - shadow.global_position).length()
+	if floor(dist2pacman/global.GRID_SIZE) < 2: # traveled at least two cells
+		can_teleport = false
+		return
+	
+	var shadow_pos = global.pos_to_grid(shadow.global_position)
+	if walls.is_in_maze(shadow_pos):
+		global_position = global.grid_to_pos(shadow_pos)
+		shadow.queue_free()

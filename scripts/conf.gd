@@ -32,7 +32,6 @@ var default = {
 	'SHIP_BULLET_SPEED': {'init': 500, 'levelup': default_increase},
 	
 	'PACMAN_SPEED': {'init': 200, 'levelup': default_increase},
-	'PACMAN_SHADOW_INTERVAL': 0.25,
 	
 	'PACMAN_WALLS_MOVE_INTERVAL': {'init': 1, 'levelup': default_decrease},
 	
