@@ -172,7 +172,7 @@ func teleport():
 		return
 	shadow = shadow[0]
 	
-	# don't teleport just next to pacman
+	# don't teleport just next to previous position
 	var dist2pacman = (global_position - shadow.global_position).length()
 	if floor(dist2pacman/global.GRID_SIZE) < 2: # traveled at least two cells
 		can_teleport = false
@@ -180,5 +180,16 @@ func teleport():
 	
 	var shadow_pos = global.pos_to_grid(shadow.global_position)
 	if walls.is_in_maze(shadow_pos):
+		var current_pos = global_position
 		global_position = global.grid_to_pos(shadow_pos)
+		
+		# check that pacman won't collide with (step on) a friendly tetris piece
+		var transform = get_transform()
+		transform.origin = global_position
+		var collision = test_move(transform,Vector2(0,0))
+		if collision:
+			can_teleport = false
+			global_position = current_pos
+			return
+		
 		shadow.queue_free()
