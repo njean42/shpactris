@@ -274,7 +274,7 @@ margin_top = 53.0
 margin_right = 400.0
 margin_bottom = 67.0
 size_flags_horizontal = 8
-text = "v0.9.2"
+text = "v0.9.3"
 align = 2
 
 [node name="controls" type="HBoxContainer" parent="margin/vbox"]
