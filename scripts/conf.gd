@@ -82,9 +82,7 @@ func init_conf():
 
 
 func level_up(level):
-	$'/root/world/HUD/level-up'.text = 'Level '+str(level)
-	$'/root/world/HUD/level-up/anim'.stop(true)
-	$'/root/world/HUD/level-up/anim'.play('fade-in-out')
+	announce_level(level)
 	
 	if level == 1:
 		init_conf()
@@ -104,6 +102,13 @@ func level_up(level):
 			current[k] *= default[k]['levelup']
 	
 	debug_speed()
+
+
+func announce_level(level):
+	var text = 'Level '+str(level) if typeof(level) == TYPE_INT else level
+	$'/root/world/HUD/level-up'.text = text
+	$'/root/world/HUD/level-up/anim'.stop(true)
+	$'/root/world/HUD/level-up/anim'.play('fade-in-out')
 
 
 func slow_motion():

@@ -13,7 +13,7 @@ func _physics_process(delta):
 	# check if we should level up
 	if nb_enemies_left == 0 and global.get_shapes(['ENEMY','FRIEND','FROZEN']).size() == 0:
 		
-		# spawn special shapes?
+		# spawn special shapes (bosses)?
 		var level = $'/root/world'.level
 		var equiv_level = null
 		if not(level in spawned_special):
@@ -30,6 +30,7 @@ func _physics_process(delta):
 				special = global.SHAPES_SPECIAL[equiv_level]
 			
 			if special:
+				conf.announce_level('BOSS')
 				spawned_special.append(level)
 				$'/root/world/tris-shapes'.add_child(special.instance())
 				return
