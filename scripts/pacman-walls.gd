@@ -72,11 +72,7 @@ func new_wall(x,y,rot=0,new_walls=true,type='NORMAL'):
 		# don't block pacman, not a real wall (also leave group)
 		wall.set_collision_layer_bit(global.LAYER_PACMAN_WALLS,0)
 		wall.remove_from_group('pacman-walls')
-		wall.add_to_group('pacman-walls-fake')
-		
-		# disappear after X seconds, X being 2 times what it takes for a friendly tetris shape to go down
-		wall.get_node('disappear').set_wait_time(conf.current.TRIS_SHAPE_DOWN_INTERVAL*2)
-		wall.get_node('disappear').start()
+		wall.add_to_group('pacman-walls-fake')  # will disappear after some time
 		
 		# [debug mode] ghost walls are only visible in debug mode
 		if global.DEBUG:

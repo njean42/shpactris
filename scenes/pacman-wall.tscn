@@ -1,22 +1,29 @@
 [gd_scene load_steps=3 format=2]
 
-[sub_resource type="GDScript" id=1]
-script/source = "extends StaticBody2D
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 20, 0.450669 )
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Timer
+
+
+
+func _ready():
+	if get_parent().is_in_group('pacman-walls-fake'):
+		# disappear after X seconds, X being 2 times what it takes for a friendly tetris shape to go down
+		set_wait_time(conf.current.TRIS_SHAPE_DOWN_INTERVAL*2)
+		start()
 
 
 func _on_disappear_timeout():
-	walls.remove_wall(self)
+	walls.remove_wall(get_parent())
 "
-
-[sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 20, 0.450669 )
 
 [node name="pacman-wall" type="StaticBody2D" groups=[
 "pacman-walls",
 ]]
 collision_layer = 2048
 collision_mask = 0
-script = SubResource( 1 )
 
 [node name="line" type="Line2D" parent="."]
 points = PoolVector2Array( 0, 0, 40, 0 )
@@ -30,4 +37,5 @@ position = Vector2( 20, 0 )
 shape = SubResource( 2 )
 
 [node name="disappear" type="Timer" parent="."]
-[connection signal="timeout" from="disappear" to="." method="_on_disappear_timeout"]
+script = SubResource( 3 )
+[connection signal="timeout" from="disappear" to="disappear" method="_on_disappear_timeout"]
