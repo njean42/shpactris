@@ -132,7 +132,22 @@ func collide(c):
 		direction  = -direction
 		update_direction()
 
+
+puppet func set_pos(pos,path):
+	position = pos
+	path2pacman = path
+	var next_cell = path2pacman[0]
+	direction = (next_cell - global.pos_to_grid(position)).normalized()
+	
+	if global.DEBUG:
+		global.milestone(next_cell.x,next_cell.y,Vector2(),Color(1,0,0))
+
+
 func update_direction():
+	
+	if not lobby.i_am_the_game():
+		return
+	
 	position = global.attach_pos_to_grid(position)
 	var gridpos = global.pos_to_grid(position)
 	
@@ -145,16 +160,8 @@ func update_direction():
 	# try to reach the next cell on my path
 	var next_cell = path2pacman[0]
 	
-	if global.DEBUG:
-		global.milestone(next_cell.x,next_cell.y,Vector2(),Color(1,0,0))
-	
-	direction = (next_cell - gridpos).normalized()
-	
-	# sprite should face left or right
-	if direction == global.RIGHT:
-		find_node('sprite').flip_h = false
-	elif direction == global.LEFT:
-		find_node('sprite').flip_h = true
+	rpc("set_pos",position,path2pacman)
+	set_pos(position,path2pacman)
 
 func _on_anim_animation_started(anim_name):
 	match anim_name:
