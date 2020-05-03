@@ -13,9 +13,17 @@ const SCENE_ENEMY_HIT = preload('res://scenes/HUD/enemy-hit.tscn')
 func _ready():
 	for i in range(conf.current.START_LEVEL):
 		level_up()
+	
+	# attribute network master status to both players
+	if get_tree().get_network_peer():
+		var players = ['ship','pacman']
+		for i in range(players.size()):
+			get_node(players[i]).set_network_master(lobby.clients[i])
+
 
 func _process(delta):
 	game_time += delta
+
 
 func earn_life(who):
 	global.play_sound('heart_collected')

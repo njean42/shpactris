@@ -4,10 +4,6 @@ extends Node2D
 var peer
 var clients = []
 
-const SERVER_IP = '127.0.0.1'
-const SERVER_PORT = 6000
-const MAX_PLAYERS = 2
-
 
 func _ready():
 	get_tree().connect("network_peer_connected",self,'_on_network_peer_connected')
@@ -19,8 +15,14 @@ func _on_network_peer_connected(peer_id):
 	clients.append(peer_id)
 	
 	if clients.size() == 2 and is_network_master():
+		rpc("set_clients",clients)
 		rpc('start_game')
 		# TODO: server.set_refuse_new_network_connections(true)
+
+
+puppet func set_clients(actual_clients):
+	prints(get_tree().get_network_unique_id(),'set_clients()',actual_clients)
+	clients = actual_clients
 
 
 func _on_network_peer_disconnected(peer_id):
