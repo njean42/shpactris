@@ -14,35 +14,10 @@ var collisions = {
 	]
 }
 
-var colors = [
-	Color(231.0/255, 76.0/255, 60.0/255),  # red
-	Color(46.0/255, 204.0/255, 113.0/255), # green
-	Color(241.0/255, 196.0/255, 15.0/255), # yellow
-	Color(155.0/255, 89.0/255, 182.0/255), # purple
-]
-
 func _ready():
 	# appear
 	find_node('anim').get_animation('appear').set_length(conf.current.GHOSTS_SPAWN_DURATION)
-	
-	# choose random color from available ones
-	colors.shuffle()
-	var ghosts = get_tree().get_nodes_in_group('ghosts')
-	var color = false
-	
-	for c in colors:
-		var color_is_used = false
-		for g in ghosts:
-			if g != self and g.get_node('sprite').self_modulate == c:
-				color_is_used = true
-		if not color_is_used:
-			color = c
-			break
-	get_node('sprite').self_modulate = color
-	
-	# choose random position in the maze
 	global.disable_collision(self)
-	position = global.get_random_maze_pos()
 
 func _physics_process(delta):
 	if direction == null:

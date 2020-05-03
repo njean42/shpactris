@@ -7,6 +7,19 @@ var time_since_last_ghost = 0
 var spawned_special = []
 onready var last_level_with_special = global.SHAPES_SPECIAL.keys().max()
 
+var colors = [
+	Color(231.0/255, 76.0/255, 60.0/255),  # red
+	Color(46.0/255, 204.0/255, 113.0/255), # green
+	Color(241.0/255, 196.0/255, 15.0/255), # yellow
+	Color(155.0/255, 89.0/255, 182.0/255), # purple
+]
+
+
+func _ready():
+	if not (get_tree().get_network_unique_id() in [0,1]):
+		prints(get_tree().get_network_unique_id(), "not network master, won't spawn ghosts or tetris pieces")
+		set_physics_process(false)
+
 
 func _physics_process(delta):
 	
@@ -43,13 +56,32 @@ func _physics_process(delta):
 	time_since_last_ghost += delta
 	if time_since_last_ghost >= conf.current.GHOSTS_SPAWN_INTERVAL:
 		time_since_last_ghost = 0
-		spawn_ghost()
+		var pos = global.get_random_maze_pos()
+		
+		# choose random color from available ones
+		colors.shuffle()
+		var ghosts = get_tree().get_nodes_in_group('ghosts')
+		var color = false
+		
+		for c in colors:
+			var color_is_used = false
+			for g in ghosts:
+				if g != self and g.get_node('sprite').self_modulate == c:
+					color_is_used = true
+			if not color_is_used:
+				color = c
+				break
+		
+		rpc("spawn_ghost",pos,color)
+		spawn_ghost(pos,color)
+		
 	
 	# spawn new shape
 	time_since_last_shape += delta
 	if time_since_last_shape >= conf.current.TRIS_SHAPE_SPAWN_INTERVAL:
 		time_since_last_shape = 0
 		spawn_shape()
+
 
 func spawn_shape():
 	var enemies = global.get_shapes('ENEMY')
@@ -62,9 +94,13 @@ func spawn_shape():
 	var shape = global.SHAPES[s]
 	$'/root/world/tris-shapes'.add_child(shape.instance())
 
-func spawn_ghost():
+
+puppet func spawn_ghost(pos,color):
 	var ghosts = get_tree().get_nodes_in_group('ghosts')
 	if ghosts.size()+1 > conf.current.GHOSTS_MAX_NB_SIMULT:
 		return
 	global.remove_milestones()
-	$'/root/world/ghosts'.add_child(global.GHOST.instance())
+	var ghost = global.GHOST.instance()
+	ghost.position = pos
+	ghost.get_node('sprite').self_modulate = color
+	$'/root/world/ghosts'.add_child(ghost)
