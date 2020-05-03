@@ -24,13 +24,13 @@ config/icon="res://assets/ship.png"
 conf="*res://scripts/conf.gd"
 global="*res://scripts/global.gd"
 walls="*res://scripts/pacman-walls.gd"
+lobby="*res://scripts/lobby.gd"
 
 [display]
 
 window/size/width=600
 window/size/height=720
 window/size/borderless=true
-window/size/fullscreen=true
 window/handheld/orientation="portrait"
 window/stretch/mode="2d"
 window/stretch/aspect="keep"

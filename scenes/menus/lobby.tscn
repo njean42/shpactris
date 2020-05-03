@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+
+const SERVER_IP = '127.0.0.1'
+const MAX_PLAYERS = 2
+
+const SERVER_PORT = 6000  # TODO: remove?
+
+
+func _ready():
+	
+	# server
+	if OS.get_environment('SERVER') == 'true':
+		var peer = NetworkedMultiplayerENet.new()
+		peer.create_server(SERVER_PORT, MAX_PLAYERS)
+		get_tree().set_network_peer(peer)
+		prints(get_tree().get_network_unique_id(), 'started server')
+		return
+	
+	# client
+	var peer = NetworkedMultiplayerENet.new()
+	peer.create_client(SERVER_IP, SERVER_PORT)
+	get_tree().set_network_peer(peer)
+	prints(get_tree().get_network_unique_id(), 'started client')
+"
+
+[node name="lobby" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="vbox" type="VBoxContainer" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="connect-as" type="HBoxContainer" parent="vbox"]
+margin_right = 600.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="output" type="RichTextLabel" parent="vbox"]
+margin_top = 4.0
+margin_right = 600.0
+margin_bottom = 704.0
+rect_min_size = Vector2( 600, 700 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
