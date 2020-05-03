@@ -34,7 +34,7 @@ func new_walls():
 				'right': 0,
 			}
 	
-	if get_tree().get_network_unique_id() in [0,1]:
+	if lobby.i_am_the_game():
 		# draw a square around pacman's and ghosts' playground
 		for x in range(maze_x_min, maze_x_max + 1):
 			# top row
@@ -69,7 +69,7 @@ func wall_ok(x,y,rot):
 
 var wall_i = 0
 func new_wall(x,y,rot=0,new_walls=true,type='NORMAL'):
-	if not(get_tree().get_network_unique_id() in [0,1]):
+	if not lobby.i_am_the_game():
 		return
 	
 	var wall_name = 'pacman-wall-' + str(wall_i)
@@ -110,7 +110,7 @@ func new_fake_wall(x,y,rot):
 
 
 func remove_wall(wall):
-	if get_tree().get_network_unique_id() in [0,1]:
+	if lobby.i_am_the_game():
 		var gridpos = global.pos_to_grid(wall.position)
 		rpc("update_allowed_dirs",gridpos.x,gridpos.y,wall.rotation_degrees,-1)
 		update_allowed_dirs(gridpos.x,gridpos.y,wall.rotation_degrees,-1)

@@ -38,3 +38,12 @@ remotesync func start_game():
 	get_tree().change_scene("res://scenes/world.tscn")
 
 
+# utility functions to determine who executes what code (who is master over which game elements)
+func i_am_the_game():
+	return get_tree().get_network_unique_id() in [0,1]
+	
+func i_am_pacman():
+	return get_tree().get_network_unique_id() == 0 or $'/root/world/pacman'.is_network_master()
+
+func i_am_the_ship():
+	return get_tree().get_network_unique_id() == 0 or $'/root/world/ship'.is_network_master()

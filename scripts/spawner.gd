@@ -16,7 +16,7 @@ var colors = [
 
 
 func _ready():
-	if not (get_tree().get_network_unique_id() in [0,1]):
+	if not lobby.i_am_the_game():
 		prints(get_tree().get_network_unique_id(), "not network master, won't spawn ghosts or tetris pieces")
 		set_physics_process(false)
 
