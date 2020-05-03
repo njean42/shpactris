@@ -11,37 +11,61 @@ var MAX_ENEMY_BULLETS = 8
 
 func _ready():
 	position = global.attach_pos_to_grid(position)
+	# TODO: if not i_am_pacman: disable some collisions?
 
 
 func _physics_process(delta):
-	if not is_shadow:
+	if is_shadow:
+		move(delta)
+	
+	if lobby.i_am_pacman():
 		player_move(delta)
-	move(delta)
+		move(delta)
 
 
 func move(delta):
+	
+	var prev_pos = position
+	var prev_rot = find_node('sprite').rotation_degrees
+	
 	var velocity = Vector2()
+	var new_rot = null
 	match direction:
 		'right':
 			velocity.x = 1
-			find_node('sprite').rotation_degrees = 0
+			new_rot = 0
 		'left':
 			velocity.x = -1
-			find_node('sprite').rotation_degrees = 180
+			new_rot = 180
 		'down':
 			velocity.y = 1
-			find_node('sprite').rotation_degrees = 90
+			new_rot = 90
 		'up':
 			velocity.y = -1
-			find_node('sprite').rotation_degrees = -90
+			new_rot = -90
+	
+	if new_rot != null and new_rot != prev_rot:
+		rpc("set_rot",new_rot)
+		set_rot(new_rot)
 	
 	if direction:
 		var c = move_and_collide(velocity * speed * delta)
 		collide(c)
 	
+	if lobby.i_am_pacman() and not is_shadow:  # shadow pos is computed on server/clients
+		if position != prev_pos:  # don't clutter the network if pacman didn't move
+			rpc_unreliable("set_pos",position)
+	
 	# remove if off-maze (only shadows should go off screen)
 	if not walls.is_in_maze(global.pos_to_grid(position)):
 		queue_free()
+
+
+puppet func set_pos(pos):
+	position = pos
+
+puppet func set_rot(rot):
+	find_node('sprite').rotation_degrees = rot
 
 
 func player_move(delta):
@@ -72,6 +96,7 @@ func player_move(delta):
 		fire_shadow()
 	if Input.is_action_just_released(mode+'pacman_fire_shadow'):
 		teleport()
+
 
 func collide(c):
 	if not c:
