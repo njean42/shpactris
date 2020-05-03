@@ -67,14 +67,17 @@ func wall_ok(x,y,rot):
 		not y in [maze_y_min, floor((maze_y_min+maze_y_max)/2), maze_y_max-1]
 	)
 
+var wall_i = 0
 func new_wall(x,y,rot=0,new_walls=true,type='NORMAL'):
 	if not(get_tree().get_network_unique_id() in [0,1]):
 		return
 	
-	synced_new_wall(x,y,rot,new_walls,type)
-	rpc('synced_new_wall',x,y,rot,new_walls,type)
+	var wall_name = 'pacman-wall-' + str(wall_i)
+	wall_i += 1
+	rpc('synced_new_wall',x,y,rot,new_walls,type,wall_name)
+	synced_new_wall(x,y,rot,new_walls,type,wall_name)
 
-puppet func synced_new_wall(x,y,rot,new_walls,type):
+puppet func synced_new_wall(x,y,rot,new_walls,type,wall_name):
 	var wall = PACMAN_WALL.instance()
 	if type == 'GHOST_WALL':
 		# don't block pacman, not a real wall (also leave group)
@@ -89,6 +92,7 @@ puppet func synced_new_wall(x,y,rot,new_walls,type):
 		else:
 			wall.visible = false
 	
+	wall.name = wall_name
 	$'/root/world/pacman-walls'.add_child(wall)
 	
 	wall.position = global.grid_to_pos(Vector2(x,y))
