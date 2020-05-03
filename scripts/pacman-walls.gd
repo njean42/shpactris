@@ -34,30 +34,31 @@ func new_walls():
 				'right': 0,
 			}
 	
-	# draw a square around pacman's and ghosts' playground
-	for x in range(maze_x_min, maze_x_max + 1):
-		# top row
-		new_wall(x, top_wall_row_y)
-		# bottom row
-		new_wall(x, top_wall_row_y + nb_rows)
-	for y in range(maze_y_min, maze_y_max):
-		# left column
-		new_wall(0,y,90)
-		# right column
-		new_wall(10,y,90)
+	if get_tree().get_network_unique_id() in [0,1]:
+		# draw a square around pacman's and ghosts' playground
+		for x in range(maze_x_min, maze_x_max + 1):
+			# top row
+			new_wall(x, top_wall_row_y)
+			# bottom row
+			new_wall(x, top_wall_row_y + nb_rows)
+		for y in range(maze_y_min, maze_y_max):
+			# left column
+			new_wall(0,y,90)
+			# right column
+			new_wall(10,y,90)
 	
-	# random walls
-	for y in range(maze_y_min, maze_y_max):
-		for x in range(maze_x_min,maze_x_max):
-			var rot = 0 if randf() >= 0.33 else 90
-			if randf() >= 0.25:
-				if wall_ok(x,y,rot):
-					new_wall(x,y,rot)
-			
-			# [debug mode] add random fake walls
-			elif global.DEBUG and randf() >= 0.1:
-				if wall_ok(x,y,rot):
-					new_wall(x,y,rot,true,'GHOST_WALL')
+		# random walls
+		for y in range(maze_y_min, maze_y_max):
+			for x in range(maze_x_min,maze_x_max):
+				var rot = 0 if randf() >= 0.33 else 90
+				if randf() >= 0.25:
+					if wall_ok(x,y,rot):
+						new_wall(x,y,rot)
+				
+				# [debug mode] add random fake walls
+				elif global.DEBUG and randf() >= 0.1:
+					if wall_ok(x,y,rot):
+						new_wall(x,y,rot,true,'GHOST_WALL')
 
 func wall_ok(x,y,rot):
 	return (
@@ -67,6 +68,13 @@ func wall_ok(x,y,rot):
 	)
 
 func new_wall(x,y,rot=0,new_walls=true,type='NORMAL'):
+	if not(get_tree().get_network_unique_id() in [0,1]):
+		return
+	
+	synced_new_wall(x,y,rot,new_walls,type)
+	rpc('synced_new_wall',x,y,rot,new_walls,type)
+
+puppet func synced_new_wall(x,y,rot,new_walls,type):
 	var wall = PACMAN_WALL.instance()
 	if type == 'GHOST_WALL':
 		# don't block pacman, not a real wall (also leave group)
@@ -92,15 +100,21 @@ func new_wall(x,y,rot=0,new_walls=true,type='NORMAL'):
 	
 	update_allowed_dirs(x,y,rot,1)
 
+
 func new_fake_wall(x,y,rot):
 	new_wall(x,y,rot,false,'GHOST_WALL')
 
-func remove_wall(wall):
-	var gridpos = global.pos_to_grid(wall.position)
-	update_allowed_dirs(gridpos.x,gridpos.y,wall.rotation_degrees,-1)
-	wall.queue_free()
 
-func update_allowed_dirs(x,y,rot,value):
+func remove_wall(wall):
+	if get_tree().get_network_unique_id() in [0,1]:
+		var gridpos = global.pos_to_grid(wall.position)
+		rpc("update_allowed_dirs",gridpos.x,gridpos.y,wall.rotation_degrees,-1)
+		update_allowed_dirs(gridpos.x,gridpos.y,wall.rotation_degrees,-1)
+		wall.rpc("be_removed")
+		wall.be_removed()
+
+
+puppet func update_allowed_dirs(x,y,rot,value):
 	if rot == 0:
 		allowed_dirs[x][y].up += value
 		if y > top_wall_row_y:
@@ -120,7 +134,6 @@ func wall_move():
 			wall = false
 	
 	if not wall:
-		print('no wall to move')
 		return
 	
 	# move it
