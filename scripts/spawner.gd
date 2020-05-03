@@ -17,10 +17,11 @@ var colors = [
 
 func _ready():
 	if not lobby.i_am_the_game():
-		prints(get_tree().get_network_unique_id(), "not network master, won't spawn ghosts or tetris pieces")
 		set_physics_process(false)
 
 
+var shape_i = 0
+var ghost_i = 0
 func _physics_process(delta):
 	
 	# check if we should level up
@@ -61,46 +62,50 @@ func _physics_process(delta):
 		# choose random color from available ones
 		colors.shuffle()
 		var ghosts = get_tree().get_nodes_in_group('ghosts')
-		var color = false
-		
-		for c in colors:
-			var color_is_used = false
-			for g in ghosts:
-				if g != self and g.get_node('sprite').self_modulate == c:
-					color_is_used = true
-			if not color_is_used:
-				color = c
-				break
-		
-		rpc("spawn_ghost",pos,color)
-		spawn_ghost(pos,color)
-		
+		if ghosts.size()+1 <= conf.current.GHOSTS_MAX_NB_SIMULT:
+			var color = false
+			for c in colors:
+				var color_is_used = false
+				for g in ghosts:
+					if g != self and g.get_node('sprite').self_modulate == c:
+						color_is_used = true
+				if not color_is_used:
+					color = c
+					break
+			
+			var ghost_name = 'ghost-' + str(ghost_i)
+			ghost_i += 1
+			rpc("spawn_ghost",pos,color,ghost_name)
+			spawn_ghost(pos,color,ghost_name)
 	
 	# spawn new shape
 	time_since_last_shape += delta
 	if time_since_last_shape >= conf.current.TRIS_SHAPE_SPAWN_INTERVAL:
 		time_since_last_shape = 0
-		spawn_shape()
+		
+		var enemies = global.get_shapes('ENEMY')
+		if nb_enemies_left == 0 or enemies.size() >= conf.current.TRIS_SHAPE_MAX_ENEMIES_SIMULT:
+			return
+		nb_enemies_left -= 1
+		
+		# random shape
+		var s = floor(rand_range(0,global.SHAPES.size()))
+		var shape_name = 'tris-shape-' + str(shape_i)
+		shape_i += 1
+		rpc("spawn_shape",s,shape_name)
+		spawn_shape(s,shape_name)
 
 
-func spawn_shape():
-	var enemies = global.get_shapes('ENEMY')
-	if nb_enemies_left == 0 or enemies.size() >= conf.current.TRIS_SHAPE_MAX_ENEMIES_SIMULT:
-		return
-	nb_enemies_left -= 1
-	
-	# random shape
-	var s = floor(rand_range(0,global.SHAPES.size()))
-	var shape = global.SHAPES[s]
-	$'/root/world/tris-shapes'.add_child(shape.instance())
+puppet func spawn_shape(s,shape_name):
+	var shape = global.SHAPES[s].instance()
+	shape.name = shape_name
+	$'/root/world/tris-shapes'.add_child(shape)
 
 
-puppet func spawn_ghost(pos,color):
-	var ghosts = get_tree().get_nodes_in_group('ghosts')
-	if ghosts.size()+1 > conf.current.GHOSTS_MAX_NB_SIMULT:
-		return
+puppet func spawn_ghost(pos,color,ghost_name):
 	global.remove_milestones()
 	var ghost = global.GHOST.instance()
 	ghost.position = pos
 	ghost.get_node('sprite').self_modulate = color
+	ghost.name = ghost_name
 	$'/root/world/ghosts'.add_child(ghost)
