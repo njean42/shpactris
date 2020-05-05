@@ -17,6 +17,7 @@ func _ready():
 func _physics_process(delta):
 	if is_shadow:
 		move(delta)
+		return
 	
 	if lobby.i_am_pacman():
 		player_move(delta)
@@ -170,22 +171,33 @@ func absorb(bullet):
 
 var can_teleport
 func fire_shadow():
+	can_teleport = true
+	
+	var dir = direction if direction else prev_dir
+	var speed = conf.current.PACMAN_SPEED * 2  # shadows travel twice as fast as pacman
+	var rot = find_node('sprite').rotation_degrees
+	rpc("synced_fire_shadow",global_position,dir,rot,speed)
+	synced_fire_shadow(global_position,dir,rot,speed)
+
+
+puppet func synced_fire_shadow(pos,dir,rot,speed):
+	if SHADOW == null:
+		SHADOW = load('res://scenes/pacman-shadow.tscn')
+	
 	var shadow = get_tree().get_nodes_in_group('pacman-shadow')
 	if shadow.size() > 0:
 		shadow[0].queue_free()
 	
-	can_teleport = true
-	
-	if SHADOW == null:
-		SHADOW = load('res://scenes/pacman-shadow.tscn')
-	
 	shadow = SHADOW.instance()
 	$'/root/world'.add_child(shadow)
-	shadow.global_position = global_position
+	shadow.global_position = pos
 	shadow.is_shadow = true
 	shadow.add_to_group('pacman-shadow')
-	shadow.direction = direction if direction else prev_dir
-	shadow.speed = conf.current.PACMAN_SPEED * 2  # shadows travel twice as fast as pacman
+	shadow.direction = dir
+	shadow.speed = speed
+	shadow.set_rot(rot)
+	shadow.set_network_master(lobby.pacman)
+
 
 func teleport():
 	if not can_teleport:
@@ -217,4 +229,11 @@ func teleport():
 			global_position = current_pos
 			return
 		
-		shadow.queue_free()
+		rpc("set_pos",global_position)
+		shadow.rpc("free_shadow")
+		shadow.free_shadow()
+
+remote func free_shadow():
+	if not is_shadow:
+		prints('[BUG] asking to free shadow on',name)
+	queue_free()
