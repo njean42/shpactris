@@ -96,6 +96,9 @@ func enable_collision(node,value=1):
 	node.collision_mask = get_layer(node.collisions.mask) if value else 0
 
 func reparent(node,new_parent,new_position=null):
+	if new_parent == get_parent():
+		return
+	
 	var globpos = node.global_position
 	node.get_parent().remove_child(node)
 	new_parent.add_child(node)
@@ -152,5 +155,8 @@ func remove_milestones(gridpos=false):
 			m.queue_free()
 
 func play_sound(sound):
-	$'/root/world/sounds'.play_sound(sound)
+	rpc("synced_play_sound",sound)
+	synced_play_sound(sound)
 
+remote func synced_play_sound(sound):
+	$'/root/world/sounds'.play_sound(sound)
