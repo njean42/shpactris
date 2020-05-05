@@ -10,7 +10,7 @@ var time_since_last_wall_move = 0
 
 
 func _ready():
-	if not(get_tree().get_network_unique_id() in [0,1]):
+	if not lobby.i_am_the_game():
 		set_physics_process(false)
 
 
