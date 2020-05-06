@@ -14,7 +14,12 @@ func _ready():
 		get_beam()
 
 
+var bullet_i = 0
 func _physics_process(delta):
+	if not lobby.i_am_the_ship():
+		return
+	
+	var prev_pos = position
 	
 	var moves = {
 		'ship_right': {'axis': 'x', 'dir':  1},
@@ -50,7 +55,10 @@ func _physics_process(delta):
 	if Input.is_action_pressed(mode+"ship_shoot"):
 		if time_since_last_bullet >= conf.current.SHIP_BULLET_RATE:
 			time_since_last_bullet = 0
-			fire_bullet()
+			var bullet_name = 'bullet-'+str(bullet_i)
+			bullet_i += 1
+			rpc("fire_bullet",global_position,bullet_name)
+			fire_bullet(global_position,bullet_name)
 	
 	# frost beam
 	time_since_last_frost_beam += delta
@@ -58,11 +66,19 @@ func _physics_process(delta):
 		if time_since_last_frost_beam >= conf.current.SHIP_FROST_BEAM_RATE:
 			if frost_beam():
 				time_since_last_frost_beam = 0
+	
+	if position != prev_pos:
+		rpc_unreliable("set_pos",position)
 
 
-func fire_bullet():
+puppet func set_pos(pos):
+	position = pos
+
+
+puppet func fire_bullet(pos,bullet_name):
 	var bullet = BULLET.instance()
-	bullet.global_position = global_position
+	bullet.global_position = pos
+	bullet.name = bullet_name
 	$'/root/world/bullets'.add_child(bullet)
 
 
@@ -89,17 +105,18 @@ func frost_beam():
 		return false
 	
 	if shape_frozen != null:
-		var can_land = shape_frozen.switch_status('FRIEND',true)
-		if not can_land:
+		if not shape_frozen.can_switch_status('FRIEND'):
 			return false
 		
 		# undraw frost beam
-		var beams = get_tree().get_nodes_in_group('frost-beam')
-		for b in beams:
-			b.queue_free()
+		rpc("undraw_beam")
+		undraw_beam()
 		
 		# shape becomes a friend again
-		global.reparent(shape_frozen,$'/root/world/tris-shapes')
+		shape_frozen.global_position = global.attach_pos_to_grid(shape_frozen.global_position)
+		shape_frozen.rpc("set_pos",shape_frozen.position)
+		shape_frozen.rpc("switch_status",'FRIEND')
+		shape_frozen.switch_status('FRIEND')
 		shape_frozen = null
 		return true
 	
@@ -108,7 +125,7 @@ func frost_beam():
 		return
 	$'beams'.get_children()[-1].queue_free()
 	
-	global.play_sound('frost_beam');
+	global.play_sound('frost_beam')
 	
 	var space_state = get_world_2d().direct_space_state
 	var result = space_state.intersect_ray(
@@ -118,12 +135,26 @@ func frost_beam():
 		pow(2,global.LAYER_TETRIS_SHAPE_FRIENDS)
 	)
 	
+	var successful = true if result else false
+	
 	# draw beam
 	var beam_stops_at = Vector2(0, -global_position.y)
-	if result:
-		var bta = beam_stops_at
+	if successful:
 		beam_stops_at = Vector2(0, result.collider.global_position.y - global_position.y)
 	
+	rpc('draw_beam',beam_stops_at,successful)
+	draw_beam(beam_stops_at,successful)
+	
+	if successful:
+		# attach tetris shape, it will move with the ship until released
+		shape_frozen = result.collider
+		shape_frozen.rpc("switch_status",'FROZEN')
+		shape_frozen.switch_status('FROZEN')
+	
+	return true
+
+
+puppet func draw_beam(beam_stops_at,successful):
 	var beam = FROST_BEAM.instance()
 	beam.points = [
 		Vector2(0,0),
@@ -131,16 +162,10 @@ func frost_beam():
 	]
 	add_child(beam)
 	
-	if not result:
-		return true
-	
-	# only free the frost beam when shape is released (otherwise frees itself)
-	beam.set_process(false)
-	
-	# attach tetris shape, it will move with the ship until released
-	shape_frozen = result.collider
-	shape_frozen.switch_status('FROZEN')
-	global.reparent(shape_frozen,self)
-	
-	return true
-	
+	if successful:
+		# only free the frost beam when shape is released (otherwise frees itself)
+		beam.set_process(false)
+
+puppet func undraw_beam():
+	for b in get_tree().get_nodes_in_group('frost-beam'):
+		b.queue_free()
