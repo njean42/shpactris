@@ -324,7 +324,8 @@ func friend_move_dir(dir,step=0):
 			moving_again = true
 		
 		if c.collider.is_in_group('ghosts'):
-			c.collider.find_node('anim').play('shake-and-die')
+			c.collider.rpc("die")
+			c.collider.die()
 			friend_move_dir(c.remainder/global.GRID_SIZE,step+1)
 			moving_again = true
 		

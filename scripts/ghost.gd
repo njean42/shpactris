@@ -163,6 +163,11 @@ func update_direction():
 	rpc("set_pos",position,path2pacman)
 	set_pos(position,path2pacman)
 
+
+remote func die():
+	find_node('anim').play('shake-and-die')
+
+
 func _on_anim_animation_started(anim_name):
 	match anim_name:
 		'shake-and-die':
