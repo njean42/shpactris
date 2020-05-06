@@ -136,7 +136,7 @@ func collide(c):
 puppet func set_pos(pos,path):
 	position = pos
 	path2pacman = path
-	var next_cell = path2pacman[0]
+	var next_cell = path2pacman[0]  # try to reach the next cell on my path
 	direction = (next_cell - global.pos_to_grid(position)).normalized()
 	
 	if global.DEBUG:
@@ -156,9 +156,6 @@ func update_direction():
 	path2pacman = path_to_pacman()
 	if path2pacman.size() == 0:
 		path2pacman = [gridpos]  # already on pacman
-	
-	# try to reach the next cell on my path
-	var next_cell = path2pacman[0]
 	
 	rpc("set_pos",position,path2pacman)
 	set_pos(position,path2pacman)
