@@ -1,7 +1,7 @@
 extends 'ship-pacman.gd'
 
 var direction = false
-var prev_dir = 'right'
+var prev_dir = false
 var speed = false
 var is_shadow = false
 
@@ -20,7 +20,7 @@ func _physics_process(delta):
 		return
 	
 	if lobby.i_am_pacman():
-		player_move(delta)
+		player_move()
 		move(delta)
 
 
@@ -53,7 +53,7 @@ func move(delta):
 		var c = move_and_collide(velocity * speed * delta)
 		collide(c)
 	
-	if lobby.i_am_pacman() and not is_shadow:  # shadow pos is computed on server/clients
+	if lobby.i_am_pacman() and not is_shadow:  # shadow pos is computed on each server/client
 		if position != prev_pos:  # don't clutter the network if pacman didn't move
 			rpc_unreliable("set_pos",position)
 	
@@ -69,7 +69,7 @@ puppet func set_rot(rot):
 	find_node('sprite').rotation_degrees = rot
 
 
-func player_move(delta):
+func player_move():
 	direction = false
 	speed = conf.current.PACMAN_SPEED  # may have been updated (level up)
 	if Input.is_action_pressed("any_mode_pacman_right"):
@@ -84,6 +84,7 @@ func player_move(delta):
 	# Stay on intersections (~cells) when Pacman stops moving
 	if prev_dir and not direction:
 		position = global.attach_pos_to_grid(position)
+		rpc("set_pos",position)
 	
 	# Also when changing direction
 	if direction and prev_dir and direction != prev_dir:
