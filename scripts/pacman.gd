@@ -197,7 +197,8 @@ puppet func synced_fire_shadow(pos,dir,rot,speed):
 	shadow.direction = dir
 	shadow.speed = speed
 	shadow.set_rot(rot)
-	shadow.set_network_master(lobby.pacman)
+	if get_tree().get_network_peer():
+		shadow.set_network_master(lobby.pacman)
 
 
 func teleport():
