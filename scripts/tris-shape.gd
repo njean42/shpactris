@@ -38,7 +38,8 @@ var LAYERS = {
 
 func _ready():
 	global_position = global.attach_pos_to_grid(global_position)
-	switch_status(status,true)
+	switch_status(status)
+
 
 func _physics_process(delta):
 	speed = conf.current.TRIS_SHAPE_SPEED  # will be affected by slow-mo
@@ -48,7 +49,11 @@ func _physics_process(delta):
 		'FRIEND':
 			friend_move(delta)
 
+
 func get_random_destination():
+	if not lobby.i_am_the_game():
+		return
+	
 	# Get a destination above other shapes
 	destination = Vector2(
 		floor(rand_range(
@@ -60,7 +65,21 @@ func get_random_destination():
 			$'/root/world/tetris-handler'.get_friendable_zone_bottom()
 		))
 	)
-	destination = global.attach_pos_to_grid(destination)
+	
+	rpc("set_dest",destination)
+	set_dest(destination)
+	rpc("set_pos",position)
+
+
+remote func set_pos(pos):
+	position = pos
+	
+remote func set_rot(rot):
+	rotation = rot
+
+puppet func set_dest(dest):
+	destination = global.attach_pos_to_grid(dest)
+
 
 func is_friendable():
 	# can't become a friend if there are too many already
@@ -75,8 +94,8 @@ func is_friendable():
 		return false
 	if position.x > global.SCREEN_SIZE.x - global.GRID_SIZE*2:
 		return false
-	
 	return true
+
 
 func colorise():
 	var color = null
@@ -103,7 +122,23 @@ func colorise():
 	for child in $'piece/blocks'.get_children():
 		child.get_node('box').modulate = color
 
-func switch_status(new_status,just_spawned=false):
+
+func can_switch_status(new_status):
+	match new_status:
+		'FRIEND':
+			# If I can't become a friend, stay an enemy and go some place else
+			if status == 'ENEMY' and not is_friendable():
+				get_random_destination()
+				return false
+			
+			if not try_landing():
+				# could not land while turning into FRIEND
+				return false
+			
+			return true
+
+
+remote func switch_status(new_status):
 	match new_status:
 		'ENEMY':
 			# enemies are smaller
@@ -120,20 +155,11 @@ func switch_status(new_status,just_spawned=false):
 			set_collision_mask(0)
 			
 		'FRIEND':
-			# If I can't become a friend, stay an enemy and go some place else
-			if not just_spawned and not is_friendable():
-				get_random_destination()
-				return false
-			
-			if not try_landing():
-				# could not land while turning into FRIEND
-				return false
-			
 			scale = Vector2(1,1)
-			
-			# ... Otherwise, become a friend
 			set_collision_layer(pow(2,global.LAYER_TETRIS_SHAPE_FRIENDS))
 			set_collision_mask(LAYERS['FRIEND'])
+			global.reparent(self,$'/root/world/tris-shapes')
+			time_since_last_friend_move = 0
 		
 		'FROZEN':
 			set_collision_layer(pow(2,global.LAYER_TETRIS_SHAPE_FROZEN))
@@ -141,6 +167,7 @@ func switch_status(new_status,just_spawned=false):
 				pow(2,global.LAYER_TETRIS_BLOCKS) +
 				pow(2,global.LAYER_WALLS)
 			)
+			global.reparent(self,$'/root/world/ship')
 			
 		'FLOOR':
 			global.play_sound('tris_shape_down')
@@ -173,37 +200,51 @@ func switch_status(new_status,just_spawned=false):
 			status = 'FLOOR'
 			colorise()
 			detach_blocks()
-			
-			return true
+			return
 	
 	status = new_status
 	colorise()
-	return true
 
+
+var enemy_bullet_i = 0
 func enemy_move(delta):
+	if destination == null: # may happen in network mode when clients are waiting for the destination given by the server
+		return
+	
 	# When position is reached, stop there and (maybe) become a friend
-	if position.distance_to(destination) < speed * delta:
+	if lobby.i_am_the_game() and position.distance_to(destination) < speed * delta:
 		position = destination
-		switch_status('FRIEND')
+		if can_switch_status('FRIEND'):
+			rpc("switch_status",'FRIEND')
+			switch_status('FRIEND')
 		return
 	
 	var direction = (destination-position).normalized()
 	position += direction * speed * delta
 	
 	# Fire an enemy bullet?
-	time_since_last_bullet += delta
-	if time_since_last_bullet >= bullet_interval:
-		fire_enemy_bullet()
-		time_since_last_bullet = 0
+	if lobby.i_am_the_game():
+		time_since_last_bullet += delta
+		if time_since_last_bullet >= bullet_interval:
+			rpc("fire_enemy_bullet",global_position,enemy_bullet_i)
+			fire_enemy_bullet(global_position,enemy_bullet_i)
+			enemy_bullet_i += 1
+			time_since_last_bullet = 0
 
-func fire_enemy_bullet():
+
+puppet func fire_enemy_bullet(pos,i):
 	var bullet = BULLET.instance()
-	bullet.global_position = global_position
+	bullet.global_position = pos
+	bullet.name = 'enemy-bullet-' + str(i)
 	$'/root/world/bullets'.add_child(bullet)
 	var char2follow = bullet.get_closest_char()
 	bullet.set_direction(char2follow.global_position - global_position)
 
+
 func friend_move(delta):
+	if not lobby.i_am_pacman():
+		return
+	
 	# player(s) can force friendly tetris shapes to go down fast
 	var mode = '1p_mode_' if global.PLAYERS.mode_1p else '2p_mode_'
 	force_down = Input.is_action_just_pressed(mode+"pacman_drop") or force_down and Input.is_action_pressed(mode+"pacman_drop")
@@ -225,7 +266,8 @@ func get_enemy_bullets():
 			bullets.append(bullet)
 	return bullets
 
-func absorb(enemy_bullet):
+
+remote func absorb(enemy_bullet):
 	# find an empty block to stick on
 	var empty_block = null
 	for block in $'piece/blocks'.get_children():
@@ -263,19 +305,28 @@ func absorb(enemy_bullet):
 	# turn slowly to red as the number of bullets increases
 	colorise()
 
+
 func friend_move_dir(dir,step=0):
+	if not lobby.i_am_pacman() and not lobby.i_am_the_game():
+		return
+	
+	# I've been pushed (or went down), don't move down before some time
+	time_since_last_friend_move = 0
+	
 	var c = move_and_collide(dir * global.GRID_SIZE)
 	global_position = global.attach_pos_to_grid(global_position)
+	var moving_again = false
 	if c:
 		if c.collider.is_in_group('enemy-bullets'):
+			rpc("absorb",c.collider)
 			absorb(c.collider)
 			friend_move_dir(c.remainder/global.GRID_SIZE,step+1)
-			return
+			moving_again = true
 		
 		if c.collider.is_in_group('ghosts'):
 			c.collider.find_node('anim').play('shake-and-die')
 			friend_move_dir(c.remainder/global.GRID_SIZE,step+1)
-			return
+			moving_again = true
 		
 		if status == 'FRIEND' and (
 			c.collider.is_in_group('wall-bottom') or
@@ -283,13 +334,23 @@ func friend_move_dir(dir,step=0):
 			
 			# check that this is a collision after moving or being pushed down (not left or right, as this results in tetris shapes wrongly "attaching" to other ground shapes)
 			if dir.x == 0 and dir.y > 0:  # moving down
+				rpc("set_pos",position)
+				rpc("switch_status",'FLOOR')
 				switch_status('FLOOR')
 				force_down = false
+				return
 	
-	# I've been pushed (or went down), don't move down before some time
-	time_since_last_friend_move = 0
+	if not moving_again:
+		rpc("set_pos",position)
+
 
 func friend_move_rotate(angle = PI/2):
+	var rotated = friend_move_rotate_try(angle)
+	if rotated:
+		rpc("set_rot",rotation)
+	return rotated
+
+func friend_move_rotate_try(angle):
 	if angle != 0 and MAX_ROTATIONS == 0:
 		return false
 	
@@ -349,6 +410,7 @@ func friend_move_rotate(angle = PI/2):
 		global.play_sound('tris_shape_hit')
 	return true
 
+
 func try_landing():  # when a tetris shape turns into a friend (from ENEMY or FROZEN state)
 	var globpos = global_position
 	global_position = global.attach_pos_to_grid(global_position)
@@ -361,6 +423,7 @@ func try_landing():  # when a tetris shape turns into a friend (from ENEMY or FR
 		
 	return could_land
 
+
 func refused(colliders=[]):
 	global.play_sound('refused')
 	colliders.append(self)
@@ -368,6 +431,7 @@ func refused(colliders=[]):
 		var anim = c.find_node('shake-refused')
 		if anim:
 			anim.play_me()
+
 
 func test_collisions(layer):
 	if not is_physics_processing():  # has to be, otherwise ray casting may not work

@@ -18,11 +18,12 @@ func is_friendable():
 	return .is_friendable()
 
 
-func fire_enemy_bullet():
-	var nb_bullets = 8
-	for i in range(nb_bullets):
-		var bullet = (BULLET_BAD if randf()>0.2 else BULLET).instance()
-		bullet.global_position = global_position
-		bullet.set_direction(Vector2(0,1).rotated(2*PI/nb_bullets*i))
-		$'/root/world/bullets'.add_child(bullet)
+# TODO
+#func fire_enemy_bullet():
+#	var nb_bullets = 8
+#	for i in range(nb_bullets):
+#		var bullet = (BULLET_BAD if randf()>0.2 else BULLET).instance()
+#		bullet.global_position = global_position
+#		bullet.set_direction(Vector2(0,1).rotated(2*PI/nb_bullets*i))
+#		$'/root/world/bullets'.add_child(bullet)
 
