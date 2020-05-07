@@ -58,8 +58,9 @@ func move(delta):
 			rpc_unreliable("set_pos",position)
 	
 	# remove if off-maze (only shadows should go off screen)
-	if not walls.is_in_maze(global.pos_to_grid(position)):
-		queue_free()
+	if lobby.i_am_pacman() and not walls.is_in_maze(global.pos_to_grid(position)):
+		rpc("free_shadow")
+		free_shadow()
 
 
 puppet func set_pos(pos):
