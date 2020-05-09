@@ -8,6 +8,7 @@ var bubbled = false
 var time_invincible = 0
 var time_bubble = 0
 
+
 func _process(delta):
 	# Invincibility
 	if invincible:
@@ -26,28 +27,40 @@ func _process(delta):
 		var ratio = time_bubble / BUBBLE_TIME
 		$'bubble'.modulate.a = 1-ratio
 		
-		if time_bubble >= BUBBLE_TIME:
+		if lobby.i_am_the_game() and time_bubble >= BUBBLE_TIME:
+			rpc("lose_bubble")
 			lose_bubble()
 
+
 func get_hurt():
+	if not lobby.i_am_the_game():
+		return
+	
 	if invincible:
 		return
 	
 	if bubbled:
+		rpc("lose_bubble")
 		lose_bubble()
 		return
 	
+	rpc("sync_get_hurt")
+	sync_get_hurt()
+
+remote func sync_get_hurt():
 	# lose life and become invincible
 	$'/root/world'.lose_life(self)
 	time_invincible = 0
 	invincible = true
 	find_node('anim').play('invincibility')
 
-func activate_bubble():
+
+remote func activate_bubble():
 	time_bubble = 0
 	bubbled = true
 	$'bubble'.modulate.a = 1
 
-func lose_bubble():
+
+puppet func lose_bubble():
 	bubbled = false
 	$'bubble'.modulate.a = 0
