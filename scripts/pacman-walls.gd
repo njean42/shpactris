@@ -15,7 +15,7 @@ var allowed_dirs
 func is_in_maze(gridpos):
 	return gridpos.x >= maze_x_min and gridpos.x <= maze_x_max and gridpos.y >= maze_y_min and gridpos.y < maze_y_max
 
-func new_walls():
+puppet func new_walls():
 	
 	# remove current walls (and fake walls!)
 	for wall in get_tree().get_nodes_in_group('pacman-walls'):
@@ -34,31 +34,33 @@ func new_walls():
 				'right': 0,
 			}
 	
-	if lobby.i_am_the_game():
-		# draw a square around pacman's and ghosts' playground
-		for x in range(maze_x_min, maze_x_max + 1):
-			# top row
-			new_wall(x, top_wall_row_y)
-			# bottom row
-			new_wall(x, top_wall_row_y + nb_rows)
-		for y in range(maze_y_min, maze_y_max):
-			# left column
-			new_wall(0,y,90)
-			# right column
-			new_wall(10,y,90)
+	if not lobby.i_am_the_game():
+		return
 	
-		# random walls
-		for y in range(maze_y_min, maze_y_max):
-			for x in range(maze_x_min,maze_x_max):
-				var rot = 0 if randf() >= 0.33 else 90
-				if randf() >= 0.25:
-					if wall_ok(x,y,rot):
-						new_wall(x,y,rot)
-				
-				# [debug mode] add random fake walls
-				elif global.DEBUG and randf() >= 0.1:
-					if wall_ok(x,y,rot):
-						new_wall(x,y,rot,true,'GHOST_WALL')
+	# draw a square around pacman's and ghosts' playground
+	for x in range(maze_x_min, maze_x_max + 1):
+		# top row
+		new_wall(x, top_wall_row_y)
+		# bottom row
+		new_wall(x, top_wall_row_y + nb_rows)
+	for y in range(maze_y_min, maze_y_max):
+		# left column
+		new_wall(0,y,90)
+		# right column
+		new_wall(10,y,90)
+
+	# random walls
+	for y in range(maze_y_min, maze_y_max):
+		for x in range(maze_x_min,maze_x_max):
+			var rot = 0 if randf() >= 0.33 else 90
+			if randf() >= 0.25:
+				if wall_ok(x,y,rot):
+					new_wall(x,y,rot)
+			
+			# [debug mode] add random fake walls
+			elif global.DEBUG and randf() >= 0.1:
+				if wall_ok(x,y,rot):
+					new_wall(x,y,rot,true,'GHOST_WALL')
 
 func wall_ok(x,y,rot):
 	return (
@@ -91,6 +93,7 @@ puppet func synced_new_wall(x,y,rot,new_walls,type,wall_name):
 			wall.get_node('line').width = 1
 		else:
 			wall.visible = false
+	
 	
 	wall.name = wall_name
 	$'/root/world/pacman-walls'.add_child(wall)

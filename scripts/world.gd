@@ -14,6 +14,10 @@ func _ready():
 	for i in range(conf.current.START_LEVEL):
 		level_up()
 	
+	if lobby.i_am_the_game():
+		walls.rpc("new_walls")
+		walls.new_walls()
+	
 	# attribute network master status to both players
 	if get_tree().get_network_peer():
 		
@@ -56,6 +60,7 @@ func lose_life(who):
 	lifedown.position = who.position
 	$'/root/world/HUD'.add_child(lifedown)
 
+
 func earn_gold(who,inc=100):
 	gold += inc
 	get_node('HUD').update()
@@ -65,10 +70,9 @@ func earn_gold(who,inc=100):
 		hit.position = who.position + Vector2(i * global.GRID_SIZE / 5,i * global.GRID_SIZE / 5)
 		$'HUD'.add_child(hit)
 
-func level_up():
+
+puppet func level_up():
 	level += 1
-	
-	walls.new_walls()
 	conf.level_up(level)
 	
 	find_node('spawner').nb_enemies_left = conf.current.TRIS_SHAPE_NB_ENEMIES
@@ -77,7 +81,8 @@ func level_up():
 		return
 	
 	# add a heart randomly on the map
-	get_node('items').add_child(global.HEART.instance())
+	if lobby.i_am_the_game():
+		new_item('heart')
 
 
 var item_i = 0
@@ -86,8 +91,9 @@ var items = {
 	'bubble': global.BUBBLE,
 	'slow-mo': global.SLOW_MO
 }
-func new_item():
-	var item_name = items.keys()[floor(rand_range(0,3))]
+func new_item(item_name=''):
+	if not item_name:
+		item_name = items.keys()[floor(rand_range(0,3))]
 	var pos = global.get_random_maze_pos()
 	rpc("sync_new_item",item_name,pos,item_i)
 	sync_new_item(item_name,pos,item_i)

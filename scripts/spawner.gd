@@ -31,26 +31,33 @@ func _physics_process(delta):
 		var level = $'/root/world'.level
 		var equiv_level = null
 		if not(level in spawned_special):
-			var special = null
+			var s = null
 			for l in global.SHAPES_SPECIAL:
 				if l == level:
-					special = global.SHAPES_SPECIAL[l]
+					s = l
 					break
 				elif (level%last_level_with_special) % l == 0:
 					equiv_level = l
 			
-			if special == null and equiv_level != null:
+			if s == null and equiv_level != null:
 				# cycle through previous special pieces
-				special = global.SHAPES_SPECIAL[equiv_level]
+				s = equiv_level
 			
-			if special:
+			if s != null:
+				# TODO: sync BOSS announce
 				conf.announce_level('BOSS')
 				spawned_special.append(level)
-				$'/root/world/tris-shapes'.add_child(special.instance())
+				var shape_name = 'tris-shape-boss-' + str(shape_i)
+				shape_i += 1
+				rpc("spawn_special_shape",s,shape_name)
+				spawn_special_shape(s,shape_name)
 				return
 		
 		# or level up
+		$'/root/world'.rpc("level_up")
 		$'/root/world'.level_up()
+		walls.rpc("new_walls")
+		walls.new_walls()
 		return
 	
 	# spawn new ghost
@@ -98,6 +105,12 @@ func _physics_process(delta):
 
 puppet func spawn_shape(s,shape_name):
 	var shape = global.SHAPES[s].instance()
+	shape.name = shape_name
+	$'/root/world/tris-shapes'.add_child(shape)
+
+
+puppet func spawn_special_shape(s,shape_name):
+	var shape = global.SHAPES_SPECIAL[s].instance()
 	shape.name = shape_name
 	$'/root/world/tris-shapes'.add_child(shape)
 
