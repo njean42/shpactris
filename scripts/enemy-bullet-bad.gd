@@ -3,8 +3,6 @@ extends 'enemy-bullet.gd'
 var accel = 1.1
 
 func _init():
-	follow_characters = ['ship','pacman']
-	
 	collisions = {
 		'layer': [global.LAYER_TETRIS_BULLET_BAD],
 		'mask': [global.LAYER_SHIP, global.LAYER_PACMAN_KILL]
