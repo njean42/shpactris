@@ -1,31 +1,44 @@
 extends KinematicBody2D
 
 var speed = conf.current.TRIS_SHAPE_BULLET_SPEED
-var follow = conf.current.TRIS_SHAPE_BULLET_FOLLOW
 var follow_characters = ['ship']
-var direction = Vector2(0,1)
+var direction = null
 
 var collisions = {
 	'layer': [global.LAYER_TETRIS_BULLET],
-	'mask': [global.LAYER_SHIP, global.LAYER_TETRIS_SHAPE_FRIENDS]
+	'mask': [global.LAYER_PACMAN, global.LAYER_SHIP, global.LAYER_TETRIS_SHAPE_FRIENDS]
 }
 
 
 func _ready():
 	global.enable_collision(self)
+	
+	# only the server computes bullet collisions
+	if lobby.i_am_the_game():
+		var char2follow = get_closest_char()
+		var dir = char2follow.global_position - global_position
+		rpc("set_dir",dir)
+		set_dir(dir)
+	else:
+		$'collision-shape'.disabled = true
 
-func set_direction(dir):
-	direction = dir
+
+puppet func set_dir(dir):
+	if direction == null:
+		direction = dir
 
 
 func _process(delta):
 	if position.y > global.SCREEN_SIZE.y or position.y < 0 or position.x > global.SCREEN_SIZE.x or position.x < 0:
 		queue_free()
+	# TODO: sync pos every second?
 
 
 func _physics_process(delta):
 	update_speed()
-	update_direction(delta)
+	
+	if direction == null:  # may happen while the clients wait for the bullet direction
+		return
 	
 	var c = move_and_collide(direction.normalized()*speed*delta)
 	if c:
@@ -47,18 +60,33 @@ func get_closest_char():
 func update_speed():
 	speed = conf.current.TRIS_SHAPE_BULLET_SPEED  # will be affected by slow-mo
 
-func update_direction(delta):
-	# tweak direction to head towards the character·s, whichever is closest
-	var angle = direction.angle_to(get_closest_char().position - position)
-	direction = direction.rotated(sign(angle) * deg2rad(follow) * delta)
-
 
 func collide(collider):
 	if collider.is_in_group('ship'):
-		collider.get_hurt()
-		global.remove_from_game(self)
-	if collider.is_in_group('pacman'):
-		collider.absorb(self)
+		rpc("be_gone",'hit_ship')
+		be_gone('hit_ship')
 	
-	if collider.is_in_group('tris-shape'):
-		collider.absorb(self)
+	if collider.name == 'hitbox':
+		rpc("be_absorbed",collider.get_parent().name)
+		be_absorbed(collider.get_parent().name)
+	
+	elif collider.is_in_group('pacman') or collider.is_in_group('tris-shape'):
+		rpc("be_absorbed",collider.name)
+		be_absorbed(collider.name)
+
+
+puppet func be_gone(why):
+	match why:
+		'hit_ship':
+			$'/root/world/ship'.get_hurt()
+	
+	global.remove_from_game(self)
+
+
+remote func be_absorbed(collider_name):
+	var collider = null
+	if collider_name.begins_with('pacman'):
+		collider = $'/root/world'.get_node(collider_name)
+	else:
+		collider = $'/root/world/tris-shapes'.get_node(collider_name)
+	collider.absorb(self)

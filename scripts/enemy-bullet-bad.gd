@@ -4,7 +4,6 @@ var accel = 1.1
 
 func _init():
 	follow_characters = ['ship','pacman']
-	follow *= accel
 	
 	collisions = {
 		'layer': [global.LAYER_TETRIS_BULLET_BAD],
