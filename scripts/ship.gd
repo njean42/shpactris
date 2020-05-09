@@ -16,7 +16,10 @@ func _ready():
 
 var bullet_i = 0
 func _physics_process(delta):
-	if not lobby.i_am_the_ship():
+	
+	var cheat = lobby.i_am_pacman() and OS.get_environment('TESTING') == 'true'
+	
+	if not lobby.i_am_the_ship() and not cheat:
 		return
 	
 	var prev_pos = position
@@ -69,13 +72,14 @@ func _physics_process(delta):
 	
 	if position != prev_pos:
 		rpc_unreliable("set_pos",position)
+		# TODO: limit to n times/second?
 
 
-puppet func set_pos(pos):
+remote func set_pos(pos):
 	position = pos
 
 
-puppet func fire_bullet(pos,bullet_name):
+remote func fire_bullet(pos,bullet_name):
 	var bullet = BULLET.instance()
 	bullet.global_position = pos
 	bullet.name = bullet_name
@@ -114,8 +118,7 @@ func frost_beam():
 		
 		# shape becomes a friend again
 		shape_frozen.global_position = global.attach_pos_to_grid(shape_frozen.global_position)
-		shape_frozen.rpc("set_pos",shape_frozen.position)
-		shape_frozen.rpc("switch_status",'FRIEND')
+		shape_frozen.rpc("switch_status",'FRIEND',shape_frozen.global_position)
 		shape_frozen.switch_status('FRIEND')
 		shape_frozen = null
 		return true
@@ -148,13 +151,13 @@ func frost_beam():
 	if successful:
 		# attach tetris shape, it will move with the ship until released
 		shape_frozen = result.collider
-		shape_frozen.rpc("switch_status",'FROZEN')
+		shape_frozen.rpc("switch_status",'FROZEN',shape_frozen.global_position)
 		shape_frozen.switch_status('FROZEN')
 	
 	return true
 
 
-puppet func draw_beam(beam_stops_at,successful):
+remote func draw_beam(beam_stops_at,successful):
 	var beam = FROST_BEAM.instance()
 	beam.points = [
 		Vector2(0,0),
@@ -166,6 +169,6 @@ puppet func draw_beam(beam_stops_at,successful):
 		# only free the frost beam when shape is released (otherwise frees itself)
 		beam.set_process(false)
 
-puppet func undraw_beam():
+remote func undraw_beam():
 	for b in get_tree().get_nodes_in_group('frost-beam'):
 		b.queue_free()

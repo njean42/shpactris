@@ -135,7 +135,10 @@ func can_switch_status(new_status):
 			return true
 
 
-remote func switch_status(new_status):
+remote func switch_status(new_status,synced_pos=null):
+	if synced_pos != null:
+		global_position = synced_pos
+	
 	match new_status:
 		'ENEMY':
 			# enemies are smaller
@@ -165,7 +168,7 @@ remote func switch_status(new_status):
 				pow(2,global.LAYER_WALLS)
 			)
 			global.reparent(self,$'/root/world/ship')
-			
+		
 		'FLOOR':
 			global.play_sound('tris_shape_down')
 			global_position = global.attach_pos_to_grid(global_position)
@@ -205,6 +208,7 @@ remote func switch_status(new_status):
 			for c in $'piece/blocks'.get_children():
 				c.find_node('animation').play('fade-out')
 			detach_blocks()
+			return
 	
 	status = new_status
 	colorise()
@@ -218,7 +222,7 @@ func enemy_move(delta):
 	if lobby.i_am_the_game() and position.distance_to(destination) < speed * delta:
 		position = destination
 		if can_switch_status('FRIEND'):
-			rpc("switch_status",'FRIEND')
+			rpc("switch_status",'FRIEND',global_position)
 			switch_status('FRIEND')
 		return
 	
@@ -244,7 +248,7 @@ func fire_enemy_bullets():
 puppet func sync_fire_enemy_bullet(pos,i,type,dir):
 	var bullet = (BULLET if type == 'regular' else BULLET_BAD).instance()
 	bullet.global_position = pos
-	bullet.name = 'enemy-bullet-' + str(i)
+	bullet.name = 'enemy-bullet-' + type + '-' + str(i)
 	bullet.direction = dir
 	$'/root/world/bullets'.add_child(bullet)
 
@@ -298,7 +302,7 @@ remote func absorb(enemy_bullet):
 				sync_fire_enemy_bullet(global_position,global.enemy_bullet_i,'bad',dir)
 				global.enemy_bullet_i += 1
 			
-			rpc("switch_status",'DESTROYED')
+			rpc("switch_status",'DESTROYED',global_position)
 			switch_status('DESTROYED')
 		
 		return
@@ -341,8 +345,7 @@ func friend_move_dir(dir):
 			
 			# check that this is a collision after moving or being pushed down (not left or right, as this results in tetris shapes wrongly "attaching" to other ground shapes)
 			if dir.x == 0 and dir.y > 0:  # moving down
-				rpc("set_pos",position)
-				rpc("switch_status",'FLOOR')
+				rpc("switch_status",'FLOOR',global_position)
 				switch_status('FLOOR')
 				force_down = false
 				return
