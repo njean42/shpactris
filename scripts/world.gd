@@ -16,6 +16,9 @@ func _ready():
 	
 	# attribute network master status to both players
 	if get_tree().get_network_peer():
+		
+		# TODO: pause everyone and wait for clients to be ready too (see the doc)
+		
 		var players = ['ship','pacman']
 		for i in range(players.size()):
 			get_node(players[i]).set_network_master(lobby.clients[i])
@@ -25,15 +28,16 @@ func _process(delta):
 	game_time += delta
 
 
-func earn_life(who):
-	global.play_sound('heart_collected')
+remote func earn_life(who):
+	global.play_sound('heart_collected',false)
 	lives += 1
 	find_node('HUD').update()
 	
 	var lifeup = SCENE_LIFE_DOWN.instance()
-	lifeup.position = who.position
+	lifeup.position = get_node(who).position
 	lifeup.find_node('cross').visible = false
 	$'/root/world/HUD'.add_child(lifeup)
+
 
 func lose_life(who):
 	global.play_sound('player_hit')
@@ -75,3 +79,22 @@ func level_up():
 	# add a heart randomly on the map
 	get_node('items').add_child(global.HEART.instance())
 
+
+var item_i = 0
+var items = {
+	'heart': global.HEART,
+	'bubble': global.BUBBLE,
+	'slow-mo': global.SLOW_MO
+}
+func new_item():
+	var item_name = items.keys()[floor(rand_range(0,3))]
+	var pos = global.get_random_maze_pos()
+	rpc("sync_new_item",item_name,pos,item_i)
+	sync_new_item(item_name,pos,item_i)
+	item_i += 1
+
+remote func sync_new_item(item_name,pos,i):
+	var item = items[item_name].instance()
+	item.name = 'item-' + str(i)
+	item.position = pos
+	$'/root/world/items'.add_child(item)
