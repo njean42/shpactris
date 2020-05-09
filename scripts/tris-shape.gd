@@ -226,19 +226,18 @@ func enemy_move(delta):
 	if lobby.i_am_the_game():
 		time_since_last_bullet += delta
 		if time_since_last_bullet >= bullet_interval:
-			rpc("fire_enemy_bullet",global_position,enemy_bullet_i)
-			fire_enemy_bullet(global_position,enemy_bullet_i)
+			var type = 'regular' if randf() <= 0.9 else 'bad'
+			rpc("fire_enemy_bullet",global_position,enemy_bullet_i,type)
+			fire_enemy_bullet(global_position,enemy_bullet_i,type)
 			enemy_bullet_i += 1
 			time_since_last_bullet = 0
 
 
-puppet func fire_enemy_bullet(pos,i):
-	var bullet = BULLET.instance()
+puppet func fire_enemy_bullet(pos,i,type='regular'):
+	var bullet = (BULLET if type == 'regular' else BULLET_BAD).instance()
 	bullet.global_position = pos
 	bullet.name = 'enemy-bullet-' + str(i)
 	$'/root/world/bullets'.add_child(bullet)
-	var char2follow = bullet.get_closest_char()
-	bullet.set_direction(char2follow.global_position - global_position)
 
 
 func friend_move(delta):
@@ -287,7 +286,7 @@ remote func absorb(enemy_bullet):
 			var bullet = BULLET_BAD.instance()
 			bullet.global_position = global_position
 			var angle = 0 + deg2rad(180) * i / bullets.size()
-			bullet.set_direction(Vector2.RIGHT.rotated(angle))
+			bullet.set_dir(Vector2.RIGHT.rotated(angle))
 			$'/root/world/bullets'.add_child(bullet)
 		
 		# make blocks disappear
@@ -306,8 +305,8 @@ remote func absorb(enemy_bullet):
 	colorise()
 
 
-func friend_move_dir(dir,step=0):
-	if not lobby.i_am_pacman() and not lobby.i_am_the_game():
+func friend_move_dir(dir):
+	if not lobby.i_am_pacman():
 		return
 	
 	# I've been pushed (or went down), don't move down before some time
@@ -320,13 +319,13 @@ func friend_move_dir(dir,step=0):
 		if c.collider.is_in_group('enemy-bullets'):
 			rpc("absorb",c.collider)
 			absorb(c.collider)
-			friend_move_dir(c.remainder/global.GRID_SIZE,step+1)
+			friend_move_dir(c.remainder/global.GRID_SIZE)
 			moving_again = true
 		
 		if c.collider.is_in_group('ghosts'):
-			c.collider.rpc("die")
-			c.collider.die()
-			friend_move_dir(c.remainder/global.GRID_SIZE,step+1)
+			c.collider.rpc("die",'crushed_by_tetris_piece')
+			c.collider.die('crushed_by_tetris_piece')
+			friend_move_dir(c.remainder/global.GRID_SIZE)
 			moving_again = true
 		
 		if status == 'FRIEND' and (
