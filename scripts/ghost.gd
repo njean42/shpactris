@@ -18,6 +18,11 @@ func _ready():
 	# appear
 	find_node('anim').get_animation('appear').set_length(conf.current.GHOSTS_SPAWN_DURATION)
 	global.disable_collision(self)
+	
+	# only the server compute ghosts collisions
+	if not lobby.i_am_the_game() and not lobby.i_am_pacman():
+		$'collision-shape'.disabled = true
+
 
 func _physics_process(delta):
 	if direction == null:
@@ -31,16 +36,29 @@ func _physics_process(delta):
 		if global.DEBUG:
 			global.remove_milestones(global.attach_pos_to_grid(position))
 	
-	# at crossroads (on grid positions), try new directions
 	var gridpos = global.attach_pos_to_grid(position)
-	var dist2gridpos = (position - gridpos).length()
 	
+	# stick on a maze row or column (may be displaced after collision)
+	if abs(direction.x) > abs(direction.y):  # going left or right
+		if position.y != gridpos.y:
+			position.y = gridpos.y # stick to current row
+			rpc("set_pos",position,path2pacman)
+			set_pos(position,path2pacman)
+	else:  # going up or down
+		if position.x != gridpos.x:
+			position.x = gridpos.x # stick to current column
+			rpc("set_pos",position,path2pacman)
+			set_pos(position,path2pacman)
+	
+	# at crossroads (on grid positions), try new directions
+	var dist2gridpos = (position - gridpos).length()
 	if dist2gridpos < delta*float(speed)/2: # am I on grid? (= in the middle of a cell)
 		update_direction()
 	
 	var c = move_and_collide(direction.normalized()*speed*delta)
 	if c:
 		collide(c)
+
 
 func path_to_pacman():
 	
@@ -98,22 +116,28 @@ func path_to_pacman():
 		
 		# no new paths, finished exploring
 		if new_paths.size() == 0:
-			find_node('anim').play('shake-and-die')
+			rpc("die",'no_path2pacman')
+			die('no_path2pacman')
 			break
 		
 		paths = new_paths
 	
 	return []
 
+
 func collide(c):
+	if not lobby.i_am_the_game():
+		return
+	
 	# hurt pacman and die
 	if c.collider.is_in_group('pacman'):
 		if c.collider.get_parent().is_shadow:  # don't hurt pacman's shadow
-			c.collider.get_parent().queue_free()
+			c.collider.get_parent().rpc("free_shadow")
+			c.collider.get_parent().free_shadow()
 			return
 		
-		c.collider.get_hurt()
-		global.remove_from_game(self)
+		rpc("die",'hit_pacman')
+		die('hit_pacman')
 	
 	# bounce off pacman-walls
 	if c.collider.is_in_group('pacman-walls'):
@@ -133,7 +157,7 @@ func collide(c):
 		update_direction()
 
 
-puppet func set_pos(pos,path):
+remote func set_pos(pos,path):
 	position = pos
 	path2pacman = path
 	var next_cell = path2pacman[0]  # try to reach the next cell on my path
@@ -144,7 +168,6 @@ puppet func set_pos(pos,path):
 
 
 func update_direction():
-	
 	if not lobby.i_am_the_game():
 		return
 	
@@ -161,16 +184,29 @@ func update_direction():
 	set_pos(position,path2pacman)
 
 
-remote func die():
-	find_node('anim').play('shake-and-die')
+remote func die(why):
+	match why:
+		'hit_pacman':
+			$'/root/world/pacman'.get_hurt()
+			global.remove_from_game(self)
+		
+		'no_path2pacman':
+			find_node('anim').play('shake-and-die')
+		
+		'crushed_by_tetris_piece':
+			find_node('anim').play('shake-and-die')
+		
+		'hit_by_bullet':
+			find_node('anim').play('shake-and-die')
 
 
 func _on_anim_animation_started(anim_name):
 	match anim_name:
 		'shake-and-die':
-			global.play_sound('ghost_killed')
+			global.play_sound('ghost_killed',false)
 			modulate.a = 0.5
 			global.disable_collision(self)
+			set_physics_process(false)
 
 func _on_anim_animation_finished(anim_name):
 	match anim_name:

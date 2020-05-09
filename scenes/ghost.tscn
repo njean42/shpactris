@@ -59,7 +59,7 @@ anims/shake-and-die = SubResource( 2 )
 position = Vector2( 19.8508, 17.4669 )
 texture = ExtResource( 3 )
 
-[node name="shape" type="CollisionShape2D" parent="."]
+[node name="collision-shape" type="CollisionShape2D" parent="."]
 position = Vector2( 20, 20 )
 shape = SubResource( 3 )
 [connection signal="animation_finished" from="sprite/anim" to="." method="_on_anim_animation_finished"]
