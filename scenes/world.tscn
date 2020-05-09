@@ -87,31 +87,28 @@ tracks/0/keys = {
 [sub_resource type="GDScript" id=7]
 script/source = "extends Node2D
 
-var in_pause = false
+
+var game_is_over = false
 
 
 func _input(event):
 	if $'/root/world/HUD/game-over-menu'.visible:
 		return
 	
-	if Input.is_action_pressed('ui_pause'):
+	if Input.is_action_just_pressed('ui_pause'):
+		rpc('pause')
 		pause()
-	
-	if Input.is_action_just_released('ui_pause'):
-		in_pause = get_tree().is_paused()
 
-func pause(force=false):
-	# go to pause
-	if not in_pause and not get_tree().is_paused():
-		visible = true
-		get_tree().set_pause(true)
+
+remote func pause(game_over=false):
+	if game_is_over:
+		return
 	
-	# resume game
-	if in_pause and get_tree().is_paused():
-		visible = false
-		get_tree().set_pause(false)
-		if force:
-			in_pause = get_tree().is_paused()
+	var go_to_pause = not get_tree().is_paused()
+	visible = go_to_pause
+	get_tree().set_pause(go_to_pause)
+	
+	game_is_over = game_over
 "
 
 [node name="world" type="Node2D" groups=[

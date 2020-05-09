@@ -19,8 +19,9 @@ script/source = "extends Button
 
 
 func _on_btcontinue_pressed():
-	$'/root/world/HUD/pause-menu'.pause(true)
-	"
+	$'/root/world/HUD/pause-menu'.pause()
+	
+"
 
 [node name="pause-menu" type="Node2D"]
 
