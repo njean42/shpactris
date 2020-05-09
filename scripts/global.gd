@@ -154,8 +154,9 @@ func remove_milestones(gridpos=false):
 		if not gridpos or attach_pos_to_grid(m.position) == gridpos:
 			m.queue_free()
 
-func play_sound(sound):
-	rpc("synced_play_sound",sound)
+func play_sound(sound,play_remote=true):
+	if play_remote:
+		rpc("synced_play_sound",sound)
 	synced_play_sound(sound)
 
 remote func synced_play_sound(sound):
