@@ -14,8 +14,8 @@ func _physics_process(delta):
 	if c:
 		# kill ghosts
 		if c.collider.is_in_group('ghosts'):
-			c.collider.rpc("die")
-			c.collider.die()
+			c.collider.rpc("die",'hit_by_bullet')
+			c.collider.die('hit_by_bullet')
 			rpc("be_gone",'enemy_hit')
 			be_gone('enemy_hit')
 		
