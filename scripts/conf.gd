@@ -47,7 +47,6 @@ var default = {
 	'TRIS_SHAPE_SPEED': {'init': 80, 'levelup': default_increase},
 	'TRIS_SHAPE_BULLET_INTERVAL': {'init': 6, 'levelup': default_decrease},
 	'TRIS_SHAPE_BULLET_SPEED': {'init': 100, 'levelup': default_increase},
-	'TRIS_SHAPE_BULLET_FOLLOW': {'init': 10, 'levelup': default_increase}, # update direction to follow ship: at most X degrees per second
 	'TRIS_SHAPE_MAX_FRIENDS': 1,
 	'TRIS_SHAPE_DOWN_INTERVAL': {'init': 2, 'levelup': default_decrease},  # one square down every X seconds
 }
@@ -111,7 +110,7 @@ func announce_level(level):
 	$'/root/world/HUD/level-up/anim'.play('fade-in-out')
 
 
-func slow_motion():
+remote func slow_motion():
 	if is_slow_mo:  # renew slow-mo
 		time_in_slow_mo = 0
 		return
