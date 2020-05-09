@@ -61,6 +61,9 @@ enum {
 }
 
 
+var enemy_bullet_i = 0
+
+
 func _ready():
 	randomize()
 	SCREEN_SIZE = {

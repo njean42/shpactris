@@ -115,12 +115,9 @@ func colorise():
 		'FLOOR':
 			color = GREY
 	
-	if color == null:
-		prints('[BUG] no color for tetris shape... status:',status)
-		return
-	
-	for child in $'piece/blocks'.get_children():
-		child.get_node('box').modulate = color
+	if color != null:  # a destroyed shape has no new color
+		for child in $'piece/blocks'.get_children():
+			child.get_node('box').modulate = color
 
 
 func can_switch_status(new_status):
@@ -201,12 +198,18 @@ remote func switch_status(new_status):
 			colorise()
 			detach_blocks()
 			return
+		
+		'DESTROYED':
+			prints(get_tree().get_network_unique_id(),'DESTROYED')
+			# make blocks disappear
+			for c in $'piece/blocks'.get_children():
+				c.find_node('animation').play('fade-out')
+			detach_blocks()
 	
 	status = new_status
 	colorise()
 
 
-var enemy_bullet_i = 0
 func enemy_move(delta):
 	if destination == null: # may happen in network mode when clients are waiting for the destination given by the server
 		return
@@ -226,17 +229,23 @@ func enemy_move(delta):
 	if lobby.i_am_the_game():
 		time_since_last_bullet += delta
 		if time_since_last_bullet >= bullet_interval:
-			var type = 'regular' if randf() <= 0.9 else 'bad'
-			rpc("fire_enemy_bullet",global_position,enemy_bullet_i,type)
-			fire_enemy_bullet(global_position,enemy_bullet_i,type)
-			enemy_bullet_i += 1
+			fire_enemy_bullets()
 			time_since_last_bullet = 0
 
 
-puppet func fire_enemy_bullet(pos,i,type='regular'):
+func fire_enemy_bullets():
+	var type = 'regular' if randf() <= 0.9 else 'bad'
+	var dir = $'/root/world/ship'.global_position - global_position
+	rpc("sync_fire_enemy_bullet",global_position,global.enemy_bullet_i,type,dir)
+	sync_fire_enemy_bullet(global_position,global.enemy_bullet_i,type,dir)
+	global.enemy_bullet_i += 1
+
+
+puppet func sync_fire_enemy_bullet(pos,i,type,dir):
 	var bullet = (BULLET if type == 'regular' else BULLET_BAD).instance()
 	bullet.global_position = pos
 	bullet.name = 'enemy-bullet-' + str(i)
+	bullet.direction = dir
 	$'/root/world/bullets'.add_child(bullet)
 
 
@@ -278,22 +287,20 @@ remote func absorb(enemy_bullet):
 	var bullets = get_enemy_bullets()
 	
 	if empty_block == null:
-		global.play_sound('tris_shape_break')
-		enemy_bullet.queue_free()
+		global.play_sound('tris_shape_break',false)
 		
 		# fire bad bullets in a circle
-		for i in range(bullets.size()+1):
-			var bullet = BULLET_BAD.instance()
-			bullet.global_position = global_position
-			var angle = 0 + deg2rad(180) * i / bullets.size()
-			bullet.set_dir(Vector2.RIGHT.rotated(angle))
-			$'/root/world/bullets'.add_child(bullet)
+		if lobby.i_am_the_game():
+			for i in range(bullets.size()+1):
+				var angle = 0 + deg2rad(180) * i / bullets.size()
+				var dir = Vector2.RIGHT.rotated(angle)
+				rpc("sync_fire_enemy_bullet",global_position,global.enemy_bullet_i,'bad',dir)
+				sync_fire_enemy_bullet(global_position,global.enemy_bullet_i,'bad',dir)
+				global.enemy_bullet_i += 1
+			
+			rpc("switch_status",'DESTROYED')
+			switch_status('DESTROYED')
 		
-		# make blocks disappear
-		for c in $'piece/blocks'.get_children():
-			c.find_node('animation').play('fade-out')
-		
-		detach_blocks()
 		return
 	
 	# stick to the tetris shape

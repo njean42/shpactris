@@ -14,18 +14,8 @@ func _ready():
 	global.enable_collision(self)
 	
 	# only the server computes bullet collisions
-	if lobby.i_am_the_game():
-		var char2follow = get_closest_char()
-		var dir = char2follow.global_position - global_position
-		rpc("set_dir",dir)
-		set_dir(dir)
-	else:
+	if not lobby.i_am_the_game():
 		$'collision-shape'.disabled = true
-
-
-puppet func set_dir(dir):
-	if direction == null:
-		direction = dir
 
 
 func _process(delta):
