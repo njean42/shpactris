@@ -1,7 +1,7 @@
 extends 'ship-pacman.gd'
 
-var direction = false
-var prev_dir = false
+var direction = null
+var prev_dir = 'right'
 var speed = false
 var is_shadow = false
 
@@ -49,13 +49,14 @@ func move(delta):
 		rpc("set_rot",new_rot)
 		set_rot(new_rot)
 	
-	if direction:
+	if direction != null:
 		var c = move_and_collide(velocity * speed * delta)
 		collide(c)
 	
 	if lobby.i_am_pacman() and not is_shadow:  # shadow pos is computed on each server/client
 		if position != prev_pos:  # don't clutter the network if pacman didn't move
 			rpc_unreliable("set_pos",position)
+			# TODO: limit to n times/second?
 	
 	# remove if off-maze (only shadows should go off screen)
 	if lobby.i_am_pacman() and not walls.is_in_maze(global.pos_to_grid(position)):
@@ -71,7 +72,7 @@ puppet func set_rot(rot):
 
 
 func player_move():
-	direction = false
+	direction = null
 	speed = conf.current.PACMAN_SPEED  # may have been updated (level up)
 	if Input.is_action_pressed("any_mode_pacman_right"):
 		direction = 'right'
@@ -83,16 +84,15 @@ func player_move():
 		direction = 'up'
 	
 	# Stay on intersections (~cells) when Pacman stops moving
-	if prev_dir and not direction:
+	if prev_dir != null and direction == null:
 		position = global.attach_pos_to_grid(position)
 		rpc("set_pos",position)
 	
 	# Also when changing direction
-	if direction and prev_dir and direction != prev_dir:
+	if direction != null and prev_dir != null and direction != prev_dir:
 		position = global.attach_pos_to_grid(position)
 	
-	if direction:
-		prev_dir = direction
+	prev_dir = direction
 	
 	var mode = 'any_mode_' if global.PLAYERS.mode_1p else '2p_mode_'
 	if Input.is_action_just_pressed(mode+'pacman_fire_shadow'):
@@ -105,36 +105,26 @@ func collide(c):
 	if not c:
 		return
 	
-	for g in ['enemy-bullets','ghosts','tris-shape']:
-		if not c.collider.is_in_group(g):
-			continue
-		match g:
-			# eat enemy bullets
-			'enemy-bullets':
-				absorb(c.collider)
-			
-			# push friendly tetris shapes
-			'tris-shape':
-				# try to push shape
-				global.play_sound('tris_shape_pushed')
-				c.collider.friend_move_dir(-c.get_normal())
-				# stick to grid and stop
-				position = global.attach_pos_to_grid(position)
-				position = position + c.get_normal().normalized() * global.GRID_SIZE/4
-				direction = false
-			
-			# collide against walls => clamp to grid
-			'pacman-walls':
-				position = global.attach_pos_to_grid(position)
-				direction = false
+	if c.collider.is_in_group('enemy-bullets'):
+		c.collider.rpc("be_absorbed",name)
+		c.collider.be_absorbed(name)
+	
+	if c.collider.is_in_group('tris-shape'):
+		# push friendly tetris shapes
+		global.play_sound('tris_shape_pushed')
+		c.collider.friend_move_dir(-c.get_normal())
+		# stick to grid and stop
+		position = global.attach_pos_to_grid(position)
+		position = position + c.get_normal().normalized() * global.GRID_SIZE/4
+		direction = null
+
 
 # absorb enemy bullet (gather around pacman)
 func absorb(bullet):
 	if bullet.is_in_group('enemy-bullets-bad'):
-		
 		# hitting a bad enemy bullet with pacman's shadow doesn't lose life; the shadow disappears
 		if is_shadow:
-			queue_free()
+			free_shadow()  # already in sync
 			return
 		
 		get_hurt()
@@ -157,47 +147,52 @@ func absorb(bullet):
 	bullet.set_physics_process(false)
 	nb_bullets += 1
 	
-	# random power-up when pacman gathers 10 bullets
+	# random power-up when pacman gathers X bullets
 	if nb_bullets >= MAX_ENEMY_BULLETS:
 		for b in bullets_list.get_children():
 			b.queue_free()
 		bullet.queue_free()
 		
-		var item = [
-			global.HEART,
-			global.BUBBLE,
-			global.SLOW_MO
-		][floor(rand_range(0,3))]
-		
-		$'/root/world/items'.add_child(item.instance())
+		if lobby.i_am_pacman():
+			$'/root/world'.new_item()
 
 var can_teleport
+var shadow_i = 0
 func fire_shadow():
 	can_teleport = true
 	
-	var dir = direction if direction else prev_dir
+	var shadow = get_tree().get_nodes_in_group('pacman-shadow')
+	if shadow.size() > 0:
+		shadow[0].rpc("free_shadow")
+		shadow[0].free_shadow()
+	
+	var dir = {
+		'0': 'right',
+		'180': 'left',
+		'90': 'down',
+		'-90': 'up'
+	}[str(find_node('sprite').rotation_degrees)]
 	var speed = conf.current.PACMAN_SPEED * 2  # shadows travel twice as fast as pacman
 	var rot = find_node('sprite').rotation_degrees
-	rpc("synced_fire_shadow",global_position,dir,rot,speed)
-	synced_fire_shadow(global_position,dir,rot,speed)
+	rpc("synced_fire_shadow",global_position,dir,rot,speed,shadow_i)
+	synced_fire_shadow(global_position,dir,rot,speed,shadow_i)
+	shadow_i += 1
 
 
-puppet func synced_fire_shadow(pos,dir,rot,speed):
+puppet func synced_fire_shadow(pos,dir,rot,speed,i):
 	if SHADOW == null:
 		SHADOW = load('res://scenes/pacman-shadow.tscn')
 	
-	var shadow = get_tree().get_nodes_in_group('pacman-shadow')
-	if shadow.size() > 0:
-		shadow[0].queue_free()
-	
-	shadow = SHADOW.instance()
-	$'/root/world'.add_child(shadow)
+	var shadow = SHADOW.instance()
 	shadow.global_position = pos
 	shadow.is_shadow = true
 	shadow.add_to_group('pacman-shadow')
 	shadow.direction = dir
 	shadow.speed = speed
 	shadow.set_rot(rot)
+	shadow.name = 'pacman-shadow-' + str(i)
+	
+	$'/root/world'.add_child(shadow)
 	if get_tree().get_network_peer():
 		shadow.set_network_master(lobby.pacman)
 
@@ -235,6 +230,7 @@ func teleport():
 		rpc("set_pos",global_position)
 		shadow.rpc("free_shadow")
 		shadow.free_shadow()
+
 
 remote func free_shadow():
 	if not is_shadow:
