@@ -44,8 +44,7 @@ func _physics_process(delta):
 				s = equiv_level
 			
 			if s != null:
-				# TODO: sync BOSS announce
-				conf.announce_level('BOSS')
+				conf.announce_level('BOSS',true)
 				spawned_special.append(level)
 				var shape_name = 'tris-shape-boss-' + str(shape_i)
 				shape_i += 1

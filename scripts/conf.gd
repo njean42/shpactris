@@ -103,7 +103,9 @@ func level_up(level):
 	debug_speed()
 
 
-func announce_level(level):
+puppet func announce_level(level,to_sync=false):
+	if to_sync:
+		rpc("announce_level",level)
 	var text = 'Level '+str(level) if typeof(level) == TYPE_INT else level
 	$'/root/world/HUD/level-up'.text = text
 	$'/root/world/HUD/level-up/anim'.stop(true)
