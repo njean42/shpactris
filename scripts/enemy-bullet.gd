@@ -1,7 +1,6 @@
 extends KinematicBody2D
 
 var speed = conf.current.TRIS_SHAPE_BULLET_SPEED
-var follow_characters = ['ship']
 var direction = null
 
 var collisions = {
@@ -21,7 +20,6 @@ func _ready():
 func _process(delta):
 	if position.y > global.SCREEN_SIZE.y or position.y < 0 or position.x > global.SCREEN_SIZE.x or position.x < 0:
 		queue_free()
-	# TODO: sync pos every second?
 
 
 func _physics_process(delta):
@@ -33,18 +31,6 @@ func _physics_process(delta):
 	var c = move_and_collide(direction.normalized()*speed*delta)
 	if c:
 		collide(c.collider)
-
-
-func get_closest_char():
-	var min_dist2char = INF
-	var closest = null
-	for c in follow_characters:
-		c = $'/root/world'.get_node(c)
-		var dist = (c.position - position).length()
-		if dist < min_dist2char:
-			min_dist2char = dist
-			closest = c
-	return closest
 
 
 func update_speed():
