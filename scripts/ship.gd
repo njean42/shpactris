@@ -87,12 +87,19 @@ remote func fire_bullet(pos,bullet_name):
 
 
 func get_beam():
+	if not lobby.i_am_the_game():
+		return
+	
 	var nb_beams = $'beams'.get_children().size()
 	if nb_beams >= 10:
 		return
 	
+	rpc("sync_get_beam",nb_beams)
+	sync_get_beam(nb_beams)
+
+
+remote func sync_get_beam(nb_beams):
 	var x = nb_beams * 4
-	
 	var beam = Line2D.new()
 	beam.default_color = Color(102.0/255, 128.0/255, 1)
 	beam.width = 2
@@ -101,6 +108,10 @@ func get_beam():
 		Vector2(x,10)
 	]
 	$'beams'.add_child(beam)
+
+
+remote func lose_beam():
+	$'beams'.get_children()[-1].queue_free()
 
 
 func frost_beam():
@@ -126,7 +137,9 @@ func frost_beam():
 	# fire frost beam (not releasing an already frozen piece)
 	if $'beams'.get_children().size() == 0:
 		return
-	$'beams'.get_children()[-1].queue_free()
+	
+	rpc("lose_beam")
+	lose_beam()
 	
 	global.play_sound('frost_beam')
 	
