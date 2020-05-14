@@ -16,7 +16,7 @@ script/source = "extends Node2D
 func _ready():
 	$\"margin/vbox/vbox-buttons/bt-play-local\".grab_focus()
 	
-	if OS.get_environment('TESTING') == 'true':
+	if OS.get_environment('TESTING') == 'true' or OS.get_environment('SERVER') == 'true':
 		get_tree().change_scene(\"res://scenes/menus/lobby.tscn\")
 "
 

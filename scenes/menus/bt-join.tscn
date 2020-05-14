@@ -1,0 +1,80 @@
+[gd_scene load_steps=4 format=2]
+
+[sub_resource type="DynamicFontData" id=1]
+font_path = "res://assets/DejaVuSans-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=2]
+font_data = SubResource( 1 )
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Button
+
+
+var status = null
+var server_ip = -1
+var server_port = -1
+
+var human_status = {
+	'UNCERTAIN': {
+		'text': '...',
+		'color': '#7f8c8d'
+	},
+	'WAITING': {
+		'text': 'JOIN GAME - room ',
+		'color': '#27ae60'
+	},
+	'FREE': {
+		'text': 'CREATE GAME',
+		'color': '#2980b9'
+	},
+	'BUSY': {
+		'text': 'BUSY',
+		'color': '#c0392b'
+	},
+}
+
+func switch_status(new_status):
+	status = new_status
+	text = human_status[status].text
+	if status == 'WAITING':
+		text += lobby.GAME_NAMES[str(server_port)]
+	add_color_override(\"font_color\",Color(human_status[status].color))
+
+
+func set_server(ip,port):
+	server_ip = ip
+	server_port = int(port)
+
+
+func _on_btjoin_pressed():
+	match status:
+		'WAITING':
+			# join game
+			lobby.join(server_ip,server_port)
+			
+		'FREE':
+			# ask server to create game
+			var http_request = HTTPRequest.new()
+			var http_client = HTTPClient.new()
+			add_child(http_request)
+			
+			http_request.connect(\"request_completed\", $'/root/lobby-scene', \"_on_creategame_completed\")
+			http_request.request(
+				'http://shpactris/server.php',
+				[\"Content-Type: application/x-www-form-urlencoded\"],
+				true,
+				HTTPClient.METHOD_POST,
+				http_client.query_string_from_dict({'action':'create'})
+			)
+			prints(http_client.query_string_from_dict({'action':'create'}))
+
+"
+
+[node name="bt-join" type="Button"]
+custom_fonts/font = SubResource( 2 )
+text = "JOIN / BUSY / CREATE"
+script = SubResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="pressed" from="." to="." method="_on_btjoin_pressed"]

@@ -1,33 +1,176 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=8 format=2]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node2D
 
 
 const SERVER_IP = '127.0.0.1'
-const MAX_PLAYERS = 2
+var PORT = OS.get_environment('PORT')
 
-const SERVER_PORT = 6000  # TODO: remove?
+const BTJOIN = preload('res://scenes/menus/bt-join.tscn')
+
+onready var output = $'vbox/output'
+onready var games = $'vbox/games'
+
+var is_server = OS.get_environment('SERVER') == 'true'
+var server_time_waiting = 0
+const MAX_SERVER_TIME_WAITING = 30  # max time waiting for first connection, before quitting
 
 
 func _ready():
+	clear_output()
 	
 	# server
-	if OS.get_environment('SERVER') == 'true':
+	set_process(false)
+	if is_server:
+		set_process(true)
+		if not PORT:
+			prints('undefined PORT environment variable')
+			get_tree().quit(1)
+		
 		var peer = NetworkedMultiplayerENet.new()
-		peer.create_server(SERVER_PORT, MAX_PLAYERS)
+		peer.create_server(int(PORT))
+		peer.set_bind_ip(SERVER_IP)
 		get_tree().set_network_peer(peer)
-		prints(get_tree().get_network_unique_id(), 'started server')
+		prints('server created - listening on',PORT)
 		return
 	
-	# client
-	var peer = NetworkedMultiplayerENet.new()
-	peer.create_client(SERVER_IP, SERVER_PORT)
-	get_tree().set_network_peer(peer)
-	prints(get_tree().get_network_unique_id(), 'started client')
+	# client + direct connection (testing)
+	if lobby.TESTING:
+		if not PORT:
+			prints('undefined PORT environment variable')
+			get_tree().quit(1)
+		
+		lobby.join('127.0.0.1',PORT)
+		return
+	
+	# regular client
+	refresh_game_list()
+
+
+func _process(delta):
+	server_time_waiting += delta
+	if server_time_waiting > MAX_SERVER_TIME_WAITING and lobby.clients.size() == 0:
+		prints('Waiting long enough for players, quitting')
+		get_tree().quit()
+
+
+func refresh_game_list():
+	clear_game_buttons()
+	
+	var http_request = HTTPRequest.new()
+	add_child(http_request)
+	http_request.connect(\"request_completed\", self, \"_on_serverinfo_completed\")
+	var error = http_request.request(\"http://shpactris/server.php?info\")
+	if error != OK:
+		add_lobby_output(\"Server not available\")
+
+
+func _on_serverinfo_completed(result, response_code, headers, body):
+	# TODO: check responde_code = 200
+	
+	var json = JSON.parse(body.get_string_from_utf8())
+	# TODO: check json parsing
+	json = json.result
+	
+	# TODO: check that global.VERSION == json.GAME_VERSION
+	
+	add_lobby_output(\"Select a game to join\")
+	
+	for status in ['UNCERTAIN','FREE','BUSY']:
+		for port in json.AVAILABLE_SLOTS[status]:
+			var bt = BTJOIN.instance()
+			bt.set_server(json.SERVER_IP,port)
+			bt.switch_status(status)
+			games.add_child(bt)
+	
+	check_games_avail()
+
+
+func check_games_avail():
+	for bt in games.get_children():
+		if bt.status == 'UNCERTAIN':
+			# check whether the game is already full
+			lobby.fake_join(bt.server_ip,bt.server_port)
+			break # only one check at a time
+
+
+func _on_creategame_completed(result, response_code, headers, body):
+	# TODO: check responde_code = 200
+	
+	var json = JSON.parse(body.get_string_from_utf8())
+	# TODO: check json parsing
+	json = json.result
+	
+	add_lobby_output(\"Created game room - %s\" % lobby.GAME_NAMES[str(json.game.port)])
+	
+	lobby.join(json.game.ip,json.game.port)
+
+
+func _on_btready_pressed():
+	if get_tree().get_network_peer() == null:
+		add_lobby_output(\"Join a game first\")
+		return
+	
+	find_node('bt-ready').visible = false
+	add_lobby_output(\"Waiting for another player\")
+	
+	clear_game_buttons()
+	lobby.rpc_id(1,\"player_ready\",get_tree().get_network_unique_id())
+
+
+func _on_btrefresh_pressed():
+	get_tree().network_peer = null
+	clear_output()
+	find_node('bt-ready').visible = false
+	refresh_game_list()
+
+
+func _on_btleave_pressed():
+	get_tree().network_peer = null  # disconnect, should be visible by server
+	get_tree().change_scene(\"res://scenes/menus/main-menu.tscn\")
+
+
+func clear_game_buttons():
+	# clear join/create buttons
+	for bt in games.get_children():
+		bt.queue_free()
+
+
+func set_btjoin(port,status):
+	for bt in games.get_children():
+		if bt.server_port == port:
+			bt.switch_status(status)
+
+
+func clear_output():
+	output.text = \"\"
+
+
+func add_lobby_output(msg):
+	output.text += msg + \"\\n\"
 "
 
-[node name="lobby" type="Node2D"]
+[sub_resource type="DynamicFontData" id=2]
+font_path = "res://assets/DejaVuSans-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=3]
+size = 13
+font_data = SubResource( 2 )
+
+[sub_resource type="DynamicFontData" id=4]
+font_path = "res://assets/DejaVuSans-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=5]
+font_data = SubResource( 4 )
+
+[sub_resource type="DynamicFontData" id=6]
+font_path = "res://assets/DejaVuSans-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=7]
+font_data = SubResource( 6 )
+
+[node name="lobby-scene" type="Node2D"]
 script = SubResource( 1 )
 
 [node name="vbox" type="VBoxContainer" parent="."]
@@ -37,17 +180,48 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="connect-as" type="HBoxContainer" parent="vbox"]
-margin_right = 600.0
+[node name="output" type="RichTextLabel" parent="vbox"]
+margin_right = 590.0
+margin_bottom = 600.0
+rect_min_size = Vector2( 590, 600 )
+custom_fonts/normal_font = SubResource( 3 )
+text = "output"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="output" type="RichTextLabel" parent="vbox"]
-margin_top = 4.0
-margin_right = 600.0
-margin_bottom = 704.0
-rect_min_size = Vector2( 600, 700 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="games" type="VBoxContainer" parent="vbox"]
+margin_top = 604.0
+margin_right = 590.0
+margin_bottom = 604.0
+
+[node name="hbox" type="HBoxContainer" parent="vbox"]
+margin_top = 608.0
+margin_right = 590.0
+margin_bottom = 633.0
+
+[node name="bt-ready" type="Button" parent="vbox/hbox"]
+visible = false
+margin_right = 21.0
+margin_bottom = 8.0
+custom_fonts/font = SubResource( 5 )
+custom_colors/font_color = Color( 0.152941, 0.682353, 0.376471, 1 )
+text = "I'M READY"
+
+[node name="bt-refresh" type="Button" parent="vbox/hbox"]
+margin_right = 94.0
+margin_bottom = 25.0
+custom_fonts/font = SubResource( 7 )
+custom_colors/font_color = Color( 0.92549, 0.941176, 0.945098, 1 )
+text = "REFRESH"
+
+[node name="bt-leave" type="Button" parent="vbox/hbox"]
+margin_left = 98.0
+margin_right = 248.0
+margin_bottom = 25.0
+custom_fonts/font = SubResource( 7 )
+custom_colors/font_color = Color( 0.752941, 0.223529, 0.168627, 1 )
+text = "BACK TO MENU"
+[connection signal="pressed" from="vbox/hbox/bt-ready" to="." method="_on_btready_pressed"]
+[connection signal="pressed" from="vbox/hbox/bt-refresh" to="." method="_on_btrefresh_pressed"]
+[connection signal="pressed" from="vbox/hbox/bt-leave" to="." method="_on_btleave_pressed"]
