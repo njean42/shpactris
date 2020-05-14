@@ -18,8 +18,8 @@ var bullet_i = 0
 func _physics_process(delta):
 	
 	var cheat = lobby.i_am_pacman() and OS.get_environment('TESTING') == 'true'
-	
 	if not lobby.i_am_the_ship() and not cheat:
+		set_physics_process(false)
 		return
 	
 	var prev_pos = position
