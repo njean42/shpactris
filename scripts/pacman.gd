@@ -193,7 +193,7 @@ puppet func synced_fire_shadow(pos,dir,rot,speed,i):
 	shadow.name = 'pacman-shadow-' + str(i)
 	
 	$'/root/world'.add_child(shadow)
-	if get_tree().get_network_peer():
+	if get_tree().get_network_peer() != null:
 		shadow.set_network_master(lobby.pacman)
 
 
