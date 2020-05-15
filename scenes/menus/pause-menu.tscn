@@ -19,7 +19,7 @@ script/source = "extends Button
 
 
 func _on_btcontinue_pressed():
-	$'/root/world/HUD/pause-menu'.pause()
+	$'/root/world/HUD/pause-menu'.pause_all()
 	
 "
 
