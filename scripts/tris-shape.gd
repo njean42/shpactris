@@ -351,6 +351,8 @@ func friend_move_rotate(angle = PI/2):
 	var rotated = friend_move_rotate_try(angle)
 	if rotated:
 		rpc("set_rot",rotation)
+		if angle != 0:
+			global.play_sound('tris_shape_hit')
 	return rotated
 
 func friend_move_rotate_try(angle):
@@ -362,6 +364,10 @@ func friend_move_rotate_try(angle):
 		angle = -rotation  # don't rotate another 90°, rotate "back" to 0°
 	
 	rotate(angle)
+	
+	if status == 'FROZEN':  # frozen pieces can rotate freely
+		return true
+	
 	global_position = global.attach_pos_to_grid(global_position)
 	var orig_pos = global_position
 	
@@ -409,8 +415,6 @@ func friend_move_rotate_try(angle):
 	# don't move down for a while after I've rotated
 	time_since_last_friend_move = 0
 	
-	if angle != 0:
-		global.play_sound('tris_shape_hit')
 	return true
 
 
