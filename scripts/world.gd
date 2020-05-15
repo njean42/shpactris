@@ -10,7 +10,11 @@ var lives = conf.current.SHIP_LIVES
 const SCENE_LIFE_DOWN = preload('res://scenes/HUD/life-down.tscn')
 const SCENE_ENEMY_HIT = preload('res://scenes/HUD/enemy-hit.tscn')
 
+
 func _ready():
+	get_tree().connect("network_peer_disconnected",self,'_on_network_peer_disconnected')
+	get_tree().connect("server_disconnected",self,'_on_server_disconnected')
+	
 	for i in range(conf.current.START_LEVEL):
 		level_up()
 	
@@ -19,13 +23,26 @@ func _ready():
 		walls.new_walls()
 	
 	# attribute network master status to both players
-	if get_tree().get_network_peer():
+	if get_tree().get_network_peer() != null:
 		
 		# TODO: pause everyone and wait for clients to be ready too (see the doc)
 		
 		var players = ['ship','pacman']
 		for i in range(players.size()):
 			get_node(players[i]).set_network_master(lobby.clients[i])
+
+
+func _on_network_peer_disconnected(peer_id):
+	lobby.clients.erase(peer_id)
+	lobby.clients_ready.erase(peer_id)
+	
+	if lobby.i_am_the_game() and lobby.clients.size() < 2:
+		prints('peer disconnected during the game, quitting - ',peer_id)
+		get_tree().quit()
+
+
+func _on_server_disconnected():
+	global.end_game('A player disconnected')
 
 
 func _process(delta):

@@ -30,6 +30,9 @@ margin_left = 160.0
 margin_top = 240.0
 margin_right = 440.0
 margin_bottom = 480.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="center-title" type="CenterContainer" parent="margin"]
 margin_right = 280.0
@@ -39,16 +42,23 @@ size_flags_vertical = 3
 
 [node name="vbox-buttons" type="VBoxContainer" parent="margin/center-title"]
 margin_left = 53.0
-margin_top = 52.0
+margin_top = 43.0
 margin_right = 227.0
-margin_bottom = 187.0
+margin_bottom = 196.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
+[node name="error-msg" type="Label" parent="margin/center-title/vbox-buttons"]
+margin_right = 174.0
+margin_bottom = 14.0
+custom_colors/font_color = Color( 0.752941, 0.223529, 0.168627, 1 )
+align = 1
+
 [node name="Label" type="Label" parent="margin/center-title/vbox-buttons"]
 margin_left = 16.0
+margin_top = 18.0
 margin_right = 158.0
-margin_bottom = 49.0
+margin_bottom = 67.0
 size_flags_horizontal = 6
 size_flags_vertical = 6
 custom_fonts/font = SubResource( 2 )
@@ -56,9 +66,9 @@ text = "Pause"
 align = 1
 
 [node name="bt-continue" type="Button" parent="margin/center-title/vbox-buttons"]
-margin_top = 53.0
+margin_top = 71.0
 margin_right = 174.0
-margin_bottom = 92.0
+margin_bottom = 110.0
 size_flags_horizontal = 6
 size_flags_vertical = 6
 custom_fonts/font = SubResource( 3 )
@@ -66,4 +76,6 @@ text = "CONTINUE"
 script = SubResource( 4 )
 
 [node name="bt-back-to-menu" parent="margin/center-title/vbox-buttons" instance=ExtResource( 2 )]
+margin_top = 114.0
+margin_bottom = 153.0
 [connection signal="pressed" from="margin/center-title/vbox-buttons/bt-continue" to="margin/center-title/vbox-buttons/bt-continue" method="_on_btcontinue_pressed"]

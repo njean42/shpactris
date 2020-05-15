@@ -140,8 +140,10 @@ func enemy_hit(who):
 	# earn gold
 	$'/root/world'.earn_gold(who)
 	
-func end_game():
+func end_game(error_msg=''):
 	# if there's a game playing, pause it so we can see the score and everything
+	$'/root/world/HUD/pause-menu'.visible = false
+	$'/root/world/HUD/game-over-menu'.find_node('error-msg').text = error_msg
 	$'/root/world/HUD/game-over-menu'.visible = true
 	get_tree().set_pause(true)
 

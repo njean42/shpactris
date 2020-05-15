@@ -776,25 +776,28 @@ margin_right = 160.0
 
 [node name="vbox-buttons" parent="HUD/game-over-menu/margin/center-title" index="0"]
 margin_left = 13.0
-margin_top = 48.0
+margin_top = 39.0
 margin_right = 147.0
-margin_bottom = 192.0
+margin_bottom = 201.0
 
-[node name="Label" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="0"]
+[node name="error-msg" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="0"]
+margin_right = 134.0
+
+[node name="Label" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="1"]
 margin_left = 0.0
 margin_right = 134.0
-margin_bottom = 101.0
+margin_bottom = 119.0
 text = "Game
 Over"
 
-[node name="bt-continue" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="1"]
+[node name="bt-continue" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="2"]
 visible = false
 
-[node name="bt-back-to-menu" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="2"]
+[node name="bt-back-to-menu" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="3"]
 margin_left = 14.0
-margin_top = 105.0
+margin_top = 123.0
 margin_right = 119.0
-margin_bottom = 144.0
+margin_bottom = 162.0
 
 [node name="game-over-spot" type="Sprite" parent="HUD"]
 visible = false

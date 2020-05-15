@@ -50,7 +50,7 @@ func _on_btjoin_pressed():
 	match status:
 		'WAITING':
 			# join game
-			lobby.join(server_ip,server_port)
+			$'/root/lobby-scene'.join(server_ip,server_port)
 			
 		'FREE':
 			# ask server to create game

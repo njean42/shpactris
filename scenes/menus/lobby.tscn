@@ -12,6 +12,8 @@ const BTJOIN = preload('res://scenes/menus/bt-join.tscn')
 onready var output = $'vbox/output'
 onready var games = $'vbox/center-games/games'
 
+var joining = false
+
 var is_server = OS.get_environment('SERVER') == 'true'
 var server_time_waiting = 0
 const MAX_SERVER_TIME_WAITING = 30  # max time waiting for first connection, before quitting
@@ -19,6 +21,12 @@ const MAX_SERVER_TIME_WAITING = 30  # max time waiting for first connection, bef
 
 func _ready():
 	clear_output()
+	
+	get_tree().connect(\"network_peer_connected\",self,'_on_network_peer_connected')
+	get_tree().connect(\"network_peer_disconnected\",self,'_on_network_peer_disconnected')
+	get_tree().connect(\"server_disconnected\",self,'_on_server_disconnected')
+	get_tree().connect(\"connected_to_server\",self,'_on_connected_to_server')
+	get_tree().connect(\"connection_failed\",self,'_on_connection_failed')
 	
 	# server
 	set_process(false)
@@ -41,11 +49,114 @@ func _ready():
 			prints('undefined PORT environment variable')
 			get_tree().quit(1)
 		
-		lobby.join('127.0.0.1',PORT)
+		join('127.0.0.1',PORT)
 		return
 	
 	# regular client
 	refresh_game_list()
+
+
+func _on_network_peer_connected(peer_id):
+	lobby.clients.append(peer_id)
+	
+	if get_tree().get_network_unique_id() == 1:
+		prints('peer connected => ',lobby.clients)
+		
+		if lobby.clients.size() > 2:
+			# already two players in the game, can't add more
+			prints('already two players')
+			rpc_id(peer_id,\"could_not_join\",lobby.SERVER_PORT)
+			get_tree().network_peer.disconnect_peer(peer_id)
+		else:
+			rpc_id(peer_id,\"you_joined\",lobby.SERVER_PORT)
+
+
+func _on_network_peer_disconnected(peer_id):
+	lobby.clients.erase(peer_id)
+	lobby.clients_ready.erase(peer_id)
+	
+	if get_tree().get_network_unique_id() == 1:
+		prints('peer disconnected =>',lobby.clients)
+		if lobby.clients.size() == 0:
+			get_tree().quit()
+
+
+# TODO: move to lobby-scene?
+func _on_server_disconnected():
+	prints(get_tree().get_network_unique_id(),'server disconnected, quitting')
+	get_tree().network_peer = null
+	get_tree().quit() # TODO: if not playing, display error and return somewhere
+
+
+func _on_connected_to_server():
+	pass
+
+
+func _on_connection_failed():
+	prints('connection failed')
+	get_tree().network_peer = null
+
+
+func join(server_ip, port, fake_join=false):
+	joining = not fake_join
+	
+	var peer = NetworkedMultiplayerENet.new()
+	peer.create_client(server_ip, int(port))
+	get_tree().set_network_peer(peer)
+	
+	if joining:
+		clear_game_buttons()
+		add_lobby_output(\"Joined game, click ready when you are\")
+		find_node('bt-ready').visible = true
+		prints('connected to',server_ip,'on port',port,'...')
+
+
+func fake_join(server_ip, port):  # just check whether a game is full 
+	join(server_ip,port,true)
+
+
+puppet func could_not_join(port):
+	get_tree().network_peer = null
+	
+	if joining:
+		clear_output()
+		add_lobby_output('Could not join game')
+		refresh_game_list()
+	else:  # I was just checking if that game was full
+		set_btjoin(port,'BUSY')
+		check_games_avail()
+
+
+puppet func you_joined(port):
+	if not joining:  # was just a test, disconnect
+		get_tree().network_peer = null
+		set_btjoin(port,'WAITING')
+		check_games_avail()
+	else:
+		rpc(\"player_has_joined\")
+
+
+remote func player_has_joined():
+	add_lobby_output(\"Another player joined!\")
+
+
+remote func player_ready(peer_id):
+	if not (peer_id in lobby.clients):  # should not happen
+		prints(peer_id,'not in',lobby.clients,'...')
+		return
+	
+	if not(peer_id in lobby.clients_ready):
+		prints(peer_id,'is now ready')
+		lobby.clients_ready.append(peer_id)
+	
+	if lobby.clients_ready.size() == 2:
+		lobby.rpc(\"set_clients\",lobby.clients)
+		lobby.set_clients(lobby.clients)
+		rpc('start_game')
+
+
+remotesync func start_game():
+	get_tree().change_scene(\"res://scenes/world.tscn\")
 
 
 func _process(delta):
@@ -91,7 +202,7 @@ func check_games_avail():
 	for bt in games.get_children():
 		if bt.status == 'UNCERTAIN':
 			# check whether the game is already full
-			lobby.fake_join(bt.server_ip,bt.server_port)
+			fake_join(bt.server_ip,bt.server_port)
 			break # only one check at a time
 
 
@@ -104,7 +215,7 @@ func _on_creategame_completed(result, response_code, headers, body):
 	
 	add_lobby_output(\"Created game room - %s\" % lobby.GAME_NAMES[str(json.game.port)])
 	
-	lobby.join(json.game.ip,json.game.port)
+	join(json.game.ip,json.game.port)
 
 
 func _on_btready_pressed():
@@ -116,7 +227,7 @@ func _on_btready_pressed():
 	add_lobby_output(\"Waiting for another player\")
 	
 	clear_game_buttons()
-	lobby.rpc_id(1,\"player_ready\",get_tree().get_network_unique_id())
+	rpc_id(1,\"player_ready\",get_tree().get_network_unique_id())
 
 
 func _on_btrefresh_pressed():
@@ -181,8 +292,7 @@ __meta__ = {
 }
 
 [node name="output" type="RichTextLabel" parent="vbox"]
-margin_left = 10.0
-margin_right = 590.0
+margin_right = 580.0
 margin_bottom = 450.0
 rect_min_size = Vector2( 580, 450 )
 custom_fonts/normal_font = SubResource( 3 )
