@@ -4,6 +4,7 @@ export var MAX_ROTATIONS = 2
 
 const BULLET = preload('res://scenes/shapes/enemy-bullet.tscn')
 const BULLET_BAD = preload('res://scenes/shapes/enemy-bullet-bad.tscn')
+const BULLET_SPRITE = preload('res://scenes/shapes/enemy-bullet-sprite.tscn')
 
 var RED =   Color(0.5, 0, 0)  # enemy shapes
 var GREEN = Color(0.5, 1, 0.5)  # friend shapes
@@ -203,7 +204,6 @@ remote func switch_status(new_status,synced_pos=null):
 			return
 		
 		'DESTROYED':
-			prints(get_tree().get_network_unique_id(),'DESTROYED')
 			# make blocks disappear
 			for c in $'piece/blocks'.get_children():
 				c.find_node('animation').play('fade-out')
@@ -279,7 +279,7 @@ func get_enemy_bullets():
 	return bullets
 
 
-remote func absorb(enemy_bullet):
+puppet func absorb_bullet():
 	# find an empty block to stick on
 	var empty_block = null
 	for block in $'piece/blocks'.get_children():
@@ -308,9 +308,8 @@ remote func absorb(enemy_bullet):
 		return
 	
 	# stick to the tetris shape
-	global.disable_collision(enemy_bullet)
-	enemy_bullet.set_physics_process(false)
-	global.reparent(enemy_bullet,empty_block,Vector2(0,0))
+	var bullet_sprite = BULLET_SPRITE.instance()
+	empty_block.add_child(bullet_sprite)
 	
 	# turn slowly to red as the number of bullets increases
 	colorise()
@@ -327,12 +326,6 @@ func friend_move_dir(dir):
 	global_position = global.attach_pos_to_grid(global_position)
 	var moving_again = false
 	if c:
-		if c.collider.is_in_group('enemy-bullets'):
-			rpc("absorb",c.collider)
-			absorb(c.collider)
-			friend_move_dir(c.remainder/global.GRID_SIZE)
-			moving_again = true
-		
 		if c.collider.is_in_group('ghosts'):
 			c.collider.rpc("die",'crushed_by_tetris_piece')
 			c.collider.die('crushed_by_tetris_piece')

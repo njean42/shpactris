@@ -131,20 +131,21 @@ func collide(c):
 	
 	# hurt pacman and die
 	if c.collider.is_in_group('pacman'):
-		if c.collider.get_parent().is_shadow:  # don't hurt pacman's shadow
-			c.collider.get_parent().rpc("free_shadow")
-			c.collider.get_parent().free_shadow()
+		var collider = c.collider.get_parent()
+		if collider.is_shadow:  # don't hurt pacman's shadow
+			$'/root/world/pacman'.rpc("pacman_free_shadow",collider.name)
+			$'/root/world/pacman'.pacman_free_shadow(collider.name)
 			return
 		
 		rpc("die",'hit_pacman')
 		die('hit_pacman')
 	
 	# bounce off pacman-walls
-	if c.collider.is_in_group('pacman-walls'):
+	elif c.collider.is_in_group('pacman-walls'):
 		update_direction()
 	
 	# bounce off tris-shapes
-	if c.collider.is_in_group('tris-shape'):
+	elif c.collider.is_in_group('tris-shape'):
 		# artificially remember that there is a 'wall' here (= bounce off friendly tetris shapes)
 		var fake_wall_pos = global.pos_to_grid(position)
 		for i in ['x','y']:
