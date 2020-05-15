@@ -17,6 +17,8 @@ func is_in_maze(gridpos):
 
 puppet func new_walls():
 	
+	$'/root/world/funky-imp'.time_since_last_wall_move = -2
+	
 	# remove current walls (and fake walls!)
 	for wall in get_tree().get_nodes_in_group('pacman-walls'):
 		wall.queue_free()
