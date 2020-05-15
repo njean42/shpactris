@@ -6,7 +6,7 @@
 [sub_resource type="CircleShape2D" id=1]
 radius = 6.4388
 
-[node name="enemy-bullet" type="KinematicBody2D" groups=[
+[node name="enemy-bullet" type="Area2D" groups=[
 "enemy-bullets",
 ]]
 collision_layer = 128
@@ -18,3 +18,4 @@ shape = SubResource( 1 )
 
 [node name="sprite" type="Sprite" parent="."]
 texture = ExtResource( 2 )
+[connection signal="body_entered" from="." to="." method="_on_enemybullet_body_entered"]

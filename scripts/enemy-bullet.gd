@@ -1,4 +1,4 @@
-extends KinematicBody2D
+extends Area2D
 
 var speed = conf.current.TRIS_SHAPE_BULLET_SPEED
 var direction = null
@@ -28,41 +28,52 @@ func _physics_process(delta):
 	if direction == null:  # may happen while the clients wait for the bullet direction
 		return
 	
-	var c = move_and_collide(direction.normalized()*speed*delta)
-	if c:
-		collide(c.collider)
+	position += direction.normalized()*speed*delta
 
 
 func update_speed():
 	speed = conf.current.TRIS_SHAPE_BULLET_SPEED  # will be affected by slow-mo
 
 
-func collide(collider):
+func _on_enemybullet_body_entered(collider):
+	var be_gone_because = false
+	
 	if collider.is_in_group('ship'):
-		rpc("be_gone",'hit_ship')
-		be_gone('hit_ship')
+		be_gone_because = 'hit_ship'
 	
-	if collider.name == 'hitbox':
-		rpc("be_absorbed",collider.get_parent().name)
-		be_absorbed(collider.get_parent().name)
+	# hit pacman's (or shadow's) hurtbox (enemy-bullet-bad only)
+	elif collider.name == 'hitbox':
+		collider = collider.get_parent()
+		
+		if collider.is_shadow:
+			$'/root/world/pacman'.rpc("pacman_free_shadow", collider.name)  # called on pacman, not its shadow
+			$'/root/world/pacman'.pacman_free_shadow(collider.name)
+		else:
+			be_gone_because = 'hit_pacman_bad'
 	
-	elif collider.is_in_group('pacman') or collider.is_in_group('tris-shape'):
-		rpc("be_absorbed",collider.name)
-		be_absorbed(collider.name)
+	# hit pacman (or shadow)
+	elif collider.is_in_group('pacman'):
+		$'/root/world/pacman'.rpc('absorb_bullet')
+		$'/root/world/pacman'.absorb_bullet()
+		be_gone_because = 'absorbed'
+	
+	# hit a tetris shape
+	elif collider.is_in_group('tris-shape'):
+		collider.rpc('absorb_bullet')
+		collider.absorb_bullet()
+		be_gone_because = 'hit_tris_shape'
+	
+	if be_gone_because:
+		rpc("be_gone",be_gone_because)
+		be_gone(be_gone_because)
 
 
 puppet func be_gone(why):
 	match why:
 		'hit_ship':
 			$'/root/world/ship'.get_hurt()
+		'hit_pacman_bad':
+			$'/root/world/pacman'.get_hurt()
 	
 	global.remove_from_game(self)
 
-
-remote func be_absorbed(collider_name):
-	var collider = null
-	if collider_name.begins_with('pacman'):
-		collider = $'/root/world'.get_node(collider_name)
-	else:
-		collider = $'/root/world/tris-shapes'.get_node(collider_name)
-	collider.absorb(self)
