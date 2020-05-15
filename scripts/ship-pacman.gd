@@ -61,6 +61,6 @@ remote func activate_bubble():
 	$'bubble'.modulate.a = 1
 
 
-puppet func lose_bubble():
+remote func lose_bubble():
 	bubbled = false
 	$'bubble'.modulate.a = 0
