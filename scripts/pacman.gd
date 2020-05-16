@@ -13,7 +13,6 @@ const BULLET_SPRITE = preload('res://scenes/shapes/enemy-bullet-sprite.tscn')
 
 func _ready():
 	position = global.attach_pos_to_grid(position)
-	# TODO: if not i_am_pacman: disable some collisions?
 
 
 func _physics_process(delta):
@@ -26,6 +25,8 @@ func _physics_process(delta):
 		move(delta)
 
 
+var last_rpc_pos = null
+var time_since_last_rpc = 0
 func move(delta):
 	
 	var prev_pos = position
@@ -55,10 +56,12 @@ func move(delta):
 		var c = move_and_collide(velocity * speed * delta)
 		collide(c)
 	
+	time_since_last_rpc += delta
 	if lobby.i_am_pacman() and not is_shadow:  # shadow pos is computed on each server/client
-		if position != prev_pos:  # don't clutter the network if pacman didn't move
+		if time_since_last_rpc >= 1.0/25 and position != last_rpc_pos:  # don't clutter the network if pacman didn't move
+			time_since_last_rpc = 0
+			last_rpc_pos = position
 			rpc_unreliable("set_pos",position)
-			# TODO: limit to n times/second?
 	
 	# remove if off-maze (only shadows should go off screen)
 	if lobby.i_am_pacman() and not walls.is_in_maze(global.pos_to_grid(position)):

@@ -15,9 +15,11 @@ func _ready():
 
 
 var bullet_i = 0
+var time_since_last_rpc = 0
+var last_reliable_rpc_pos = null
 func _physics_process(delta):
 	
-	var cheat = lobby.i_am_pacman() and OS.get_environment('TESTING') == 'true'
+	var cheat = (lobby.i_am_pacman() or lobby.i_am_the_ship()) and OS.get_environment('TESTING') == 'true'
 	if not lobby.i_am_the_ship() and not cheat:
 		set_physics_process(false)
 		return
@@ -70,13 +72,23 @@ func _physics_process(delta):
 			if frost_beam():
 				time_since_last_frost_beam = 0
 	
-	if position != prev_pos:
-		rpc_unreliable("set_pos",position)
-		# TODO: limit to n times/second?
+	 # sync position, at most X times per second
+	time_since_last_rpc += delta
+	if time_since_last_rpc >= 1.0/25:
+		if prev_pos != position and velocity.length() != 0:
+			time_since_last_rpc = 0
+			rpc_unreliable("set_pos",position)
+		
+		# if the ship isn't moving, reliably send position once
+		elif velocity.length() == 0 and position != last_reliable_rpc_pos and not cheat:
+			last_reliable_rpc_pos = position
+			rpc("set_pos",position,true)
 
 
-remote func set_pos(pos):
+remote func set_pos(pos,reliable=false):
 	position = pos
+	if reliable:
+		last_reliable_rpc_pos = pos
 
 
 remote func fire_bullet(pos,bullet_name):
