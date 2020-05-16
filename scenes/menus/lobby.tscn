@@ -84,7 +84,9 @@ func _on_network_peer_disconnected(peer_id):
 func _on_server_disconnected():
 	prints(get_tree().get_network_unique_id(),'server disconnected, quitting')
 	get_tree().network_peer = null
-	get_tree().quit() # TODO: if not playing, display error and return somewhere
+	clear_output()
+	add_lobby_output(\"Server disconnected\")
+	refresh_game_list()
 
 
 func _on_connected_to_server():
@@ -187,13 +189,21 @@ func refresh_game_list():
 
 
 func _on_serverinfo_completed(result, response_code, headers, body):
-	# TODO: check responde_code = 200
+	if response_code != 200:
+		add_lobby_output(\"Server is down\")
+		return
 	
 	var json = JSON.parse(body.get_string_from_utf8())
-	# TODO: check json parsing
+	if json.error != 0:
+		add_lobby_output(\"Server doesn't speak my language...\")
+		return
 	json = json.result
 	
-	# TODO: check that global.VERSION == json.GAME_VERSION
+	if global.SERVER_COMPATIBILITY != json.SERVER_COMPATIBILITY:
+		add_lobby_output(\"Server is incompatible, update your game?\")
+		return
+	
+	add_lobby_output('Server handles a maximum of %s simultaneous games' % json.MAX_GAMES)
 	
 	add_lobby_output(\"Select a game to join, or create one\")
 	
@@ -219,10 +229,16 @@ func check_games_avail():
 
 
 func _on_creategame_completed(result, response_code, headers, body):
-	# TODO: check responde_code = 200
+	if result != 200:
+		clear_output()
+		add_lobby_output(\"Could not create room\")
+		refresh_game_list()
+		return
 	
 	var json = JSON.parse(body.get_string_from_utf8())
-	# TODO: check json parsing
+	if json.error != 0:
+		add_lobby_output(\"Server doesn't speak my language...\")
+		return
 	json = json.result
 	
 	add_lobby_output(\"Created game room - %s\" % lobby.GAME_NAMES[str(json.game.port)])
