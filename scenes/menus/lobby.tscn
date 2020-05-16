@@ -4,8 +4,8 @@
 script/source = "extends Node2D
 
 
-var SERVER_URL = 'http://shpactris' if OS.get_environment('TESTING') == 'true' else 'http://shootingpactris.njean.me'
-var SERVER_IP = OS.get_environment('PORT') if OS.has_environment('SERVER_IP') else '127.0.0.1'
+var SERVER_URL = OS.get_environment('SERVER_URL') if OS.has_environment('SERVER_URL') else 'https://shootingpactris.njean.me'
+var SERVER_IP = OS.get_environment('SERVER_IP') if OS.has_environment('SERVER_IP') else '127.0.0.1'
 var PORT = OS.get_environment('PORT')
 
 const BTJOIN = preload('res://scenes/menus/bt-join.tscn')
@@ -39,6 +39,7 @@ func _ready():
 		
 		var peer = NetworkedMultiplayerENet.new()
 		peer.create_server(int(PORT))
+		prints('server.bin_ip',SERVER_IP)
 		peer.set_bind_ip(SERVER_IP)
 		get_tree().set_network_peer(peer)
 		prints('server created - listening on',PORT)
@@ -50,7 +51,7 @@ func _ready():
 			prints('undefined PORT environment variable')
 			get_tree().quit(1)
 		
-		join('127.0.0.1',PORT)
+		join(SERVER_IP,PORT)
 		return
 	
 	# regular client
@@ -104,6 +105,7 @@ func join(server_ip, port, fake_join=false):
 	
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_client(server_ip, int(port))
+	prints('connected to',server_ip,port)
 	# peer.create_client() will connect even if the server isn't there
 	# Wait a few seconds for could_not_join or you_joined, otherwise disconnect
 	$\"join-timeout\".stop()
