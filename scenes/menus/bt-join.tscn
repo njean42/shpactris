@@ -54,18 +54,7 @@ func _on_btjoin_pressed():
 		
 		'FREE':
 			# ask server to create game
-			var http_request = HTTPRequest.new()
-			var http_client = HTTPClient.new()
-			add_child(http_request)
-			
-			http_request.connect(\"request_completed\", $'/root/lobby-scene', \"_on_creategame_completed\")
-			http_request.request(
-				'http://shpactris/server.php',
-				[\"Content-Type: application/x-www-form-urlencoded\"],
-				true,
-				HTTPClient.METHOD_POST,
-				http_client.query_string_from_dict({'action':'create'})
-			)
+			$'/root/lobby-scene'.create_game()
 
 "
 

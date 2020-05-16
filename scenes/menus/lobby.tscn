@@ -4,7 +4,8 @@
 script/source = "extends Node2D
 
 
-const SERVER_IP = '127.0.0.1'
+var SERVER_URL = 'http://shpactris' if OS.get_environment('TESTING') == 'true' else 'http://shootingpactris.njean.me'
+var SERVER_IP = OS.get_environment('PORT') if OS.has_environment('SERVER_IP') else '127.0.0.1'
 var PORT = OS.get_environment('PORT')
 
 const BTJOIN = preload('res://scenes/menus/bt-join.tscn')
@@ -183,7 +184,7 @@ func refresh_game_list():
 	var http_request = HTTPRequest.new()
 	add_child(http_request)
 	http_request.connect(\"request_completed\", self, \"_on_serverinfo_completed\")
-	var error = http_request.request(\"http://shpactris/server.php?info\")
+	var error = http_request.request(SERVER_URL+\"/server.php?info\")
 	if error != OK:
 		add_lobby_output(\"Server not available\")
 
@@ -228,8 +229,23 @@ func check_games_avail():
 			break # only one check at a time
 
 
+func create_game():
+	var http_request = HTTPRequest.new()
+	var http_client = HTTPClient.new()
+	add_child(http_request)
+	
+	http_request.connect(\"request_completed\", $'/root/lobby-scene', \"_on_creategame_completed\")
+	http_request.request(
+		SERVER_URL+'/server.php',
+		[\"Content-Type: application/x-www-form-urlencoded\"],
+		true,
+		HTTPClient.METHOD_POST,
+		http_client.query_string_from_dict({'action':'create'})
+	)
+
+
 func _on_creategame_completed(result, response_code, headers, body):
-	if result != 200:
+	if response_code != 200:
 		clear_output()
 		add_lobby_output(\"Could not create room\")
 		refresh_game_list()
