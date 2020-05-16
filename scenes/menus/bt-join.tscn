@@ -71,8 +71,6 @@ func _on_btjoin_pressed():
 "
 
 [node name="bt-join" type="Button"]
-size_flags_horizontal = 0
-size_flags_vertical = 0
 custom_fonts/font = SubResource( 2 )
 text = "JOIN / BUSY / CREATE"
 script = SubResource( 3 )

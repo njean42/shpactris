@@ -81,7 +81,6 @@ func _on_network_peer_disconnected(peer_id):
 			get_tree().quit()
 
 
-# TODO: move to lobby-scene?
 func _on_server_disconnected():
 	prints(get_tree().get_network_unique_id(),'server disconnected, quitting')
 	get_tree().network_peer = null
@@ -102,13 +101,19 @@ func join(server_ip, port, fake_join=false):
 	
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_client(server_ip, int(port))
+	# peer.create_client() will connect even if the server isn't there
+	# Wait a few seconds for could_not_join or you_joined, otherwise disconnect
+	$\"join-timeout\".stop()
+	if $\"join-timeout\".is_connected(\"timeout\",self,'could_not_join'):
+		$\"join-timeout\".disconnect(\"timeout\",self,'could_not_join')
+	$\"join-timeout\".connect(\"timeout\",self,'could_not_join',[port])
+	$\"join-timeout\".start()
+	
 	get_tree().set_network_peer(peer)
 	
 	if joining:
 		clear_game_buttons()
-		add_lobby_output(\"Joined game, click ready when you are\")
-		find_node('bt-ready').visible = true
-		prints('connected to',server_ip,'on port',port,'...')
+		add_lobby_output(\"Waiting for server...\")
 
 
 func fake_join(server_ip, port):  # just check whether a game is full 
@@ -116,6 +121,7 @@ func fake_join(server_ip, port):  # just check whether a game is full
 
 
 puppet func could_not_join(port):
+	$\"join-timeout\".stop()
 	get_tree().network_peer = null
 	
 	if joining:
@@ -128,11 +134,14 @@ puppet func could_not_join(port):
 
 
 puppet func you_joined(port):
+	$\"join-timeout\".stop()
 	if not joining:  # was just a test, disconnect
 		get_tree().network_peer = null
 		set_btjoin(port,'WAITING')
 		check_games_avail()
 	else:
+		add_lobby_output(\"Joined game, click ready when you are\")
+		find_node('bt-ready').visible = true
 		rpc(\"player_has_joined\")
 
 
@@ -194,6 +203,9 @@ func _on_serverinfo_completed(result, response_code, headers, body):
 			bt.set_server(json.SERVER_IP,port)
 			bt.switch_status(status)
 			games.add_child(bt)
+			if status == 'FREE':
+				break  # only one 'create game' button
+			
 	
 	check_games_avail()
 
@@ -266,7 +278,6 @@ func add_lobby_output(msg):
 font_path = "res://assets/DejaVuSans-Bold.ttf"
 
 [sub_resource type="DynamicFont" id=3]
-size = 13
 font_data = SubResource( 2 )
 
 [sub_resource type="DynamicFontData" id=4]
@@ -284,6 +295,9 @@ font_data = SubResource( 6 )
 [node name="lobby-scene" type="Node2D"]
 script = SubResource( 1 )
 
+[node name="join-timeout" type="Timer" parent="."]
+wait_time = 5.0
+
 [node name="vbox" type="VBoxContainer" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
@@ -296,6 +310,7 @@ margin_right = 580.0
 margin_bottom = 450.0
 rect_min_size = Vector2( 580, 450 )
 custom_fonts/normal_font = SubResource( 3 )
+custom_colors/font_color_selected = Color( 0.741176, 0.764706, 0.780392, 1 )
 text = "output"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -315,6 +330,7 @@ margin_left = 290.0
 margin_top = 100.0
 margin_right = 290.0
 margin_bottom = 100.0
+grow_horizontal = 2
 
 [node name="center" type="CenterContainer" parent="vbox"]
 margin_top = 658.0
