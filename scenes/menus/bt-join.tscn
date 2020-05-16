@@ -51,7 +51,7 @@ func _on_btjoin_pressed():
 		'WAITING':
 			# join game
 			$'/root/lobby-scene'.join(server_ip,server_port)
-			
+		
 		'FREE':
 			# ask server to create game
 			var http_request = HTTPRequest.new()
@@ -66,7 +66,6 @@ func _on_btjoin_pressed():
 				HTTPClient.METHOD_POST,
 				http_client.query_string_from_dict({'action':'create'})
 			)
-			prints(http_client.query_string_from_dict({'action':'create'}))
 
 "
 
