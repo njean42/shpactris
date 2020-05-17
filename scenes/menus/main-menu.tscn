@@ -25,7 +25,7 @@ font_path = "res://assets/DejaVuSans-Bold.ttf"
 size = 42
 font_data = SubResource( 2 )
 
-[sub_resource type="GDScript" id=9]
+[sub_resource type="GDScript" id=4]
 script/source = "extends OptionButton
 
 
@@ -38,11 +38,11 @@ func _on_level_item_selected(i):
 	conf.current.START_LEVEL = i+1
 "
 
-[sub_resource type="DynamicFont" id=10]
+[sub_resource type="DynamicFont" id=5]
 size = 28
 font_data = ExtResource( 8 )
 
-[sub_resource type="GDScript" id=11]
+[sub_resource type="GDScript" id=6]
 script/source = "extends Button
 
 
@@ -51,7 +51,7 @@ func _on_btplay_pressed():
 
 "
 
-[sub_resource type="GDScript" id=12]
+[sub_resource type="GDScript" id=7]
 script/source = "extends Button
 
 
@@ -59,7 +59,7 @@ func _on_btplayonline_pressed():
 	get_tree().change_scene(\"res://scenes/menus/lobby.tscn\")
 "
 
-[sub_resource type="GDScript" id=13]
+[sub_resource type="GDScript" id=8]
 script/source = "extends Button
 
 
@@ -67,7 +67,7 @@ func _on_btexit_pressed():
 	get_tree().quit()
 "
 
-[sub_resource type="GDScript" id=14]
+[sub_resource type="GDScript" id=9]
 script/source = "extends LinkButton
 
 
@@ -75,7 +75,7 @@ func _on_LinkButton_pressed():
 	OS.shell_open(\"https://shootingpactris.njean.me\")
 "
 
-[sub_resource type="GDScript" id=15]
+[sub_resource type="GDScript" id=10]
 script/source = "extends LinkButton
 
 
@@ -83,7 +83,7 @@ func _on_LinkButton2_pressed():
 	OS.shell_open(\"https://shootingpactris.njean.me#Contact\")
 "
 
-[sub_resource type="GDScript" id=16]
+[sub_resource type="GDScript" id=11]
 script/source = "extends LinkButton
 
 
@@ -221,7 +221,7 @@ margin_right = 108.0
 margin_bottom = 20.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-script = SubResource( 9 )
+script = SubResource( 4 )
 
 [node name="bt-play-local" type="Button" parent="margin/vbox/vbox-buttons"]
 margin_left = 11.0
@@ -230,9 +230,9 @@ margin_right = 176.0
 margin_bottom = 63.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-custom_fonts/font = SubResource( 10 )
+custom_fonts/font = SubResource( 5 )
 text = "Play local"
-script = SubResource( 11 )
+script = SubResource( 6 )
 
 [node name="bt-play-online" type="Button" parent="margin/vbox/vbox-buttons"]
 margin_top = 67.0
@@ -240,9 +240,9 @@ margin_right = 188.0
 margin_bottom = 106.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-custom_fonts/font = SubResource( 10 )
+custom_fonts/font = SubResource( 5 )
 text = "Play online"
-script = SubResource( 12 )
+script = SubResource( 7 )
 
 [node name="bt-exit" type="Button" parent="margin/vbox/vbox-buttons"]
 margin_left = 58.0
@@ -251,9 +251,9 @@ margin_right = 130.0
 margin_bottom = 149.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-custom_fonts/font = SubResource( 10 )
+custom_fonts/font = SubResource( 5 )
 text = "exit"
-script = SubResource( 13 )
+script = SubResource( 8 )
 
 [node name="center-links" type="CenterContainer" parent="margin/vbox"]
 margin_top = 626.0
@@ -273,7 +273,7 @@ rect_min_size = Vector2( 150, 0 )
 size_flags_horizontal = 8
 text = "Official Website"
 underline = 1
-script = SubResource( 14 )
+script = SubResource( 9 )
 
 [node name="LinkButton2" type="LinkButton" parent="margin/vbox/center-links/hbox-links"]
 modulate = Color( 0.101961, 0.737255, 0.611765, 1 )
@@ -283,7 +283,7 @@ margin_bottom = 14.0
 rect_min_size = Vector2( 150, 0 )
 text = "Leave a comment"
 underline = 1
-script = SubResource( 15 )
+script = SubResource( 10 )
 
 [node name="LinkButton3" type="LinkButton" parent="margin/vbox/center-links/hbox-links"]
 modulate = Color( 0.101961, 0.737255, 0.611765, 1 )
@@ -293,7 +293,7 @@ margin_bottom = 14.0
 rect_min_size = Vector2( 150, 0 )
 text = "Git repository"
 underline = 1
-script = SubResource( 16 )
+script = SubResource( 11 )
 [connection signal="item_selected" from="margin/vbox/vbox-buttons/level" to="margin/vbox/vbox-buttons/level" method="_on_level_item_selected"]
 [connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-local" to="margin/vbox/vbox-buttons/bt-play-local" method="_on_btplay_pressed"]
 [connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-online" to="margin/vbox/vbox-buttons/bt-play-online" method="_on_btplayonline_pressed"]
