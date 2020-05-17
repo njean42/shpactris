@@ -71,10 +71,6 @@ func update_mode():
 			if global.PLAYERS.mode_1p and action.begins_with('2p_mode'):
 				InputMap.action_erase_event(action,event)
 			
-			# deactivate 1p_mode actions when playing coop
-			if not global.PLAYERS.mode_1p and action.begins_with('1p_mode'):
-				InputMap.action_erase_event(action,event)
-			
 			# deactivate controller for the ship if playing on keyboard
 			if device_id_ship == null and action.begins_with('2p_mode_ship_'):
 				InputMap.action_erase_event(action,event)
