@@ -25,4 +25,7 @@ size_flags_vertical = 6
 custom_fonts/font = SubResource( 1 )
 text = "MENU"
 script = SubResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="pressed" from="." to="." method="_on_btbacktomenu_pressed"]

@@ -18,8 +18,10 @@ func _ready():
 	if get_tree().get_network_unique_id() > 1:
 		rpc_id(1,"player_ready",get_tree().get_network_unique_id())
 	
-	# pause while waiting for players (selecting their controls)
+	# pause while waiting for players (selecting their controls, online-only)
 	$'/root/world/HUD/pause-menu'.wait_for_players()
+	if get_tree().network_peer == null:
+		really_start_game()
 
 
 var players_ready = []
