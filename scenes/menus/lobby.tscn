@@ -81,7 +81,7 @@ func _on_network_peer_disconnected(peer_id):
 		prints('peer disconnected =>',lobby.clients)
 		if OS.get_environment('TESTING') != 'true':
 			get_tree().network_peer = null
-			get_tree().exit()
+			get_tree().quit()
 		# will exit after X seconds waiting
 
 
