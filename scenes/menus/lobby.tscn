@@ -79,8 +79,10 @@ func _on_network_peer_disconnected(peer_id):
 	
 	if get_tree().get_network_unique_id() == 1:
 		prints('peer disconnected =>',lobby.clients)
-		if lobby.clients.size() == 0:
-			get_tree().quit()
+		if OS.get_environment('TESTING') != 'true':
+			get_tree().network_peer = null
+			get_tree().exit()
+		# will exit after X seconds waiting
 
 
 func _on_server_disconnected():
@@ -170,7 +172,10 @@ remote func player_ready(peer_id):
 
 
 remotesync func start_game():
-	get_tree().change_scene(\"res://scenes/world.tscn\")
+	if get_tree().get_network_unique_id() == 1:
+		get_tree().change_scene(\"res://scenes/world.tscn\")
+	else:
+		get_tree().change_scene(\"res://scenes/menus/controls.tscn\")
 
 
 func _process(delta):

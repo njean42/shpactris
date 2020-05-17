@@ -88,6 +88,7 @@ tracks/0/keys = {
 script/source = "extends Node2D
 
 
+var waiting_for_players = false
 var game_is_over = false
 
 
@@ -100,10 +101,28 @@ func _input(event):
 
 
 func pause_all():
+	if waiting_for_players:
+		return
+	
 	rpc(\"pause\")
 	pause()
 
+
+func wait_for_players():
+	find_node('error-msg').text = 'Waiting for players'
+	pause()
+	waiting_for_players = true
+
+
+remote func players_ready():
+	waiting_for_players = false
+	find_node('error-msg').text = ''
+	pause()
+
+
 remote func pause(game_over=false):
+	if waiting_for_players:
+		return
 	if game_is_over:
 		return
 	
@@ -762,7 +781,6 @@ __meta__ = {
 
 [node name="pause-menu" parent="HUD" instance=ExtResource( 27 )]
 pause_mode = 2
-visible = false
 position = Vector2( 220, 0 )
 script = SubResource( 7 )
 
@@ -785,6 +803,7 @@ margin_bottom = 201.0
 
 [node name="error-msg" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="0"]
 margin_right = 134.0
+custom_colors/font_color = Color( 0.752941, 0.223529, 0.168627, 1 )
 
 [node name="Label" parent="HUD/game-over-menu/margin/center-title/vbox-buttons" index="1"]
 margin_left = 0.0

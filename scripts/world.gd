@@ -15,6 +15,24 @@ func _ready():
 	get_tree().connect("network_peer_disconnected",self,'_on_network_peer_disconnected')
 	get_tree().connect("server_disconnected",self,'_on_server_disconnected')
 	
+	if get_tree().get_network_unique_id() > 1:
+		rpc_id(1,"player_ready",get_tree().get_network_unique_id())
+	
+	# pause while waiting for players (selecting their controls)
+	$'/root/world/HUD/pause-menu'.wait_for_players()
+
+
+var players_ready = []
+remote func player_ready(peer_id):
+	prints('player',peer_id,'is ready to start')
+	players_ready.append(peer_id)
+	if players_ready.size() == 2:
+		rpc("really_start_game")
+		really_start_game()
+
+
+puppet func really_start_game():
+	# init environment
 	for i in range(conf.current.START_LEVEL):
 		level_up()
 	
@@ -22,14 +40,17 @@ func _ready():
 		walls.rpc("new_walls")
 		walls.new_walls()
 	
+	for i in range(0,5):
+		$'/root/world/ship'.get_beam()
+	
 	# attribute network master status to both players
 	if get_tree().get_network_peer() != null:
-		
-		# TODO: pause everyone and wait for clients to be ready too (see the doc)
-		
 		var players = ['ship','pacman']
 		for i in range(players.size()):
 			get_node(players[i]).set_network_master(lobby.clients[i])
+	
+	# unpause players
+	$'/root/world/HUD/pause-menu'.players_ready()
 
 
 func _on_network_peer_disconnected(peer_id):

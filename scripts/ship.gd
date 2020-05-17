@@ -4,14 +4,10 @@ const BULLET = preload('res://scenes/bullet.tscn')
 const FROST_BEAM = preload('res://scenes/frost-beam.tscn')
 
 var time_moved = 0  # number of seconds that the ship has kept moving
+onready var prev_pos = get_position()
 var time_since_last_bullet = 0
 var time_since_last_frost_beam = 0
 var shape_frozen = null
-
-
-func _ready():
-	for i in range(0,5):
-		get_beam()
 
 
 var bullet_i = 0
@@ -19,12 +15,10 @@ var time_since_last_rpc = 0
 var last_reliable_rpc_pos = null
 func _physics_process(delta):
 	
-	var cheat = (lobby.i_am_pacman() or lobby.i_am_the_ship()) and OS.get_environment('TESTING') == 'true'
+	var cheat = lobby.i_am_pacman() and OS.get_environment('TESTING') == 'true'
 	if not lobby.i_am_the_ship() and not cheat:
 		set_physics_process(false)
 		return
-	
-	var prev_pos = position
 	
 	var moves = {
 		'ship_right': {'axis': 'x', 'dir':  1},
@@ -78,16 +72,18 @@ func _physics_process(delta):
 	if time_since_last_rpc >= 1.0/25:
 		if prev_pos != position and velocity.length() != 0:
 			time_since_last_rpc = 0
+			prev_pos = position
 			rpc_unreliable("set_pos",position)
 		
 		# if the ship isn't moving, reliably send position once
-		elif velocity.length() == 0 and position != last_reliable_rpc_pos and not cheat:
+		elif velocity.length() == 0 and position != last_reliable_rpc_pos and position != prev_pos:
 			last_reliable_rpc_pos = position
 			rpc("set_pos",position,true)
 
 
 remote func set_pos(pos,reliable=false):
 	position = pos
+	prev_pos = position
 	if reliable:
 		last_reliable_rpc_pos = pos
 

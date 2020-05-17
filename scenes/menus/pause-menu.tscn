@@ -19,7 +19,9 @@ script/source = "extends Button
 
 
 func _on_btcontinue_pressed():
-	$'/root/world/HUD/pause-menu'.pause_all()
+	var pause_menu = $'/root/world/HUD/pause-menu'
+	if pause_menu != null:  # may happen when the game isn't fully started (waiting for pmayers)
+		pause_menu.pause_all()
 	
 "
 
@@ -51,7 +53,7 @@ size_flags_vertical = 3
 [node name="error-msg" type="Label" parent="margin/center-title/vbox-buttons"]
 margin_right = 174.0
 margin_bottom = 14.0
-custom_colors/font_color = Color( 0.752941, 0.223529, 0.168627, 1 )
+custom_colors/font_color = Color( 0.160784, 0.501961, 0.72549, 1 )
 align = 1
 
 [node name="Label" type="Label" parent="margin/center-title/vbox-buttons"]
