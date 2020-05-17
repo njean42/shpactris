@@ -33,7 +33,8 @@ func _physics_process(delta):
 		'ship_down':  {'axis': 'y', 'dir':  1},
 	}
 	
-	var mode = 'any_mode_' if global.PLAYERS.mode_1p else '2p_mode_'
+	# any_mode if the ship is playing on keyboard or solo, otherwise 2p_mode (controller-only)
+	var mode = 'any_mode_' if global.PLAYERS.mode_1p or global.PLAYERS.ship == null else '2p_mode_'
 	
 	var velocity = Vector2()
 	for m in moves:

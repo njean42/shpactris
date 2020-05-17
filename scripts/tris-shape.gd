@@ -258,7 +258,8 @@ func friend_move(delta):
 		return
 	
 	# player(s) can force friendly tetris shapes to go down fast
-	var mode = '1p_mode_' if global.PLAYERS.mode_1p else '2p_mode_'
+	# any_mode if pacman is playing on keyboard or solo, otherwise 2p_mode (controller-only)
+	var mode = 'any_mode_' if global.PLAYERS.mode_1p or global.PLAYERS.pacman == null else '2p_mode_'
 	force_down = Input.is_action_just_pressed(mode+"pacman_drop") or force_down and Input.is_action_pressed(mode+"pacman_drop")
 	
 	# move down one square

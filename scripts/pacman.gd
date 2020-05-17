@@ -79,13 +79,17 @@ puppet func set_rot(rot):
 func player_move():
 	direction = null
 	speed = conf.current.PACMAN_SPEED  # may have been updated (level up)
-	if Input.is_action_pressed("any_mode_pacman_right"):
+	
+	# any_mode if pacman is playing on keyboard or solo, otherwise 2p_mode (controller-only)
+	var mode = 'any_mode_' if global.PLAYERS.mode_1p or global.PLAYERS.pacman == null else '2p_mode_'
+	
+	if Input.is_action_pressed(mode+"pacman_right"):
 		direction = 'right'
-	elif Input.is_action_pressed("any_mode_pacman_left"):
+	elif Input.is_action_pressed(mode+"pacman_left"):
 		direction = 'left'
-	elif Input.is_action_pressed("any_mode_pacman_down"):
+	elif Input.is_action_pressed(mode+"pacman_down"):
 		direction = 'down'
-	elif Input.is_action_pressed("any_mode_pacman_up"):
+	elif Input.is_action_pressed(mode+"pacman_up"):
 		direction = 'up'
 	
 	# Stay on intersections (~cells) when Pacman stops moving
@@ -99,7 +103,6 @@ func player_move():
 	
 	prev_dir = direction
 	
-	var mode = 'any_mode_' if global.PLAYERS.mode_1p else '2p_mode_'
 	if Input.is_action_just_pressed(mode+'pacman_fire_shadow'):
 		fire_shadow()
 	if Input.is_action_just_released(mode+'pacman_fire_shadow'):
