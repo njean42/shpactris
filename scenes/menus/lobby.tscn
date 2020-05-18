@@ -212,6 +212,8 @@ func _on_serverinfo_completed(result, response_code, headers, body):
 		add_lobby_output(\"Server is incompatible, update your game?\")
 		return
 	
+	add_lobby_output('Connected to server \"%s\"' % json.DESCRIPTION)
+	
 	add_lobby_output('Server handles a maximum of %s simultaneous games' % json.MAX_GAMES)
 	
 	add_lobby_output(\"Select a game to join, or create one\")
