@@ -192,7 +192,7 @@ func refresh_game_list():
 	var http_request = HTTPRequest.new()
 	add_child(http_request)
 	http_request.connect(\"request_completed\", self, \"_on_serverinfo_completed\")
-	var error = http_request.request(SERVER_URL+\"/server.php?info\")
+	var error = http_request.request(SERVER_URL+\"/server.php?info\",[],true)
 	if error != OK:
 		add_lobby_output(\"Server not available\")
 

@@ -252,6 +252,10 @@ any_mode_pacman_drop={
 2d_physics/layer_13="pacman-kill"
 2d_physics/layer_14="enemy-bullets-bad"
 
+[network]
+
+ssl/certificates="res://assets/ca-certificates.crt"
+
 [rendering]
 
 quality/driver/driver_name="GLES2"
