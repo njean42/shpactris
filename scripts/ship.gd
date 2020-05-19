@@ -62,7 +62,7 @@ func _physics_process(delta):
 	
 	# frost beam
 	time_since_last_frost_beam += delta
-	if Input.is_action_pressed(mode+"ship_frost_beam"):
+	if Input.is_action_just_pressed(mode+"ship_frost_beam"):
 		if time_since_last_frost_beam >= conf.current.SHIP_FROST_BEAM_RATE:
 			if frost_beam():
 				time_since_last_frost_beam = 0
