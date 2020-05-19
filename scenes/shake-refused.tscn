@@ -22,7 +22,7 @@ script/source = "extends AnimationPlayer
 
 var time_playing = 0
 
-func play_me():
+remote func play_me():
 	time_playing = 0
 	stop()
 	play('shake-refused')

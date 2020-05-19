@@ -378,12 +378,15 @@ func friend_move_rotate_try(angle):
 	var step = 1
 	var chosen_dir = null
 	var colliding = test_collisions('BLOCK_ROTATION')
+	var colliders = []
 	while colliding.size() > 0:
+		if step == 1:
+			colliders = colliding
 		if step > 2:
 			# two many escape moves, rotate back
 			rotate(-angle)
 			global_position = orig_pos
-			refused()
+			refused(colliders)
 			return false
 		step += 1
 		
@@ -446,6 +449,7 @@ func refused(colliders=[]):
 	for c in colliders:
 		var anim = c.find_node('shake-refused')
 		if anim:
+			anim.rpc("play_me")
 			anim.play_me()
 
 
