@@ -13,7 +13,7 @@ extents = Vector2( 35, 35 )
 collision_layer = 4
 collision_mask = 0
 script = ExtResource( 1 )
-MAX_ROTATIONS = 1
+MAX_ROTATIONS = 0
 
 [node name="piece" type="Node2D" parent="."]
 
