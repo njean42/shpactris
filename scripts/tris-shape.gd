@@ -75,8 +75,11 @@ func get_random_destination():
 remote func set_pos(pos):
 	position = pos
 	
-remote func set_rot(rot):
+remote func set_rot(rot,pos):
 	rotation = rot
+	position = pos
+	# don't move down for a while after I've rotated
+	time_since_last_friend_move = 0
 
 puppet func set_dest(dest):
 	destination = global.attach_pos_to_grid(dest)
@@ -351,7 +354,7 @@ func friend_move_dir(dir):
 func friend_move_rotate(angle = PI/2):
 	var rotated = friend_move_rotate_try(angle)
 	if rotated:
-		rpc("set_rot",rotation)
+		rpc("set_rot",rotation,position)
 		if angle != 0:
 			global.play_sound('tris_shape_hit')
 	return rotated
@@ -366,7 +369,7 @@ func friend_move_rotate_try(angle):
 	
 	rotate(angle)
 	
-	if status == 'FROZEN':  # frozen pieces can rotate freely
+	if status == 'FROZEN' and angle != 0:  # frozen pieces can rotate freely
 		return true
 	
 	global_position = global.attach_pos_to_grid(global_position)
@@ -394,6 +397,10 @@ func friend_move_rotate_try(angle):
 				global_position = orig_pos
 				refused([blocker])
 				return false
+			
+			if not c.is_in_group('walls'):
+				# 2 steps only allowed to escape when moving away from a wall (left or right), not pacman or a floor block
+				step += 1
 		
 		# try to move left of right to not stay stuck in walls or laying blocks
 		if chosen_dir == null:
@@ -433,6 +440,7 @@ func try_landing():  # when a tetris shape turns into a friend (from ENEMY or FR
 
 
 func refused(colliders=[]):
+	# TODO: sync shake-refused animation
 	global.play_sound('refused')
 	colliders.append(self)
 	for c in colliders:
