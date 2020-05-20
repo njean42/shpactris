@@ -84,7 +84,7 @@ remote func earn_life(who):
 
 
 func lose_life(who):
-	global.play_sound('player_hit')
+	global.play_sound('player_hit',false)
 	
 	lives -= 1
 	find_node('HUD').update()

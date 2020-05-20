@@ -58,7 +58,7 @@ func check_tetris_lines():
 	
 	while y >= 0:
 		if tetris_line_full(y) and not (y in lines_being_deleted):
-			global.play_sound('line_disappears')
+			global.play_sound('line_disappears',false)
 			lines_being_deleted[y] = 10  # number of blocks to wait for anim end
 			if y+1 in full_line_sets:
 				# store lines together in a set

@@ -174,7 +174,7 @@ remote func switch_status(new_status,synced_pos=null):
 			global.reparent(self,$'/root/world/ship')
 		
 		'FLOOR':
-			global.play_sound('tris_shape_down')
+			global.play_sound('tris_shape_down',false)
 			global_position = global.attach_pos_to_grid(global_position)
 			var block_is_killing_us = false
 			
@@ -443,7 +443,6 @@ func try_landing():  # when a tetris shape turns into a friend (from ENEMY or FR
 
 
 func refused(colliders=[]):
-	# TODO: sync shake-refused animation
 	global.play_sound('refused')
 	colliders.append(self)
 	for c in colliders:
