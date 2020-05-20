@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=2]
+[gd_scene load_steps=38 format=2]
 
 [ext_resource path="res://scripts/world.gd" type="Script" id=1]
 [ext_resource path="res://assets/music/Korobeiniki-cc0.ogg" type="AudioStream" id=2]
@@ -83,55 +83,6 @@ tracks/0/keys = {
 "update": 0,
 "values": [ 0.0, 180.0, 360.0 ]
 }
-
-[sub_resource type="GDScript" id=7]
-script/source = "extends Node2D
-
-
-var waiting_for_players = false
-var game_is_over = false
-
-
-func _input(event):
-	if $'/root/world/HUD/game-over-menu'.visible:
-		return
-	
-	if Input.is_action_just_pressed('ui_pause'):
-		pause_all()
-
-
-func pause_all():
-	if waiting_for_players:
-		return
-	
-	rpc(\"pause\")
-	pause()
-
-
-func wait_for_players():
-	find_node('error-msg').text = 'Waiting for players'
-	pause()
-	waiting_for_players = true
-
-
-remote func players_ready():
-	waiting_for_players = false
-	find_node('error-msg').text = ''
-	pause()
-
-
-remote func pause(game_over=false):
-	if waiting_for_players:
-		return
-	if game_is_over:
-		return
-	
-	var go_to_pause = not get_tree().is_paused()
-	visible = go_to_pause
-	get_tree().set_pause(go_to_pause)
-	
-	game_is_over = game_over
-"
 
 [node name="world" type="Node2D" groups=[
 "world",
@@ -784,7 +735,6 @@ __meta__ = {
 pause_mode = 2
 visible = false
 position = Vector2( 220, 0 )
-script = SubResource( 7 )
 
 [node name="game-over-menu" parent="HUD" instance=ExtResource( 27 )]
 pause_mode = 2

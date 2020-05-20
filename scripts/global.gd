@@ -147,6 +147,7 @@ func end_game(error_msg=''):
 	$'/root/world/HUD/pause-menu'.visible = false
 	$'/root/world/HUD/game-over-menu'.find_node('error-msg').text = error_msg
 	$'/root/world/HUD/game-over-menu'.visible = true
+	$'/root/world/HUD/game-over-menu/timer'.start()
 	get_tree().set_pause(true)
 
 func milestone(x,y,dir,color=Color(0.05,0.05,0.05)):

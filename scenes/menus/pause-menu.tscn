@@ -2,6 +2,7 @@
 
 [ext_resource path="res://assets/DejaVuSans-Bold.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://scenes/menus/common/bt-back-to-menu.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scripts/pause.gd" type="Script" id=3]
 
 [sub_resource type="DynamicFontData" id=1]
 font_path = "res://assets/DejaVuSans-Bold.ttf"
@@ -14,18 +15,8 @@ font_data = SubResource( 1 )
 size = 28
 font_data = ExtResource( 1 )
 
-[sub_resource type="GDScript" id=4]
-script/source = "extends Button
-
-
-func _on_btcontinue_pressed():
-	var pause_menu = $'/root/world/HUD/pause-menu'
-	if pause_menu != null:  # may happen when the game isn't fully started (waiting for pmayers)
-		pause_menu.pause_all()
-	
-"
-
 [node name="pause-menu" type="Node2D"]
+script = ExtResource( 3 )
 
 [node name="margin" type="MarginContainer" parent="."]
 margin_left = 160.0
@@ -75,9 +66,14 @@ size_flags_horizontal = 6
 size_flags_vertical = 6
 custom_fonts/font = SubResource( 3 )
 text = "CONTINUE"
-script = SubResource( 4 )
 
 [node name="bt-back-to-menu" parent="margin/center-title/vbox-buttons" instance=ExtResource( 2 )]
 margin_top = 114.0
 margin_bottom = 153.0
-[connection signal="pressed" from="margin/center-title/vbox-buttons/bt-continue" to="margin/center-title/vbox-buttons/bt-continue" method="_on_btcontinue_pressed"]
+
+[node name="timer" type="Timer" parent="."]
+pause_mode = 2
+wait_time = 3.0
+[connection signal="pressed" from="margin/center-title/vbox-buttons/bt-continue" to="." method="_on_btcontinue_pressed"]
+[connection signal="pressed" from="margin/center-title/vbox-buttons/bt-back-to-menu" to="." method="_on_btbacktomenu_pressed"]
+[connection signal="timeout" from="timer" to="." method="_on_timer_timeout"]

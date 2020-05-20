@@ -54,6 +54,8 @@ func _ready():
 		join(SERVER_IP,PORT)
 		return
 	
+	find_node(\"bt-refresh\").grab_focus()
+	
 	# regular client
 	refresh_game_list()
 
@@ -150,6 +152,7 @@ puppet func you_joined(port):
 	else:
 		add_lobby_output(\"Joined game, click ready when you are\")
 		find_node('bt-ready').visible = true
+		find_node('bt-ready').grab_focus()
 		rpc(\"player_has_joined\")
 
 
@@ -213,9 +216,7 @@ func _on_serverinfo_completed(result, response_code, headers, body):
 		return
 	
 	add_lobby_output('Connected to server \"%s\"' % json.DESCRIPTION)
-	
 	add_lobby_output('Server handles a maximum of %s simultaneous games' % json.MAX_GAMES)
-	
 	add_lobby_output(\"Select a game to join, or create one\")
 	
 	for status in ['UNCERTAIN','FREE','BUSY']:
@@ -226,7 +227,10 @@ func _on_serverinfo_completed(result, response_code, headers, body):
 			games.add_child(bt)
 			if status == 'FREE':
 				break  # only one 'create game' button
-			
+	
+	var btjoins = get_tree().get_nodes_in_group(\"bt-join\")
+	if btjoins.size() > 0:
+		btjoins[0].grab_focus()
 	
 	check_games_avail()
 
@@ -392,6 +396,7 @@ margin_right = 52.0
 margin_bottom = 13.0
 custom_fonts/font = SubResource( 5 )
 custom_colors/font_color = Color( 0.152941, 0.682353, 0.376471, 1 )
+custom_colors/font_color_hover = Color( 0.152941, 0.682353, 0.376471, 1 )
 text = "I'M READY"
 
 [node name="bt-refresh" type="Button" parent="vbox/center/hbox"]
