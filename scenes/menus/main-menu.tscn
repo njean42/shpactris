@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://assets/pacman.png" type="Texture" id=1]
 [ext_resource path="res://assets/ship.png" type="Texture" id=2]
@@ -25,24 +25,11 @@ font_path = "res://assets/DejaVuSans-Bold.ttf"
 size = 42
 font_data = SubResource( 2 )
 
-[sub_resource type="GDScript" id=4]
-script/source = "extends OptionButton
-
-
-func _ready():
-	for i in range(10):
-		add_item ('LEVEL '+str(i+1))
-
-
-func _on_level_item_selected(i):
-	conf.current.START_LEVEL = i+1
-"
-
-[sub_resource type="DynamicFont" id=5]
+[sub_resource type="DynamicFont" id=4]
 size = 28
 font_data = ExtResource( 8 )
 
-[sub_resource type="GDScript" id=6]
+[sub_resource type="GDScript" id=5]
 script/source = "extends Button
 
 
@@ -51,7 +38,7 @@ func _on_btplay_pressed():
 
 "
 
-[sub_resource type="GDScript" id=7]
+[sub_resource type="GDScript" id=6]
 script/source = "extends Button
 
 
@@ -59,7 +46,7 @@ func _on_btplayonline_pressed():
 	get_tree().change_scene(\"res://scenes/menus/lobby.tscn\")
 "
 
-[sub_resource type="GDScript" id=8]
+[sub_resource type="GDScript" id=7]
 script/source = "extends Button
 
 
@@ -67,7 +54,7 @@ func _on_btexit_pressed():
 	get_tree().quit()
 "
 
-[sub_resource type="GDScript" id=9]
+[sub_resource type="GDScript" id=8]
 script/source = "extends LinkButton
 
 
@@ -75,7 +62,7 @@ func _on_LinkButton_pressed():
 	OS.shell_open(\"https://shootingpactris.njean.me\")
 "
 
-[sub_resource type="GDScript" id=10]
+[sub_resource type="GDScript" id=9]
 script/source = "extends LinkButton
 
 
@@ -83,7 +70,7 @@ func _on_LinkButton2_pressed():
 	OS.shell_open(\"https://shootingpactris.njean.me#Contact\")
 "
 
-[sub_resource type="GDScript" id=11]
+[sub_resource type="GDScript" id=10]
 script/source = "extends LinkButton
 
 
@@ -199,61 +186,52 @@ custom_fonts/font = SubResource( 3 )
 text = "Shooting PacTris"
 
 [node name="Label2" type="Label" parent="margin/vbox/center-title/vbox"]
-margin_left = 361.0
+margin_left = 288.0
 margin_top = 53.0
 margin_right = 400.0
 margin_bottom = 67.0
 size_flags_horizontal = 8
-text = "v0.9.3"
+text = "v1.0 - online beta"
 align = 2
 
 [node name="vbox-buttons" type="VBoxContainer" parent="margin/vbox"]
-margin_left = 166.0
-margin_top = 393.0
-margin_right = 354.0
-margin_bottom = 542.0
+margin_left = 126.0
+margin_top = 405.0
+margin_right = 393.0
+margin_bottom = 530.0
 size_flags_horizontal = 6
 size_flags_vertical = 6
 
-[node name="level" type="OptionButton" parent="margin/vbox/vbox-buttons"]
-margin_left = 79.0
-margin_right = 108.0
-margin_bottom = 20.0
-size_flags_horizontal = 4
-size_flags_vertical = 4
-script = SubResource( 4 )
-
 [node name="bt-play-local" type="Button" parent="margin/vbox/vbox-buttons"]
-margin_left = 11.0
-margin_top = 24.0
-margin_right = 176.0
-margin_bottom = 63.0
+margin_right = 267.0
+margin_bottom = 39.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-custom_fonts/font = SubResource( 5 )
-text = "Play local"
-script = SubResource( 6 )
+custom_fonts/font = SubResource( 4 )
+text = "local coop / solo"
+script = SubResource( 5 )
 
 [node name="bt-play-online" type="Button" parent="margin/vbox/vbox-buttons"]
-margin_top = 67.0
-margin_right = 188.0
-margin_bottom = 106.0
+margin_left = 36.0
+margin_top = 43.0
+margin_right = 231.0
+margin_bottom = 82.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-custom_fonts/font = SubResource( 5 )
-text = "Play online"
-script = SubResource( 7 )
+custom_fonts/font = SubResource( 4 )
+text = "online coop"
+script = SubResource( 6 )
 
 [node name="bt-exit" type="Button" parent="margin/vbox/vbox-buttons"]
-margin_left = 58.0
-margin_top = 110.0
-margin_right = 130.0
-margin_bottom = 149.0
+margin_left = 97.0
+margin_top = 86.0
+margin_right = 169.0
+margin_bottom = 125.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-custom_fonts/font = SubResource( 5 )
+custom_fonts/font = SubResource( 4 )
 text = "exit"
-script = SubResource( 8 )
+script = SubResource( 7 )
 
 [node name="center-links" type="CenterContainer" parent="margin/vbox"]
 margin_top = 626.0
@@ -273,7 +251,7 @@ rect_min_size = Vector2( 150, 0 )
 size_flags_horizontal = 8
 text = "Official Website"
 underline = 1
-script = SubResource( 9 )
+script = SubResource( 8 )
 
 [node name="LinkButton2" type="LinkButton" parent="margin/vbox/center-links/hbox-links"]
 modulate = Color( 0.101961, 0.737255, 0.611765, 1 )
@@ -283,7 +261,7 @@ margin_bottom = 14.0
 rect_min_size = Vector2( 150, 0 )
 text = "Leave a comment"
 underline = 1
-script = SubResource( 10 )
+script = SubResource( 9 )
 
 [node name="LinkButton3" type="LinkButton" parent="margin/vbox/center-links/hbox-links"]
 modulate = Color( 0.101961, 0.737255, 0.611765, 1 )
@@ -293,8 +271,7 @@ margin_bottom = 14.0
 rect_min_size = Vector2( 150, 0 )
 text = "Git repository"
 underline = 1
-script = SubResource( 11 )
-[connection signal="item_selected" from="margin/vbox/vbox-buttons/level" to="margin/vbox/vbox-buttons/level" method="_on_level_item_selected"]
+script = SubResource( 10 )
 [connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-local" to="margin/vbox/vbox-buttons/bt-play-local" method="_on_btplay_pressed"]
 [connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-online" to="margin/vbox/vbox-buttons/bt-play-online" method="_on_btplayonline_pressed"]
 [connection signal="pressed" from="margin/vbox/vbox-buttons/bt-exit" to="margin/vbox/vbox-buttons/bt-exit" method="_on_btexit_pressed"]
