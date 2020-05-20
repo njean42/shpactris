@@ -59,7 +59,6 @@ func _on_timer_timeout():
 	for b in ['bt-continue','bt-back-to-menu']:
 		var bt = find_node(b)
 		if bt.visible:
-			prints('grab focus on',bt.name)
 			bt.grab_focus()
 			break
 	$'timer'.stop()
