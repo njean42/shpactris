@@ -9,7 +9,7 @@ var default_decrease = 0.95
 
 var time_in_slow_mo = 0
 var is_slow_mo = false
-const SLOW_MO_DURATION = 10
+const SLOW_MO_DURATION = 15
 const SLOW_MO_AFFECTED = [
 	'GHOSTS_SPEED',
 	'GHOSTS_SPAWN_INTERVAL',
