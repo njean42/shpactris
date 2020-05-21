@@ -61,6 +61,8 @@ func _on_network_peer_disconnected(peer_id):
 	
 	if lobby.i_am_the_game() and lobby.clients.size() < 2:
 		prints('peer disconnected during the game, quitting - ',peer_id)
+		if get_tree().is_network_server():
+			print_game_info('peer_disconnected')
 		get_tree().quit()
 
 
@@ -93,6 +95,8 @@ func lose_life(who):
 		if who.is_in_group('pacman'):
 			$'HUD/game-over-spot'.position += Vector2(global.GRID_SIZE/2,global.GRID_SIZE/2)
 		$'HUD/game-over-spot'.visible = true
+		if get_tree().is_network_server():
+			print_game_info('game_over')
 		global.end_game()
 		return
 	
@@ -116,6 +120,9 @@ puppet func level_up():
 	conf.level_up(level)
 	
 	find_node('spawner').nb_enemies_left = conf.current.TRIS_SHAPE_NB_ENEMIES
+	
+	if get_tree().is_network_server():
+		print_game_info('level_up')
 	
 	if level == 1:
 		return
@@ -144,3 +151,13 @@ remote func sync_new_item(item_name,pos,i):
 	item.name = 'item-' + str(i)
 	item.position = pos
 	$'/root/world/items'.add_child(item)
+
+
+func print_game_info(when):
+	prints('game_info:', JSON.print({
+		'when': when,
+		'game_time': game_time,
+		'level': level,
+		'lives': lives,
+		'gold': gold,
+	}))
