@@ -139,9 +139,18 @@ func can_switch_status(new_status):
 			return true
 
 
-remote func switch_status(new_status,synced_pos=null):
+remote func switch_status(new_status,synced_pos=null,synced_rot=null):
+	if status in ['FLOOR','DESTROYED']:
+		prints("[desynced?] FLOOR and DESTROYED are final statuses, can't be switched from")
+		return
+	
+	status = new_status
+	colorise()
+	
 	if synced_pos != null:
 		global_position = synced_pos
+	if synced_rot != null:
+		rotation = synced_rot
 	
 	match new_status:
 		'ENEMY':
@@ -192,17 +201,15 @@ remote func switch_status(new_status,synced_pos=null):
 					block.modulate = Color(1,0,0,1)
 					block_is_killing_us = true
 				
-				block.find_node('gridpos').text = str(gridpos)
+				block.find_node('gridpos').text = '%s;%s' % [gridpos.x,gridpos.y]
 				
-				# notify parent that a new block has been set
+				# notify tetris-handler that a new block has been set
 				$'/root/world/tetris-handler'.new_block(block)
 			
 			if block_is_killing_us:
 				global.end_game()
 			
 			# we don't care about the shape anymore, turn it to individual blocks
-			status = 'FLOOR'
-			colorise()
 			detach_blocks()
 			return
 		
@@ -212,9 +219,6 @@ remote func switch_status(new_status,synced_pos=null):
 				c.find_node('animation').play('fade-out')
 			detach_blocks()
 			return
-	
-	status = new_status
-	colorise()
 
 
 func enemy_move(delta):
@@ -225,7 +229,7 @@ func enemy_move(delta):
 	if lobby.i_am_the_game() and position.distance_to(destination) < speed * delta:
 		position = destination
 		if can_switch_status('FRIEND'):
-			rpc("switch_status",'FRIEND',global_position)
+			rpc("switch_status",'FRIEND',global_position,rotation)
 			switch_status('FRIEND')
 		return
 	
@@ -306,7 +310,7 @@ puppet func absorb_bullet():
 				sync_fire_enemy_bullet(global_position,global.enemy_bullet_i,'bad',dir)
 				global.enemy_bullet_i += 1
 			
-			rpc("switch_status",'DESTROYED',global_position)
+			rpc("switch_status",'DESTROYED',global_position,rotation)
 			switch_status('DESTROYED')
 		
 		return
@@ -342,7 +346,7 @@ func friend_move_dir(dir):
 			
 			# check that this is a collision after moving or being pushed down (not left or right, as this results in tetris shapes wrongly "attaching" to other ground shapes)
 			if dir.x == 0 and dir.y > 0:  # moving down
-				rpc("switch_status",'FLOOR',global_position)
+				rpc("switch_status",'FLOOR',global_position,rotation)
 				switch_status('FLOOR')
 				force_down = false
 				return
@@ -483,7 +487,7 @@ func test_collisions(layer):
 
 func detach_blocks():
 	for block in $'piece/blocks'.get_children():
-		# become grayish-transparent and collisionable blocks
+		# become collisionable floor blocks
 		block.get_node('box').set_collision_layer_bit(global.LAYER_TETRIS_BLOCKS,1)
 		
 		# append to general parent container 'tetris-handler'

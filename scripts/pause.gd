@@ -42,13 +42,15 @@ remote func pause(game_over=false):
 	if game_is_over:
 		return
 	
-	var go_to_pause = not get_tree().is_paused()
-	visible = go_to_pause
-	$'timer'.start()  # will focus on a button after a few seconds
+	var go_to_pause = game_over or not get_tree().is_paused()
+	visible = go_to_pause and not game_over
 	
-	get_tree().set_pause(go_to_pause)
+	if visible:
+		$'timer'.start()  # will focus on a button after a few seconds
 	
 	game_is_over = game_over
+	
+	get_tree().set_pause(go_to_pause)
 
 
 func _on_btcontinue_pressed():

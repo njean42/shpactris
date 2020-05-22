@@ -19,7 +19,7 @@ var PLAYERS = {
 	'pacman': null
 }
 
-var SERVER_COMPATIBILITY = 'online-beta'
+var SERVER_COMPATIBILITY = 'online-beta2'
 
 # preload scenes to be added in-game
 const GHOST = preload('res://scenes/ghost.tscn')
@@ -144,11 +144,10 @@ func enemy_hit(who):
 	
 func end_game(error_msg=''):
 	# if there's a game playing, pause it so we can see the score and everything
-	$'/root/world/HUD/pause-menu'.visible = false
 	$'/root/world/HUD/game-over-menu'.find_node('error-msg').text = error_msg
 	$'/root/world/HUD/game-over-menu'.visible = true
 	$'/root/world/HUD/game-over-menu/timer'.start()
-	get_tree().set_pause(true)
+	$'/root/world/HUD/pause-menu'.pause(true)  # game over
 
 func milestone(x,y,dir,color=Color(0.05,0.05,0.05)):
 	var milestone = SCENE_MILESTONE.instance()

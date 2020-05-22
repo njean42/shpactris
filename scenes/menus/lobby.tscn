@@ -215,6 +215,8 @@ func _on_serverinfo_completed(result, response_code, headers, body):
 	
 	if global.SERVER_COMPATIBILITY != json.SERVER_COMPATIBILITY:
 		add_lobby_output(\"Server is incompatible, update your game?\")
+		add_lobby_output(\"Server version: '%s'\" % [json.SERVER_COMPATIBILITY])
+		add_lobby_output(\"Your version:    '%s'\" % [global.SERVER_COMPATIBILITY])
 		return
 	
 	add_lobby_output('Connected to server \"%s\"' % json.DESCRIPTION)

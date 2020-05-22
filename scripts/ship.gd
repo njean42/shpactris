@@ -138,7 +138,7 @@ func frost_beam():
 		
 		# shape becomes a friend again
 		shape_frozen.global_position = global.attach_pos_to_grid(shape_frozen.global_position)
-		shape_frozen.rpc("switch_status",'FRIEND',shape_frozen.global_position)
+		shape_frozen.rpc("switch_status",'FRIEND',shape_frozen.global_position,shape_frozen.rotation)
 		shape_frozen.switch_status('FRIEND')
 		shape_frozen = null
 		return true
@@ -173,7 +173,7 @@ func frost_beam():
 	if successful:
 		# attach tetris shape, it will move with the ship until released
 		shape_frozen = result.collider
-		shape_frozen.rpc("switch_status",'FROZEN',shape_frozen.global_position)
+		shape_frozen.rpc("switch_status",'FROZEN',shape_frozen.global_position,shape_frozen.rotation)
 		shape_frozen.switch_status('FROZEN')
 	
 	return true
