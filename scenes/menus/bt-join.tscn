@@ -20,7 +20,7 @@ var human_status = {
 		'color': '#7f8c8d'
 	},
 	'WAITING': {
-		'text': 'JOIN GAME - room ',
+		'text': 'JOIN GAME',
 		'color': '#27ae60'
 	},
 	'FREE': {
@@ -33,11 +33,12 @@ var human_status = {
 	},
 }
 
-func switch_status(new_status):
+func switch_status(new_status,data={}):
 	status = new_status
 	text = human_status[status].text
 	if status == 'WAITING':
-		text += lobby.get_game_name(server_port)
+		var nickname = data.values()[0] if data.size() >= 1 else ''
+		text = \"JOIN room %s with '%s'\" % [lobby.get_game_name(server_port), nickname]
 	add_color_override(\"font_color\",Color(human_status[status].color))
 	add_color_override(\"font_color_hover\",Color(human_status[status].color))
 

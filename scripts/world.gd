@@ -155,6 +155,7 @@ remote func sync_new_item(item_name,pos,i):
 
 func print_game_info(when):
 	prints('game_info:', JSON.print({
+		'players': lobby.client_nicknames,
 		'when': when,
 		'game_time': game_time,
 		'level': level,

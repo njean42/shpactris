@@ -19,7 +19,7 @@ var PLAYERS = {
 	'pacman': null
 }
 
-var SERVER_COMPATIBILITY = 'online-beta2'
+var SERVER_COMPATIBILITY = 'online-beta3'
 
 # preload scenes to be added in-game
 const GHOST = preload('res://scenes/ghost.tscn')
@@ -168,3 +168,29 @@ func play_sound(sound,play_remote=true):
 
 remote func synced_play_sound(sound):
 	$'/root/world/sounds'.play_sound(sound)
+
+
+func save_user_data(new_data):
+	var data = get_user_data()
+	
+	for k in new_data:
+		data[k] = new_data[k]
+	
+	var file = File.new()
+	file.open("user://user.json", File.WRITE)
+	file.store_string(JSON.print(data))
+	file.close()
+
+func get_user_data(key=null):
+	var file = File.new()
+	file.open("user://user.json", File.READ)
+	
+	var data = file.get_as_text()
+	data = JSON.parse(data)
+	data = data.result if data.error == OK else {}
+	
+	file.close()
+	if key == null:  # return whole data
+		return data
+	
+	return data[key] if key in data else null

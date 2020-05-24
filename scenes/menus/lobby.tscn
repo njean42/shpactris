@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://assets/DejaVuSans-Bold.ttf" type="DynamicFontData" id=1]
 
@@ -56,9 +56,10 @@ func _ready():
 		join(SERVER_IP,PORT)
 		return
 	
-	find_node(\"bt-refresh\").grab_focus()
-	
 	# regular client
+	var nickname = global.get_user_data('nickname')
+	find_node('nickname').text = nickname if nickname != null else ''
+	find_node(\"bt-refresh\").grab_focus()
 	refresh_game_list()
 
 
@@ -74,12 +75,13 @@ func _on_network_peer_connected(peer_id):
 			rpc_id(peer_id,\"could_not_join\",lobby.SERVER_PORT)
 			get_tree().network_peer.disconnect_peer(peer_id)
 		else:
-			rpc_id(peer_id,\"you_joined\",lobby.SERVER_PORT)
+			rpc_id(peer_id,\"you_joined\",lobby.SERVER_PORT,lobby.client_nicknames)
 
 
 func _on_network_peer_disconnected(peer_id):
 	lobby.clients.erase(peer_id)
 	lobby.clients_ready.erase(peer_id)
+	lobby.client_nicknames.erase(peer_id)
 	
 	if get_tree().get_network_unique_id() == 1:
 		prints('peer disconnected =>',lobby.clients)
@@ -145,21 +147,30 @@ puppet func could_not_join(port):
 		check_games_avail()
 
 
-puppet func you_joined(port):
+puppet func you_joined(port,client_nicknames):
 	$\"join-timeout\".stop()
 	if not joining:  # was just a test, disconnect
 		get_tree().network_peer = null
-		set_btjoin(port,'WAITING')
+		set_btjoin(port,'WAITING',client_nicknames)
 		check_games_avail()
 	else:
 		add_lobby_output(\"Joined game, click ready when you are\")
 		find_node('bt-ready').visible = true
 		find_node('bt-ready').grab_focus()
-		rpc(\"player_has_joined\")
+		rpc(\"player_has_joined\",get_tree().get_network_unique_id(),lobby.mynickname,true)
 
 
-remote func player_has_joined():
-	add_lobby_output(\"Another player joined!\")
+remote func player_has_joined(peer_id,nickname,reply=false):
+	if peer_id == 1:
+		return
+	
+	lobby.client_nicknames[peer_id] = nickname
+	
+	var txt = \"Another player joined\" if reply else \"Playing with\"
+	add_lobby_output(\"%s: '%s'\" % [txt,nickname])
+	
+	if reply and peer_id > 1:
+		rpc_id(peer_id,\"player_has_joined\",get_tree().get_network_unique_id(),lobby.mynickname)
 
 
 remote func player_ready(peer_id):
@@ -169,9 +180,10 @@ remote func player_ready(peer_id):
 	
 	if not(peer_id in lobby.clients_ready):
 		prints(peer_id,'is now ready')
+		add_lobby_output(\"'%s' is ready!\" % lobby.client_nicknames[peer_id])
 		lobby.clients_ready.append(peer_id)
 	
-	if lobby.clients_ready.size() == 2:
+	if lobby.i_am_the_game() and lobby.clients_ready.size() == 2:
 		lobby.rpc(\"set_clients\",lobby.clients)
 		lobby.set_clients(lobby.clients)
 		rpc('start_game')
@@ -299,7 +311,7 @@ func _on_btready_pressed():
 	add_lobby_output(\"Waiting for another player\")
 	
 	clear_game_buttons()
-	rpc_id(1,\"player_ready\",get_tree().get_network_unique_id())
+	rpc(\"player_ready\",get_tree().get_network_unique_id())
 
 
 func _on_btrefresh_pressed():
@@ -320,10 +332,10 @@ func clear_game_buttons():
 		bt.queue_free()
 
 
-func set_btjoin(port,status):
+func set_btjoin(port,status,data={}):
 	for bt in games.get_children():
 		if bt.server_port == port:
-			bt.switch_status(status)
+			bt.switch_status(status,data)
 
 
 func clear_output():
@@ -332,11 +344,28 @@ func clear_output():
 
 func add_lobby_output(msg):
 	output.text += msg + \"\\n\"
+
+
+func _on_nickname_text_changed():
+	var nickname = find_node('nickname').text.substr(0,16)
+	lobby.mynickname = nickname
+	
+	if find_node('nickname').text != nickname:
+		find_node('nickname').text = nickname
+	
+	global.save_user_data({'nickname': nickname})
 "
 
 [sub_resource type="DynamicFont" id=2]
 size = 14
 font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFontData" id=9]
+font_path = "res://assets/DejaVuSans-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=10]
+size = 14
+font_data = SubResource( 9 )
 
 [sub_resource type="DynamicFontData" id=3]
 font_path = "res://assets/DejaVuSans-Bold.ttf"
@@ -374,7 +403,7 @@ __meta__ = {
 
 [node name="game-info" type="Label" parent="vbox"]
 margin_right = 580.0
-margin_bottom = 172.0
+margin_bottom = 96.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_fonts/font = SubResource( 2 )
@@ -383,10 +412,38 @@ Speaking with your remote teammate may ease the game though."
 align = 1
 valign = 1
 
-[node name="output" type="RichTextLabel" parent="vbox"]
-margin_top = 176.0
+[node name="center2" type="CenterContainer" parent="vbox"]
+margin_top = 100.0
 margin_right = 580.0
-margin_bottom = 348.0
+margin_bottom = 196.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="hbox" type="HBoxContainer" parent="vbox/center2"]
+margin_left = 149.0
+margin_top = 36.0
+margin_right = 431.0
+margin_bottom = 60.0
+
+[node name="label" type="Label" parent="vbox/center2/hbox"]
+margin_top = 3.0
+margin_right = 78.0
+margin_bottom = 20.0
+custom_fonts/font = SubResource( 10 )
+text = "Nickname"
+
+[node name="nickname" type="TextEdit" parent="vbox/center2/hbox"]
+margin_left = 82.0
+margin_right = 282.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 200, 24 )
+custom_fonts/font = SubResource( 10 )
+
+[node name="output" type="RichTextLabel" parent="vbox"]
+margin_top = 200.0
+margin_right = 580.0
+margin_bottom = 500.0
+rect_min_size = Vector2( 0, 300 )
 focus_mode = 2
 size_flags_vertical = 3
 custom_fonts/normal_font = SubResource( 4 )
@@ -399,9 +456,9 @@ __meta__ = {
 }
 
 [node name="center-games" type="CenterContainer" parent="vbox"]
-margin_top = 352.0
+margin_top = 504.0
 margin_right = 580.0
-margin_bottom = 524.0
+margin_bottom = 600.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 __meta__ = {
@@ -410,13 +467,13 @@ __meta__ = {
 
 [node name="games" type="VBoxContainer" parent="vbox/center-games"]
 margin_left = 290.0
-margin_top = 86.0
+margin_top = 48.0
 margin_right = 290.0
-margin_bottom = 86.0
+margin_bottom = 48.0
 grow_horizontal = 2
 
 [node name="center" type="CenterContainer" parent="vbox"]
-margin_top = 528.0
+margin_top = 604.0
 margin_right = 580.0
 margin_bottom = 700.0
 size_flags_horizontal = 3
@@ -424,9 +481,9 @@ size_flags_vertical = 3
 
 [node name="hbox" type="HBoxContainer" parent="vbox/center"]
 margin_left = 166.0
-margin_top = 73.0
+margin_top = 35.0
 margin_right = 414.0
-margin_bottom = 98.0
+margin_bottom = 60.0
 
 [node name="bt-ready" type="Button" parent="vbox/center/hbox"]
 visible = false
@@ -453,6 +510,7 @@ margin_bottom = 25.0
 custom_fonts/font = SubResource( 8 )
 custom_colors/font_color = Color( 0.752941, 0.223529, 0.168627, 1 )
 text = "BACK TO MENU"
+[connection signal="text_changed" from="vbox/center2/hbox/nickname" to="." method="_on_nickname_text_changed"]
 [connection signal="pressed" from="vbox/center/hbox/bt-ready" to="." method="_on_btready_pressed"]
 [connection signal="pressed" from="vbox/center/hbox/bt-refresh" to="." method="_on_btrefresh_pressed"]
 [connection signal="pressed" from="vbox/center/hbox/bt-leave" to="." method="_on_btleave_pressed"]

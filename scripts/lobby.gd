@@ -3,6 +3,9 @@ extends Node2D
 
 var clients = []
 var clients_ready = []
+var client_nicknames = {}
+onready var mynickname = global.get_user_data('nickname')
+
 var pacman = null
 var ship = null
 
