@@ -194,6 +194,8 @@ func _process(delta):
 func refresh_game_list():
 	clear_game_buttons()
 	
+	add_lobby_output(\"Waiting for server...\")
+	
 	var http_request = HTTPRequest.new()
 	add_child(http_request)
 	http_request.connect(\"request_completed\", self, \"_on_serverinfo_completed\")
@@ -219,11 +221,17 @@ func _on_serverinfo_completed(result, response_code, headers, body):
 		add_lobby_output(\"Your version:    '%s'\" % [global.SERVER_COMPATIBILITY])
 		return
 	
+	lobby.min_port = INF
+	for status in lobby.game_statuses:
+		for slot in json.AVAILABLE_SLOTS[status]:
+			if int(slot) < lobby.min_port:
+				lobby.min_port = int(slot)
+	
 	add_lobby_output('Connected to server \"%s\"' % json.DESCRIPTION)
 	add_lobby_output('Server handles a maximum of %s simultaneous games' % json.MAX_GAMES)
 	add_lobby_output(\"Select a game to join, or create one\")
 	
-	for status in ['UNCERTAIN','FREE','BUSY']:
+	for status in lobby.game_statuses:
 		for port in json.AVAILABLE_SLOTS[status]:
 			var bt = BTJOIN.instance()
 			bt.set_server(json.SERVER_IP,port)
@@ -275,7 +283,9 @@ func _on_creategame_completed(result, response_code, headers, body):
 		return
 	json = json.result
 	
-	add_lobby_output(\"Created game room - %s\" % lobby.GAME_NAMES[str(json.game.port)])
+	var port = json.game.port
+	var game_name = lobby.get_game_name(port)
+	add_lobby_output(\"Created game room - %s\" % game_name)
 	
 	join(json.game.ip,json.game.port)
 

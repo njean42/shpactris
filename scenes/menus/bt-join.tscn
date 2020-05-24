@@ -37,7 +37,7 @@ func switch_status(new_status):
 	status = new_status
 	text = human_status[status].text
 	if status == 'WAITING':
-		text += lobby.GAME_NAMES[str(server_port)]
+		text += lobby.get_game_name(server_port)
 	add_color_override(\"font_color\",Color(human_status[status].color))
 	add_color_override(\"font_color_hover\",Color(human_status[status].color))
 

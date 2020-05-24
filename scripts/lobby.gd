@@ -9,11 +9,23 @@ var ship = null
 var SERVER_PORT = int(OS.get_environment('PORT'))
 var TESTING = OS.get_environment('TESTING') == 'true'
 
-const GAME_NAMES = {
-	'6000': 'Ikaruga',
-	'6001': 'Puckman',
-	'6002': 'Korobeïniki',
-}
+var game_statuses = ['UNCERTAIN','FREE','BUSY','WAITING']
+var min_port = INF
+
+const GAME_NAMES = [
+	'Ikaruga',
+	'Puckman',
+	'Korobeïniki',
+]
+
+
+func get_game_name(port):
+	port = int(port)
+	var game_name = GAME_NAMES[port % GAME_NAMES.size()]
+	var nb = (port - min_port) / GAME_NAMES.size() + 1
+	if nb > 1:
+		game_name += ' #%s' % nb
+	return game_name
 
 
 puppet func set_clients(actual_clients):
