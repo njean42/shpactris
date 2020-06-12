@@ -1,13 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
-[sub_resource type="DynamicFontData" id=1]
-font_path = "res://assets/DejaVuSans-Bold.ttf"
+[ext_resource path="res://scenes/menus/common/base-button.tscn" type="PackedScene" id=1]
 
-[sub_resource type="DynamicFont" id=2]
-font_data = SubResource( 1 )
-
-[sub_resource type="GDScript" id=3]
-script/source = "extends Button
+[sub_resource type="GDScript" id=1]
+script/source = "extends CenterContainer
 
 
 var status = null
@@ -20,27 +16,27 @@ var human_status = {
 		'color': '#7f8c8d'
 	},
 	'WAITING': {
-		'text': 'JOIN GAME',
+		'text': 'join game',
 		'color': '#27ae60'
 	},
 	'FREE': {
-		'text': 'CREATE GAME',
+		'text': 'create game',
 		'color': '#2980b9'
 	},
 	'BUSY': {
-		'text': 'BUSY',
+		'text': 'busy',
 		'color': '#c0392b'
 	},
 }
 
 func switch_status(new_status,data={}):
 	status = new_status
-	text = human_status[status].text
+	$'bt-join'.text = human_status[status].text
 	if status == 'WAITING':
 		var nickname = data.values()[0] if data.size() >= 1 else ''
-		text = \"JOIN room %s with '%s'\" % [lobby.get_game_name(server_port), nickname]
-	add_color_override(\"font_color\",Color(human_status[status].color))
-	add_color_override(\"font_color_hover\",Color(human_status[status].color))
+		$'bt-join'.text = \"join %s @%s\" % [nickname,lobby.get_game_name(server_port)]
+	$'bt-join'.add_color_override(\"font_color\",Color(human_status[status].color))
+	$'bt-join'.add_color_override(\"font_color_hover\",Color(human_status[status].color))
 
 
 func set_server(ip,port):
@@ -62,13 +58,20 @@ func _on_btjoin_pressed():
 
 "
 
-[node name="bt-join" type="Button" groups=[
-"bt-join",
-]]
-custom_fonts/font = SubResource( 2 )
-text = "JOIN / BUSY / CREATE"
-script = SubResource( 3 )
+[node name="bt-join" type="CenterContainer"]
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = SubResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-[connection signal="pressed" from="." to="." method="_on_btjoin_pressed"]
+
+[node name="bt-join" parent="." groups=[
+"bt-join",
+] instance=ExtResource( 1 )]
+margin_right = 116.0
+margin_bottom = 39.0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+text = "bt-join"
+[connection signal="pressed" from="bt-join" to="." method="_on_btjoin_pressed"]

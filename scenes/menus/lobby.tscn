@@ -1,6 +1,7 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://assets/DejaVuSans-Bold.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://scenes/menus/common/base-button.tscn" type="PackedScene" id=2]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node2D
@@ -347,7 +348,14 @@ func add_lobby_output(msg):
 
 
 func _on_nickname_text_changed():
-	var nickname = find_node('nickname').text.substr(0,16)
+	var nickname = find_node('nickname').text
+	
+	# remove \\n and \\t
+	var regex = RegEx.new()
+	regex.compile('[\\n\\t]')
+	nickname = regex.sub(nickname,'',true)
+	
+	nickname = nickname.substr(0,16)
 	lobby.mynickname = nickname
 	
 	if find_node('nickname').text != nickname:
@@ -360,17 +368,11 @@ func _on_nickname_text_changed():
 size = 14
 font_data = ExtResource( 1 )
 
-[sub_resource type="DynamicFontData" id=9]
-font_path = "res://assets/DejaVuSans-Bold.ttf"
-
-[sub_resource type="DynamicFont" id=10]
-size = 14
-font_data = SubResource( 9 )
-
 [sub_resource type="DynamicFontData" id=3]
 font_path = "res://assets/DejaVuSans-Bold.ttf"
 
 [sub_resource type="DynamicFont" id=4]
+size = 14
 font_data = SubResource( 3 )
 
 [sub_resource type="DynamicFontData" id=5]
@@ -378,12 +380,6 @@ font_path = "res://assets/DejaVuSans-Bold.ttf"
 
 [sub_resource type="DynamicFont" id=6]
 font_data = SubResource( 5 )
-
-[sub_resource type="DynamicFontData" id=7]
-font_path = "res://assets/DejaVuSans-Bold.ttf"
-
-[sub_resource type="DynamicFont" id=8]
-font_data = SubResource( 7 )
 
 [node name="lobby-scene" type="Node2D"]
 script = SubResource( 1 )
@@ -429,7 +425,7 @@ margin_bottom = 60.0
 margin_top = 3.0
 margin_right = 78.0
 margin_bottom = 20.0
-custom_fonts/font = SubResource( 10 )
+custom_fonts/font = SubResource( 4 )
 text = "Nickname"
 
 [node name="nickname" type="TextEdit" parent="vbox/center2/hbox"]
@@ -437,7 +433,7 @@ margin_left = 82.0
 margin_right = 282.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 200, 24 )
-custom_fonts/font = SubResource( 10 )
+custom_fonts/font = SubResource( 4 )
 
 [node name="output" type="RichTextLabel" parent="vbox"]
 margin_top = 200.0
@@ -446,7 +442,7 @@ margin_bottom = 500.0
 rect_min_size = Vector2( 0, 300 )
 focus_mode = 2
 size_flags_vertical = 3
-custom_fonts/normal_font = SubResource( 4 )
+custom_fonts/normal_font = SubResource( 6 )
 custom_colors/default_color = Color( 0.741176, 0.764706, 0.780392, 1 )
 text = "output"
 scroll_following = true
@@ -480,36 +476,31 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="hbox" type="HBoxContainer" parent="vbox/center"]
-margin_left = 166.0
-margin_top = 35.0
-margin_right = 414.0
-margin_bottom = 60.0
+margin_left = 174.0
+margin_top = 28.0
+margin_right = 405.0
+margin_bottom = 67.0
 
-[node name="bt-ready" type="Button" parent="vbox/center/hbox"]
+[node name="bt-ready" parent="vbox/center/hbox" instance=ExtResource( 2 )]
 visible = false
-margin_left = -53.0
-margin_top = -12.0
-margin_right = 52.0
-margin_bottom = 13.0
-custom_fonts/font = SubResource( 6 )
+margin_right = 102.0
+margin_bottom = 39.0
 custom_colors/font_color = Color( 0.152941, 0.682353, 0.376471, 1 )
 custom_colors/font_color_hover = Color( 0.152941, 0.682353, 0.376471, 1 )
-text = "I'M READY"
+text = "ready"
 
-[node name="bt-refresh" type="Button" parent="vbox/center/hbox"]
-margin_right = 94.0
-margin_bottom = 25.0
-custom_fonts/font = SubResource( 8 )
-custom_colors/font_color = Color( 0.92549, 0.941176, 0.945098, 1 )
-text = "REFRESH"
+[node name="bt-refresh" parent="vbox/center/hbox" instance=ExtResource( 2 )]
+margin_right = 127.0
+margin_bottom = 39.0
+text = "refresh"
 
-[node name="bt-leave" type="Button" parent="vbox/center/hbox"]
-margin_left = 98.0
-margin_right = 248.0
-margin_bottom = 25.0
-custom_fonts/font = SubResource( 8 )
+[node name="bt-leave" parent="vbox/center/hbox" instance=ExtResource( 2 )]
+margin_left = 131.0
+margin_right = 231.0
+margin_bottom = 39.0
 custom_colors/font_color = Color( 0.752941, 0.223529, 0.168627, 1 )
-text = "BACK TO MENU"
+custom_colors/font_color_hover = Color( 0.752941, 0.223529, 0.168627, 1 )
+text = "menu"
 [connection signal="text_changed" from="vbox/center2/hbox/nickname" to="." method="_on_nickname_text_changed"]
 [connection signal="pressed" from="vbox/center/hbox/bt-ready" to="." method="_on_btready_pressed"]
 [connection signal="pressed" from="vbox/center/hbox/bt-refresh" to="." method="_on_btrefresh_pressed"]

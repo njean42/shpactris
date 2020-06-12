@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://scenes/menus/common/base-control.tres" type="Theme" id=1]
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0, 0, 0, 0 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color( 0.203922, 0.596078, 0.858824, 1 )
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="base-button" type="Button"]
+margin_right = 40.0
+margin_bottom = 40.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = ExtResource( 1 )
+custom_styles/focus = SubResource( 1 )
+text = "base-button"
+flat = true
+__meta__ = {
+"_edit_use_anchors_": false
+}

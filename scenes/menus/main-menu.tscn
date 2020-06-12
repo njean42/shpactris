@@ -1,13 +1,14 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://assets/pacman.png" type="Texture" id=1]
 [ext_resource path="res://assets/ship.png" type="Texture" id=2]
 [ext_resource path="res://assets/coinGold.png" type="Texture" id=3]
 [ext_resource path="res://assets/fireball.png" type="Texture" id=4]
 [ext_resource path="res://assets/ghost2.png" type="Texture" id=5]
-[ext_resource path="res://assets/DejaVuSans-Bold.ttf" type="DynamicFontData" id=8]
+[ext_resource path="res://scenes/menus/common/base-checkbox.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/menus/common/base-button.tscn" type="PackedScene" id=7]
 
-[sub_resource type="GDScript" id=1]
+[sub_resource type="GDScript" id=4]
 script/source = "extends Node2D
 
 
@@ -16,45 +17,37 @@ func _ready():
 	
 	if OS.get_environment('TESTING') == 'true' or OS.get_environment('SERVER') == 'true':
 		get_tree().change_scene(\"res://scenes/menus/lobby.tscn\")
-"
-
-[sub_resource type="DynamicFontData" id=2]
-font_path = "res://assets/DejaVuSans-Bold.ttf"
-
-[sub_resource type="DynamicFont" id=3]
-size = 42
-font_data = SubResource( 2 )
-
-[sub_resource type="DynamicFont" id=4]
-size = 28
-font_data = ExtResource( 8 )
-
-[sub_resource type="GDScript" id=5]
-script/source = "extends Button
+	
+	# go fullscreen?
+	if global.get_user_data('fullscreen') and not OS.window_fullscreen:
+		find_node('cbk-fullscreen').set_pressed(true)
 
 
-func _on_btplay_pressed():
+func _on_btplaylocal_pressed():
 	get_tree().change_scene(\"res://scenes/menus/controls.tscn\")
-
-"
-
-[sub_resource type="GDScript" id=6]
-script/source = "extends Button
 
 
 func _on_btplayonline_pressed():
 	get_tree().change_scene(\"res://scenes/menus/lobby.tscn\")
-"
-
-[sub_resource type="GDScript" id=7]
-script/source = "extends Button
 
 
 func _on_btexit_pressed():
 	get_tree().quit()
+
+
+func _on_basecheckbox_toggled(button_pressed):
+	OS.window_fullscreen = button_pressed
+	global.save_user_data({'fullscreen': button_pressed})
 "
 
-[sub_resource type="GDScript" id=8]
+[sub_resource type="DynamicFontData" id=5]
+font_path = "res://assets/DejaVuSans-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=6]
+size = 42
+font_data = SubResource( 5 )
+
+[sub_resource type="GDScript" id=11]
 script/source = "extends LinkButton
 
 
@@ -62,7 +55,7 @@ func _on_LinkButton_pressed():
 	OS.shell_open(\"https://shootingpactris.njean.me\")
 "
 
-[sub_resource type="GDScript" id=9]
+[sub_resource type="GDScript" id=12]
 script/source = "extends LinkButton
 
 
@@ -70,7 +63,7 @@ func _on_LinkButton2_pressed():
 	OS.shell_open(\"https://shootingpactris.njean.me#Contact\")
 "
 
-[sub_resource type="GDScript" id=10]
+[sub_resource type="GDScript" id=13]
 script/source = "extends LinkButton
 
 
@@ -79,7 +72,7 @@ func _on_LinkButton3_pressed():
 "
 
 [node name="main-menu" type="Node2D"]
-script = SubResource( 1 )
+script = SubResource( 4 )
 
 [node name="margin" type="MarginContainer" parent="."]
 margin_left = 40.0
@@ -169,9 +162,9 @@ texture = ExtResource( 5 )
 
 [node name="center-title" type="CenterContainer" parent="margin/vbox"]
 margin_left = 60.0
-margin_top = 121.0
+margin_top = 68.0
 margin_right = 460.0
-margin_bottom = 188.0
+margin_bottom = 135.0
 size_flags_horizontal = 6
 size_flags_vertical = 6
 
@@ -182,7 +175,7 @@ margin_bottom = 67.0
 [node name="Label" type="Label" parent="margin/vbox/center-title/vbox"]
 margin_right = 400.0
 margin_bottom = 49.0
-custom_fonts/font = SubResource( 3 )
+custom_fonts/font = SubResource( 6 )
 text = "Shooting PacTris"
 
 [node name="Label2" type="Label" parent="margin/vbox/center-title/vbox"]
@@ -194,49 +187,50 @@ size_flags_horizontal = 8
 text = "v1.0 - online beta"
 align = 2
 
-[node name="vbox-buttons" type="VBoxContainer" parent="margin/vbox"]
-margin_left = 126.0
-margin_top = 405.0
-margin_right = 393.0
-margin_bottom = 530.0
+[node name="vbox-options" type="VBoxContainer" parent="margin/vbox"]
+margin_left = 167.0
+margin_top = 289.0
+margin_right = 353.0
+margin_bottom = 330.0
 size_flags_horizontal = 6
 size_flags_vertical = 6
 
-[node name="bt-play-local" type="Button" parent="margin/vbox/vbox-buttons"]
+[node name="cbk-fullscreen" parent="margin/vbox/vbox-options" instance=ExtResource( 6 )]
+margin_right = 186.0
+margin_bottom = 41.0
+text = "fullscreen"
+
+[node name="vbox-buttons" type="VBoxContainer" parent="margin/vbox"]
+margin_left = 126.0
+margin_top = 455.0
+margin_right = 393.0
+margin_bottom = 580.0
+size_flags_horizontal = 6
+size_flags_vertical = 6
+
+[node name="bt-play-local" parent="margin/vbox/vbox-buttons" instance=ExtResource( 7 )]
 margin_right = 267.0
 margin_bottom = 39.0
-size_flags_horizontal = 4
-size_flags_vertical = 4
-custom_fonts/font = SubResource( 4 )
 text = "local coop / solo"
-script = SubResource( 5 )
 
-[node name="bt-play-online" type="Button" parent="margin/vbox/vbox-buttons"]
-margin_left = 36.0
+[node name="bt-play-online" parent="margin/vbox/vbox-buttons" instance=ExtResource( 7 )]
+margin_left = 35.0
 margin_top = 43.0
-margin_right = 231.0
+margin_right = 232.0
 margin_bottom = 82.0
-size_flags_horizontal = 4
-size_flags_vertical = 4
-custom_fonts/font = SubResource( 4 )
-text = "online coop"
-script = SubResource( 6 )
+text = "online-coop"
 
-[node name="bt-exit" type="Button" parent="margin/vbox/vbox-buttons"]
+[node name="bt-exit" parent="margin/vbox/vbox-buttons" instance=ExtResource( 7 )]
 margin_left = 97.0
 margin_top = 86.0
 margin_right = 169.0
 margin_bottom = 125.0
-size_flags_horizontal = 4
-size_flags_vertical = 4
-custom_fonts/font = SubResource( 4 )
 text = "exit"
-script = SubResource( 7 )
 
 [node name="center-links" type="CenterContainer" parent="margin/vbox"]
-margin_top = 626.0
+margin_top = 624.0
 margin_right = 520.0
-margin_bottom = 640.0
+margin_bottom = 638.0
 
 [node name="hbox-links" type="HBoxContainer" parent="margin/vbox/center-links"]
 margin_left = 31.0
@@ -251,7 +245,7 @@ rect_min_size = Vector2( 150, 0 )
 size_flags_horizontal = 8
 text = "Official Website"
 underline = 1
-script = SubResource( 8 )
+script = SubResource( 11 )
 
 [node name="LinkButton2" type="LinkButton" parent="margin/vbox/center-links/hbox-links"]
 modulate = Color( 0.101961, 0.737255, 0.611765, 1 )
@@ -261,7 +255,7 @@ margin_bottom = 14.0
 rect_min_size = Vector2( 150, 0 )
 text = "Leave a comment"
 underline = 1
-script = SubResource( 9 )
+script = SubResource( 12 )
 
 [node name="LinkButton3" type="LinkButton" parent="margin/vbox/center-links/hbox-links"]
 modulate = Color( 0.101961, 0.737255, 0.611765, 1 )
@@ -271,10 +265,11 @@ margin_bottom = 14.0
 rect_min_size = Vector2( 150, 0 )
 text = "Git repository"
 underline = 1
-script = SubResource( 10 )
-[connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-local" to="margin/vbox/vbox-buttons/bt-play-local" method="_on_btplay_pressed"]
-[connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-online" to="margin/vbox/vbox-buttons/bt-play-online" method="_on_btplayonline_pressed"]
-[connection signal="pressed" from="margin/vbox/vbox-buttons/bt-exit" to="margin/vbox/vbox-buttons/bt-exit" method="_on_btexit_pressed"]
+script = SubResource( 13 )
+[connection signal="toggled" from="margin/vbox/vbox-options/cbk-fullscreen" to="." method="_on_basecheckbox_toggled"]
+[connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-local" to="." method="_on_btplaylocal_pressed"]
+[connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-online" to="." method="_on_btplayonline_pressed"]
+[connection signal="pressed" from="margin/vbox/vbox-buttons/bt-exit" to="." method="_on_btexit_pressed"]
 [connection signal="pressed" from="margin/vbox/center-links/hbox-links/LinkButton" to="margin/vbox/center-links/hbox-links/LinkButton" method="_on_LinkButton_pressed"]
 [connection signal="pressed" from="margin/vbox/center-links/hbox-links/LinkButton2" to="margin/vbox/center-links/hbox-links/LinkButton2" method="_on_LinkButton2_pressed"]
 [connection signal="pressed" from="margin/vbox/center-links/hbox-links/LinkButton3" to="margin/vbox/center-links/hbox-links/LinkButton3" method="_on_LinkButton3_pressed"]
