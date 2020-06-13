@@ -8,7 +8,7 @@
 [ext_resource path="res://scenes/menus/common/base-checkbox.tscn" type="PackedScene" id=6]
 [ext_resource path="res://scenes/menus/common/base-button.tscn" type="PackedScene" id=7]
 
-[sub_resource type="GDScript" id=4]
+[sub_resource type="GDScript" id=1]
 script/source = "extends Node2D
 
 
@@ -40,14 +40,14 @@ func _on_basecheckbox_toggled(button_pressed):
 	global.save_user_data({'fullscreen': button_pressed})
 "
 
-[sub_resource type="DynamicFontData" id=5]
+[sub_resource type="DynamicFontData" id=2]
 font_path = "res://assets/DejaVuSans-Bold.ttf"
 
-[sub_resource type="DynamicFont" id=6]
+[sub_resource type="DynamicFont" id=3]
 size = 42
-font_data = SubResource( 5 )
+font_data = SubResource( 2 )
 
-[sub_resource type="GDScript" id=11]
+[sub_resource type="GDScript" id=4]
 script/source = "extends LinkButton
 
 
@@ -55,7 +55,7 @@ func _on_LinkButton_pressed():
 	OS.shell_open(\"https://shootingpactris.njean.me\")
 "
 
-[sub_resource type="GDScript" id=12]
+[sub_resource type="GDScript" id=5]
 script/source = "extends LinkButton
 
 
@@ -63,7 +63,7 @@ func _on_LinkButton2_pressed():
 	OS.shell_open(\"https://shootingpactris.njean.me#Contact\")
 "
 
-[sub_resource type="GDScript" id=13]
+[sub_resource type="GDScript" id=6]
 script/source = "extends LinkButton
 
 
@@ -72,7 +72,7 @@ func _on_LinkButton3_pressed():
 "
 
 [node name="main-menu" type="Node2D"]
-script = SubResource( 4 )
+script = SubResource( 1 )
 
 [node name="margin" type="MarginContainer" parent="."]
 margin_left = 40.0
@@ -175,7 +175,7 @@ margin_bottom = 67.0
 [node name="Label" type="Label" parent="margin/vbox/center-title/vbox"]
 margin_right = 400.0
 margin_bottom = 49.0
-custom_fonts/font = SubResource( 6 )
+custom_fonts/font = SubResource( 3 )
 text = "Shooting PacTris"
 
 [node name="Label2" type="Label" parent="margin/vbox/center-title/vbox"]
@@ -245,7 +245,7 @@ rect_min_size = Vector2( 150, 0 )
 size_flags_horizontal = 8
 text = "Official Website"
 underline = 1
-script = SubResource( 11 )
+script = SubResource( 4 )
 
 [node name="LinkButton2" type="LinkButton" parent="margin/vbox/center-links/hbox-links"]
 modulate = Color( 0.101961, 0.737255, 0.611765, 1 )
@@ -255,7 +255,7 @@ margin_bottom = 14.0
 rect_min_size = Vector2( 150, 0 )
 text = "Leave a comment"
 underline = 1
-script = SubResource( 12 )
+script = SubResource( 5 )
 
 [node name="LinkButton3" type="LinkButton" parent="margin/vbox/center-links/hbox-links"]
 modulate = Color( 0.101961, 0.737255, 0.611765, 1 )
@@ -265,7 +265,7 @@ margin_bottom = 14.0
 rect_min_size = Vector2( 150, 0 )
 text = "Git repository"
 underline = 1
-script = SubResource( 13 )
+script = SubResource( 6 )
 [connection signal="toggled" from="margin/vbox/vbox-options/cbk-fullscreen" to="." method="_on_basecheckbox_toggled"]
 [connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-local" to="." method="_on_btplaylocal_pressed"]
 [connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-online" to="." method="_on_btplayonline_pressed"]
