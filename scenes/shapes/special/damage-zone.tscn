@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="Animation" id=1]
+resource_name = "flashing"
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:self_modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0.1, 1 ),
+"transitions": PoolRealArray( 1, 0.999999 ),
+"update": 0,
+"values": [ Color( 1, 0, 0, 0 ), Color( 1, 0, 0, 0.498039 ) ]
+}
+
+[node name="damage-zone" type="Node2D"]
+
+[node name="damage-rectangle" type="Polygon2D" parent="."]
+self_modulate = Color( 1, 0, 0, 0.498039 )
+color = Color( 1, 0, 0, 0.498039 )
+polygon = PoolVector2Array( 0, 0, 600, 0, 600, 384, 0, 384 )
+
+[node name="anim" type="AnimationPlayer" parent="damage-rectangle"]
+autoplay = "flashing"
+anims/flashing = SubResource( 1 )

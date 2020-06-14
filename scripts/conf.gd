@@ -49,6 +49,9 @@ var default = {
 	'TRIS_SHAPE_BULLET_SPEED': {'init': 100, 'levelup': default_increase},
 	'TRIS_SHAPE_MAX_FRIENDS': 1,
 	'TRIS_SHAPE_DOWN_INTERVAL': {'init': 2, 'levelup': default_decrease},  # one square down every X seconds
+	'BOSS_ZONE_NB_BULLETS': 9,  # (will be 10 at level 2 - first boss)
+	'BOSS_ZONE_INTERVAL': 5.5,  # (will be 5 at level 2 - first boss)
+	'BOSS_ZONE_DURATION': 5.5,  # (will be 5 at level 2 - first boss)
 }
 
 
@@ -87,6 +90,13 @@ func level_up(level):
 		init_conf()
 		debug_speed()
 		return
+	
+	# increase nb bullets fired by bosses (+ 2 bullets each boss)
+	current.BOSS_ZONE_NB_BULLETS += 1
+	
+	# decrease time between bosses attacks (-1 second each boss, minimum 2 seconds)
+	current.BOSS_ZONE_INTERVAL -= 0.5
+	current.BOSS_ZONE_DURATION -= 0.5
 	
 	# increase nb enemies to spawn
 	current.TRIS_SHAPE_NB_ENEMIES += 1
