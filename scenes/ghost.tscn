@@ -62,5 +62,15 @@ texture = ExtResource( 3 )
 [node name="collision-shape" type="CollisionShape2D" parent="."]
 position = Vector2( 20, 20 )
 shape = SubResource( 3 )
+
+[node name="timer_switch_behaviour" type="Timer" parent="."]
+wait_time = 10.0
+autostart = true
+
+[node name="timer_switch_base" type="Timer" parent="."]
+wait_time = 22.0
+autostart = true
 [connection signal="animation_finished" from="sprite/anim" to="." method="_on_anim_animation_finished"]
 [connection signal="animation_started" from="sprite/anim" to="." method="_on_anim_animation_started"]
+[connection signal="timeout" from="timer_switch_behaviour" to="." method="_on_timer_switch_behaviour_timeout"]
+[connection signal="timeout" from="timer_switch_base" to="." method="_on_timer_switch_base_timeout"]

@@ -11,6 +11,11 @@ var maze_y_max = top_wall_row_y + nb_rows
 
 var allowed_dirs
 
+func get_maze_min_size():
+	return [maze_x_min, maze_y_min]
+
+func get_maze_max_size():
+	return [maze_x_max, maze_y_max-1]
 
 func is_in_maze(gridpos):
 	return gridpos.x >= maze_x_min and gridpos.x <= maze_x_max and gridpos.y >= maze_y_min and gridpos.y < maze_y_max

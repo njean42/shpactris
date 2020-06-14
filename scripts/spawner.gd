@@ -7,13 +7,6 @@ var time_since_last_ghost = 0
 var spawned_special = []
 onready var last_level_with_special = global.SHAPES_SPECIAL.keys().max()
 
-var colors = [
-	Color(231.0/255, 76.0/255, 60.0/255),  # red
-	Color(46.0/255, 204.0/255, 113.0/255), # green
-	Color(241.0/255, 196.0/255, 15.0/255), # yellow
-	Color(155.0/255, 89.0/255, 182.0/255), # purple
-]
-
 
 func _ready():
 	if not lobby.i_am_the_game():
@@ -66,23 +59,25 @@ func _physics_process(delta):
 		var pos = global.get_random_maze_pos()
 		
 		# choose random color from available ones
-		colors.shuffle()
-		var ghosts = get_tree().get_nodes_in_group('ghosts')
-		if ghosts.size()+1 <= conf.current.GHOSTS_MAX_NB_SIMULT:
-			var color = false
-			for c in colors:
+		var ghost_names = global.GHOSTS.keys()
+		ghost_names.shuffle()
+		var living_ghosts = get_tree().get_nodes_in_group('ghosts')
+		if living_ghosts.size()+1 <= conf.current.GHOSTS_MAX_NB_SIMULT:
+			var new_ghost = false
+			for g in ghost_names:
+				var c = global.GHOSTS[g]
 				var color_is_used = false
-				for g in ghosts:
-					if g != self and g.get_node('sprite').self_modulate == c:
+				for lg in living_ghosts:
+					if lg.ghost_name == g:
 						color_is_used = true
 				if not color_is_used:
-					color = c
+					new_ghost = g
 					break
 			
-			var ghost_name = 'ghost-' + str(ghost_i)
+			var name = 'ghost-' + str(ghost_i)
 			ghost_i += 1
-			rpc("spawn_ghost",pos,color,ghost_name)
-			spawn_ghost(pos,color,ghost_name)
+			rpc("spawn_ghost",pos,new_ghost,name)
+			spawn_ghost(pos,new_ghost,name)
 	
 	# spawn new shape
 	time_since_last_shape += delta
@@ -114,10 +109,11 @@ puppet func spawn_special_shape(s,shape_name):
 	$'/root/world/tris-shapes'.add_child(shape)
 
 
-puppet func spawn_ghost(pos,color,ghost_name):
+puppet func spawn_ghost(pos,ghost_name,instance_name):
 	global.remove_milestones()
 	var ghost = global.GHOST.instance()
 	ghost.position = pos
-	ghost.get_node('sprite').self_modulate = color
-	ghost.name = ghost_name
+	ghost.get_node('sprite').self_modulate = global.GHOSTS[ghost_name]
+	ghost.ghost_name = ghost_name
+	ghost.name = instance_name
 	$'/root/world/ghosts'.add_child(ghost)

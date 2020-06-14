@@ -27,6 +27,7 @@ const HEART = preload('res://scenes/items/heart.tscn')
 const BUBBLE = preload('res://scenes/items/bubble.tscn')
 const SLOW_MO = preload('res://scenes/items/slow-mo.tscn')
 const SCENE_MILESTONE = preload('res://scenes/debug/milestone.tscn')
+const SCENE_BASE = preload('res://scenes/debug/base.tscn')
 const SHAPES = [
 	preload('res://scenes/shapes/regular/tris-shape-bar.tscn'),
 	preload('res://scenes/shapes/regular/tris-shape-L.tscn'),
@@ -43,6 +44,13 @@ var SHAPES_SPECIAL = {
 	2: SHAPE_SPECIAL_CROSS,
 	4: SHAPE_SPECIAL_STAIRS,
 	6: SHAPE_SPECIAL_U,
+}
+
+const GHOSTS = {
+	'BLINKY': Color(231.0/255, 76.0/255, 60.0/255),  # red
+	'CLYDE': Color(241.0/255, 196.0/255, 15.0/255),  # yellow
+	'INKY': Color(46.0/255, 204.0/255, 113.0/255),   # green
+	'PINKY': Color(155.0/255, 89.0/255, 182.0/255),  # purple
 }
 
 enum {
@@ -155,9 +163,25 @@ func milestone(x,y,dir,color=Color(0.05,0.05,0.05)):
 	milestone.global_position = global.grid_to_pos(Vector2(x,y)) + dir * 10
 	$'/root/world'.add_child(milestone)
 
-func remove_milestones(gridpos=false):
+func remove_milestones(gridpos = false, color = null):
 	var milestones = get_tree().get_nodes_in_group('milestones')
 	for m in milestones:
+		if color != null && m.modulate != color:
+			continue
+		if not gridpos or attach_pos_to_grid(m.position) == gridpos:
+			m.queue_free()
+
+func show_base(x,y,dir,color=Color(0.05,0.05,0.05)):
+	var base = SCENE_BASE.instance()
+	base.modulate = color
+	base.global_position = global.grid_to_pos(Vector2(x,y)) + dir * 10
+	$'/root/world'.add_child(base)
+
+func remove_base(gridpos = false, color = null):
+	var base = get_tree().get_nodes_in_group('bases')
+	for m in base:
+		if color != null && m.modulate != color:
+			continue
 		if not gridpos or attach_pos_to_grid(m.position) == gridpos:
 			m.queue_free()
 
