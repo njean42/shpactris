@@ -184,7 +184,7 @@ margin_top = 53.0
 margin_right = 400.0
 margin_bottom = 67.0
 size_flags_horizontal = 8
-text = "v1.0 - online beta"
+text = "v1.1"
 align = 2
 
 [node name="vbox-options" type="VBoxContainer" parent="margin/vbox"]
