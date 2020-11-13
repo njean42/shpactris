@@ -48,7 +48,7 @@ var SHAPES_SPECIAL = {
 
 const GHOSTS = {
 	'BLINKY': Color(231.0/255, 76.0/255, 60.0/255),  # red
-	'CLYDE': Color(241.0/255, 196.0/255, 15.0/255),  # yellow
+	'CLYDE': Color(241.0/255, 196.0/255, 15.0/255),  # orange
 	'INKY': Color(46.0/255, 204.0/255, 113.0/255),   # green
 	'PINKY': Color(155.0/255, 89.0/255, 182.0/255),  # purple
 }

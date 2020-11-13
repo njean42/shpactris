@@ -142,11 +142,11 @@ func find_destination():
 	
 	var pacman = $'/root/world/pacman'
 	match ghost_name:
-		'BLINKY':
+		'BLINKY':  # red
 			# default behaviour: chase pacman
 			pacman_grid_pos = global.pos_to_grid(pacman.position)
 		
-		'INKY':
+		'INKY':  # green
 			# INKY switches between chasing pacman an returning to base
 			# its base changes from time to time
 			
@@ -160,7 +160,7 @@ func find_destination():
 			else:
 				pacman_grid_pos = current_base
 		
-		'CLYDE':
+		'CLYDE':  # orange
 			# CLYDE chases pacman if BLINKY is not present
 			# if it is, CLYDE targets a cell that's opposite to BLINKY's position, relatively to pacman
 			# this practically results in BLINKY and CLYDE surrounding pacman!
@@ -187,7 +187,7 @@ func find_destination():
 			
 			pacman_grid_pos = destination
 		
-		'PINKY':
+		'PINKY':  # purple
 			# pinky targets X cells ahead of pacman (depending on pacman orientation)
 			pacman_grid_pos = global.pos_to_grid(pacman.position)
 			
