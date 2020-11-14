@@ -19,7 +19,7 @@ var PLAYERS = {
 	'pacman': null
 }
 
-var SERVER_COMPATIBILITY = 'online-beta3'
+var SERVER_COMPATIBILITY = 'v1.2'
 
 # preload scenes to be added in-game
 const GHOST = preload('res://scenes/ghost.tscn')
