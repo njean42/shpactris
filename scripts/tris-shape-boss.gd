@@ -9,7 +9,10 @@ func _ready():
 	# shoot quicker
 	bullet_interval = conf.current.TRIS_SHAPE_BULLET_INTERVAL / 2
 	
-	# TODO online: only the server should handle the damage zone
+	# only the games handles the damage zone
+	if not lobby.i_am_the_game():
+		return
+	
 	var timer = Timer.new()
 	timer.name = 'damage_zone_timer'
 	timer.connect("timeout",self,"fire_enemy_damage_zone")
@@ -63,8 +66,8 @@ func fire_enemy_damage_zone():
 		Vector2(polygon[0], polygon[3]),  # bottom-left
 	])
 	
-	$'/root/world/damage-zone/damage-rectangle'.polygon = polygon
-	$'/root/world/damage-zone'.visible = true
+	rpc("show_damage_zone",polygon)
+	show_damage_zone(polygon)
 
 
 func damage_player_with_rectangle():
@@ -78,8 +81,21 @@ func damage_player_with_rectangle():
 			coords += Vector2(global.GRID_SIZE/2,global.GRID_SIZE/2)
 		
 		if rect.has_point(coords):
-			character.get_hurt() # TODO: sync online!
+			rpc("hurt",c)
+			hurt(c)
 	
 	# hide damage zone and start timer for the next one
-	$'/root/world/damage-zone'.visible = false
+	rpc("hide_damage_zone")
+	hide_damage_zone()
 	$damage_zone_timer.start()
+
+
+puppet func show_damage_zone(polygon):
+	$'/root/world/damage-zone/damage-rectangle'.polygon = polygon
+	$'/root/world/damage-zone'.visible = true
+
+puppet func hide_damage_zone():
+	$'/root/world/damage-zone'.visible = false
+
+puppet func hurt(who):
+	$'/root/world'.get_node(who).get_hurt()
