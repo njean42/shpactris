@@ -4,6 +4,7 @@ var direction = null
 var prev_dir = 'right'
 var speed = false
 var is_shadow = false
+var use_mouse = global.PLAYERS.mouse == 'pacman'
 
 var SHADOW = null
 var MAX_ENEMY_BULLETS = 8
@@ -30,27 +31,23 @@ var time_since_last_rpc = 0
 func move(delta):
 	
 	var prev_pos = position
-	var prev_rot = find_node('sprite').rotation_degrees
 	
 	var velocity = Vector2()
 	var new_rot = null
 	match direction:
 		'right':
 			velocity.x = 1
-			new_rot = 0
 		'left':
 			velocity.x = -1
-			new_rot = 180
 		'down':
 			velocity.y = 1
-			new_rot = 90
 		'up':
 			velocity.y = -1
-			new_rot = -90
 	
-	if new_rot != null and new_rot != prev_rot:
-		rpc("set_rot",new_rot)
-		set_rot(new_rot)
+	if direction == null and use_mouse:
+		direction = next_mouse_dir()
+	
+	set_rot_from_direction()
 	
 	if direction != null:
 		var c = move_and_collide(velocity * speed * delta)
@@ -69,6 +66,35 @@ func move(delta):
 		$'/root/world/pacman'.pacman_free_shadow(name)
 
 
+func set_rot_from_direction():
+	var dir = direction
+	if dir == null and use_mouse:
+		dir = mouse_facing()
+	
+	var new_rot = null
+	match dir:
+		'right':
+			new_rot = 0
+		'left':
+			new_rot = 180
+		'down':
+			new_rot = 90
+		'up':
+			new_rot = -90
+	
+	var prev_rot = find_node('sprite').rotation_degrees
+	if new_rot != null and new_rot != prev_rot:
+		rpc("set_rot",new_rot)
+		set_rot(new_rot)
+
+
+func mouse_facing():
+	var facing = get_global_mouse_position() - position
+	if abs(facing.x) > abs(facing.y):
+		return 'left' if sign(facing.x) < 0 else 'right'
+	return 'up' if sign(facing.y) < 0 else 'down'
+
+
 puppet func set_pos(pos):
 	position = pos
 
@@ -76,6 +102,8 @@ puppet func set_rot(rot):
 	find_node('sprite').rotation_degrees = rot
 
 
+var path2mouse = []
+var prev_right_click_pressed = false
 func player_move():
 	direction = null
 	speed = conf.current.PACMAN_SPEED  # may have been updated (level up)
@@ -92,6 +120,15 @@ func player_move():
 	elif Input.is_action_pressed(mode+"pacman_up"):
 		direction = 'up'
 	
+	# enable mouse control
+	if use_mouse:
+		if direction == null:
+			direction = next_mouse_dir()
+	
+		# face direction given by mouse (even when mouse is on pacman)
+		if direction == null:
+			set_rot_from_direction()
+	
 	# Stay on intersections (~cells) when Pacman stops moving
 	if prev_dir != null and direction == null:
 		position = global.attach_pos_to_grid(position)
@@ -103,10 +140,46 @@ func player_move():
 	
 	prev_dir = direction
 	
-	if Input.is_action_just_pressed(mode+'pacman_fire_shadow'):
+	var right_click_pressed = Input.is_mouse_button_pressed(BUTTON_RIGHT)
+	
+	if Input.is_action_just_pressed(mode+'pacman_fire_shadow') or use_mouse and not prev_right_click_pressed and right_click_pressed:
 		fire_shadow()
-	if Input.is_action_just_released(mode+'pacman_fire_shadow'):
+	if Input.is_action_just_released(mode+'pacman_fire_shadow') or use_mouse and prev_right_click_pressed and not right_click_pressed:
 		teleport()
+	
+	prev_right_click_pressed = right_click_pressed
+
+
+func next_mouse_dir():
+	if path2mouse.size() == 0:
+		return null
+	
+	var next_cell = global.grid_to_pos(path2mouse[0])
+	var vect2cell = next_cell - position
+	if vect2cell.length() < global.GRID_SIZE / 10:
+		path2mouse.pop_front()
+		if path2mouse.size() == 0:  # done moving
+			return null
+		next_cell = global.grid_to_pos(path2mouse[0])
+		vect2cell = next_cell - position
+	
+	if abs(vect2cell.x) > abs(vect2cell.y):
+		return 'left' if sign(vect2cell.x) < 0 else 'right'
+	return 'up' if sign(vect2cell.y) < 0 else 'down'
+
+
+func _input(event):
+	if not use_mouse or not lobby.i_am_pacman():
+		return
+	
+	if event is InputEventMouseButton and event.is_pressed() and event.button_index == BUTTON_LEFT:
+		var mousepos = event.position - Vector2(global.GRID_SIZE/2,global.GRID_SIZE/2)
+		path2mouse = global.path_find(
+			global.pos_to_grid(self.position),
+			global.pos_to_grid(mousepos),
+			Color.yellow
+		)
+		get_tree().set_input_as_handled()
 
 
 func collide(c):
@@ -121,6 +194,9 @@ func collide(c):
 		position = global.attach_pos_to_grid(position)
 		position = position + c.get_normal().normalized() * global.GRID_SIZE/4
 		direction = null
+		
+		# stop trying to reach last click position (mouse gameplay)
+		path2mouse = []
 
 
 # absorb enemy bullet (gather around pacman)

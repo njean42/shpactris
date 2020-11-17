@@ -269,6 +269,9 @@ func friend_move(delta):
 	var mode = 'any_mode_' if global.PLAYERS.mode_1p or global.PLAYERS.pacman == null else '2p_mode_'
 	force_down = Input.is_action_just_pressed(mode+"pacman_drop") or force_down and Input.is_action_pressed(mode+"pacman_drop")
 	
+	if global.PLAYERS.mouse == 'pacman':
+		force_down = Input.is_mouse_button_pressed(BUTTON_MIDDLE)
+	
 	# move down one square
 	time_since_last_friend_move += delta
 	if not force_down and time_since_last_friend_move < conf.current.TRIS_SHAPE_DOWN_INTERVAL:

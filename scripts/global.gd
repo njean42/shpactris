@@ -16,7 +16,9 @@ var DEBUG = false
 
 var PLAYERS = {
 	'ship': null,
-	'pacman': null
+	'pacman': null,
+	'mode_1p': true,
+	'mouse': null
 }
 
 var SERVER_COMPATIBILITY = 'v1.2'
@@ -145,6 +147,66 @@ func get_shapes(statuses=null):
 			shapes.append(s)
 	
 	return shapes
+
+
+func path_find(from, to, colour=Color.white):
+	var paths = [[from]]
+	var known_cells = []
+	
+	if DEBUG:
+		remove_milestones(false,colour)
+	
+	var step = 0
+	while true:
+		step += 1
+		if step >= 100:
+			prints('[BUG] path_find: too many steps, giving up',step)  # DEBUG
+			break
+		
+		# try to extend current paths in all 4 directions
+		var new_paths = []
+		for p in paths:
+			var curr_cell = p[-1]
+			
+			for d in range(DIRECTIONS.size()):
+				var dir_text = DIRECTIONS_TEXT[d]
+				var dir_ok = walls.allowed_dirs[curr_cell.x][curr_cell.y][dir_text] == 0
+				
+				# don't try to go through walls
+				if not dir_ok:
+					continue
+				
+				var next_cell = curr_cell + DIRECTIONS[d]
+				# if another path already lands on next_cell, this path is useless
+				if next_cell in known_cells:
+					continue
+				known_cells.append(next_cell)
+				
+				# don't add cells that are already on the path (don't go back)
+				if next_cell in p:
+					continue
+				
+				# add this next_cell to the current path
+				new_paths.append(p.duplicate())
+				new_paths[-1].append(next_cell)
+				
+				# found destination!
+				if next_cell == to:
+					p.append(next_cell)
+					p.pop_front()  # remove ghost starting position (reached already)
+					if DEBUG:
+						for cell in p:
+							milestone(cell.x, cell.y, Vector2(), colour)
+					return p
+		
+		# no new paths, finished exploring
+		if new_paths.size() == 0:
+			break
+		
+		paths = new_paths
+	
+	return []
+
 
 func enemy_hit(who):
 	# earn gold

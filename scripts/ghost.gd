@@ -73,70 +73,6 @@ func _physics_process(delta):
 		collide(c)
 
 
-func path_to_pacman():
-	
-	# start at the ghosts (grid) position
-	var gridpos = global.pos_to_grid(position)
-	var paths = [ [gridpos] ]
-	
-	var pacman = $'/root/world/pacman'
-	var pacman_grid_pos = find_destination()
-	
-	var known_cells = []
-	
-	var step = 0
-	while true:
-		step += 1
-		if step >= 100:
-			prints('[BUG] path2pacman: too many steps, giving up',step)  # DEBUG
-			break
-		
-		# try to extend current paths in all 4 directions
-		var new_paths = []
-		for p in paths:
-			var curr_cell = p[-1]
-			
-			for d in range(global.DIRECTIONS.size()):
-				var dir_text = global.DIRECTIONS_TEXT[d]
-				var dir_ok = walls.allowed_dirs[curr_cell.x][curr_cell.y][dir_text] == 0
-				
-				# don't try to go through walls
-				if not dir_ok:
-					continue
-				
-				var next_cell = curr_cell + global.DIRECTIONS[d]
-				# if another path already lands on next_cell, this path is useless
-				if next_cell in known_cells:
-					continue
-				known_cells.append(next_cell)
-				
-				# don't add cells that are already on the path (don't go back)
-				if next_cell in p:
-					continue
-				
-				# add this next_cell to the current path
-				new_paths.append(p.duplicate())
-				new_paths[-1].append(next_cell)
-				
-				# found pacman!
-				if next_cell == pacman_grid_pos:
-					p.append(next_cell)
-					p.pop_front()  # remove ghost starting position (reached already)
-					if global.DEBUG:
-						for cell in p:
-							global.milestone(cell.x, cell.y, Vector2(), global.GHOSTS[ghost_name])
-					return p
-		
-		# no new paths, finished exploring
-		if new_paths.size() == 0:
-			rpc("die",'no_path2pacman')
-			die('no_path2pacman')
-			break
-		
-		paths = new_paths
-	
-	return []
-
 func find_destination():
 	var pacman_grid_pos
 	
@@ -282,13 +218,14 @@ func update_direction():
 		return
 	
 	position = global.attach_pos_to_grid(position)
-	var gridpos = global.pos_to_grid(position)
 	
-	if global.DEBUG:
-		global.remove_milestones(false, global.GHOSTS[ghost_name])
-	path2pacman = path_to_pacman()
+	var pacman_gridpos = global.pos_to_grid($'/root/world/pacman'.position)
+	path2pacman = global.path_find(global.pos_to_grid(position),pacman_gridpos,global.GHOSTS[ghost_name])
+	
 	if path2pacman.size() == 0:
-		path2pacman = [gridpos]  # already on pacman
+		rpc("die",'no_path2pacman')
+		die('no_path2pacman')
+		return
 	
 	rpc("set_pos",position,path2pacman)
 	set_pos(position,path2pacman)

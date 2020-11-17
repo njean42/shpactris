@@ -38,6 +38,13 @@ func _physics_process(delta):
 			var d = moves[m].dir
 			velocity[a] += move*d
 	
+	# enable moving with the mouse if the keyboard isn't used
+	var use_mouse = global.PLAYERS.mouse == 'ship'
+	if use_mouse and velocity.length() == 0:
+		var new_position = get_global_mouse_position()
+		velocity = new_position - position
+		velocity = velocity.normalized() if velocity.length() >= global.GRID_SIZE/4 else Vector2()
+	
 	if velocity.length() == 0:
 		time_moved = 0
 	else:
@@ -52,7 +59,7 @@ func _physics_process(delta):
 	
 	# shoot
 	time_since_last_bullet += delta
-	if Input.is_action_pressed(mode+"ship_shoot"):
+	if Input.is_action_pressed(mode+"ship_shoot") or use_mouse and Input.is_mouse_button_pressed(BUTTON_LEFT):
 		if time_since_last_bullet >= conf.current.SHIP_BULLET_RATE:
 			time_since_last_bullet = 0
 			var bullet_name = 'bullet-'+str(bullet_i)
@@ -62,7 +69,7 @@ func _physics_process(delta):
 	
 	# frost beam
 	time_since_last_frost_beam += delta
-	if Input.is_action_just_pressed(mode+"ship_frost_beam"):
+	if Input.is_action_just_pressed(mode+"ship_frost_beam") or use_mouse and Input.is_mouse_button_pressed(BUTTON_RIGHT):
 		if time_since_last_frost_beam >= conf.current.SHIP_FROST_BEAM_RATE:
 			if frost_beam():
 				time_since_last_frost_beam = 0
