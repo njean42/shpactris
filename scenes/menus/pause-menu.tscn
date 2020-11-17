@@ -60,11 +60,11 @@ margin_bottom = 110.0
 text = "continue"
 
 [node name="bt-back-to-menu" parent="margin/center-title/vbox-buttons" instance=ExtResource( 4 )]
-margin_left = 25.0
+margin_left = 39.0
 margin_top = 114.0
-margin_right = 125.0
+margin_right = 111.0
 margin_bottom = 153.0
-text = "menu"
+text = "exit"
 
 [node name="timer" type="Timer" parent="."]
 pause_mode = 2
