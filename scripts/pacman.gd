@@ -7,7 +7,6 @@ var is_shadow = false
 var use_mouse = global.PLAYERS.mouse == 'pacman'
 
 var SHADOW = null
-var MAX_ENEMY_BULLETS = 8
 
 const BULLET_SPRITE = preload('res://scenes/shapes/enemy-bullet-sprite.tscn')
 
@@ -206,7 +205,7 @@ remote func absorb_bullet():
 	
 	# display
 	var nb_bullets = bullets_list.get_children().size()
-	var angle = 2*PI / MAX_ENEMY_BULLETS * nb_bullets
+	var angle = 2*PI / conf.current.PACMAN_MAX_ENEMY_BULLETS * nb_bullets
 	var pos = Vector2(global.GRID_SIZE/2,global.GRID_SIZE/2) + (Vector2.UP * global.GRID_SIZE/2).rotated(angle)
 	
 	var bullet = BULLET_SPRITE.instance()
@@ -218,7 +217,7 @@ remote func absorb_bullet():
 	nb_bullets += 1
 	
 	# random power-up when pacman gathers X bullets
-	if nb_bullets >= MAX_ENEMY_BULLETS:
+	if nb_bullets >= conf.current.PACMAN_MAX_ENEMY_BULLETS:
 		for b in bullets_list.get_children():
 			b.queue_free()
 		bullet.queue_free()

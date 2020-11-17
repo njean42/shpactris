@@ -32,6 +32,7 @@ var default = {
 	'SHIP_BULLET_SPEED': {'init': 500, 'levelup': default_increase},
 	
 	'PACMAN_SPEED': {'init': 200, 'levelup': default_increase},
+	'PACMAN_MAX_ENEMY_BULLETS': 8,
 	
 	'PACMAN_WALLS_MOVE_INTERVAL': {'init': 1, 'levelup': default_decrease},
 	
@@ -104,6 +105,7 @@ func level_up(level):
 	# more simultaneous tetris shapes, more ghosts
 	current.TRIS_SHAPE_MAX_ENEMIES_SIMULT += 0.5
 	current.GHOSTS_MAX_NB_SIMULT = min(4,current.GHOSTS_MAX_NB_SIMULT+0.5)
+	current.PACMAN_MAX_ENEMY_BULLETS = max(5,current.PACMAN_MAX_ENEMY_BULLETS-0.5)
 	
 	# make the game more difficult: increase or decrease conf parameters
 	for k in current:
