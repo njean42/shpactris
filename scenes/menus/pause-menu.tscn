@@ -68,7 +68,7 @@ text = "exit"
 
 [node name="timer" type="Timer" parent="."]
 pause_mode = 2
-wait_time = 3.0
+wait_time = 1.5
 [connection signal="pressed" from="margin/center-title/vbox-buttons/bt-continue" to="." method="_on_btcontinue_pressed"]
 [connection signal="pressed" from="margin/center-title/vbox-buttons/bt-back-to-menu" to="." method="_on_btbacktomenu_pressed"]
 [connection signal="timeout" from="timer" to="." method="_on_timer_timeout"]
