@@ -68,6 +68,8 @@ func check_tetris_lines():
 			else:
 				# create a new set containing this one line
 				full_line_sets[y] = [y]
+			
+			hint.display('tris_lines_frost_beam')
 		y -= 1
 	
 	# check for full lines and make them disappear

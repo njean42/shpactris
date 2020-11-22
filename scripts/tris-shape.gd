@@ -261,6 +261,11 @@ puppet func sync_fire_enemy_bullet(pos,i,type,dir):
 
 
 func friend_move(delta):
+	hint.display('tris_shape_friended')
+	hint.display('tris_shape_friended2')
+	hint.display('tris_shape_ship_freeze')
+	hint.display('tris_shape_down')
+	
 	if not lobby.i_am_pacman():
 		return
 	

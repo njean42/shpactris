@@ -215,6 +215,7 @@ remote func absorb_bullet():
 	bullets_list.add_child(bullet)
 	
 	nb_bullets += 1
+	hint.display('pacman_collect_bullets')
 	
 	# random power-up when pacman gathers X bullets
 	if nb_bullets >= conf.current.PACMAN_MAX_ENEMY_BULLETS:

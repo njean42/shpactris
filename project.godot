@@ -25,6 +25,7 @@ conf="*res://scripts/conf.gd"
 global="*res://scripts/global.gd"
 walls="*res://scripts/pacman-walls.gd"
 lobby="*res://scripts/lobby.gd"
+hint="*res://scripts/hints.gd"
 
 [display]
 

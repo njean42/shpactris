@@ -53,6 +53,8 @@ puppet func really_start_game():
 	
 	# unpause players
 	$'/root/world/HUD/pause-menu'.players_ready()
+	
+	hint.display('move_ship_and_pacman')
 
 
 func _on_network_peer_disconnected(peer_id):

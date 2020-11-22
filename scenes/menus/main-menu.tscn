@@ -21,6 +21,11 @@ func _ready():
 	# go fullscreen?
 	if global.get_user_data('fullscreen') and not OS.window_fullscreen:
 		find_node('cbk-fullscreen').set_pressed(true)
+	
+	# show hints?
+	var show_hints = global.get_user_data('show_hints')
+	if show_hints != null:
+		find_node('cbk-hints').set_pressed(show_hints)
 
 
 func _on_btplaylocal_pressed():
@@ -35,9 +40,14 @@ func _on_btexit_pressed():
 	get_tree().quit()
 
 
-func _on_basecheckbox_toggled(button_pressed):
+func _on_cbkfullscreen_toggled(button_pressed):
 	OS.window_fullscreen = button_pressed
 	global.save_user_data({'fullscreen': button_pressed})
+
+
+func _on_cbkhints_toggled(button_pressed):
+	hint.show = button_pressed
+	global.save_user_data({'show_hints': button_pressed})
 "
 
 [sub_resource type="DynamicFontData" id=2]
@@ -188,17 +198,25 @@ text = "v1.2"
 align = 2
 
 [node name="vbox-options" type="VBoxContainer" parent="margin/vbox"]
-margin_left = 167.0
-margin_top = 289.0
-margin_right = 353.0
-margin_bottom = 330.0
+margin_left = 83.0
+margin_top = 267.0
+margin_right = 437.0
+margin_bottom = 353.0
 size_flags_horizontal = 6
 size_flags_vertical = 6
 
 [node name="cbk-fullscreen" parent="margin/vbox/vbox-options" instance=ExtResource( 6 )]
-margin_right = 186.0
+margin_left = 84.0
+margin_right = 270.0
 margin_bottom = 41.0
 text = "fullscreen"
+
+[node name="cbk-hints" parent="margin/vbox/vbox-options" instance=ExtResource( 6 )]
+margin_top = 45.0
+margin_right = 354.0
+margin_bottom = 86.0
+pressed = true
+text = "show hints (tutorial)"
 
 [node name="vbox-buttons" type="VBoxContainer" parent="margin/vbox"]
 margin_left = 126.0
@@ -266,7 +284,8 @@ rect_min_size = Vector2( 150, 0 )
 text = "Git repository"
 underline = 1
 script = SubResource( 6 )
-[connection signal="toggled" from="margin/vbox/vbox-options/cbk-fullscreen" to="." method="_on_basecheckbox_toggled"]
+[connection signal="toggled" from="margin/vbox/vbox-options/cbk-fullscreen" to="." method="_on_cbkfullscreen_toggled"]
+[connection signal="toggled" from="margin/vbox/vbox-options/cbk-hints" to="." method="_on_cbkhints_toggled"]
 [connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-local" to="." method="_on_btplaylocal_pressed"]
 [connection signal="pressed" from="margin/vbox/vbox-buttons/bt-play-online" to="." method="_on_btplayonline_pressed"]
 [connection signal="pressed" from="margin/vbox/vbox-buttons/bt-exit" to="." method="_on_btexit_pressed"]

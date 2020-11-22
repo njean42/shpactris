@@ -211,6 +211,8 @@ remote func set_pos(pos,path):
 	
 	if global.DEBUG:
 		global.milestone(next_cell.x,next_cell.y,Vector2(),global.GHOSTS[ghost_name])
+	
+	hint.display('ghost_spawned')
 
 
 func update_direction():

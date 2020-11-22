@@ -25,10 +25,15 @@ func _process(delta):
 func _physics_process(delta):
 	update_speed()
 	
-	if direction == null:  # may happen while the clients wait for the bullet direction
+	if direction == null:  # may happen while clients wait for this bullet direction
 		return
 	
 	position += direction.normalized()*speed*delta
+	
+	if position.y > global.SCREEN_SIZE.y / 2:
+		hint.display('tris_shape_shoot_ship')
+		hint.display('tris_shape_shoot_ship_shadow')
+		hint.display('tris_shape_shoot_ship_teleport')
 
 
 func update_speed():
